@@ -1,7 +1,7 @@
 {
     "color": "#EF6C00",
     "sub_categories": {
-        "GENERAL": {
+        "Modification": {
             "SetVariableAtIndex": {
                 "label": "Set Array Element",
                 "type": "ACTIONS",

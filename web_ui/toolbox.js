@@ -4,6 +4,21 @@ var TOOLBOX_CONFIG = {
     { 'kind': 'search', 'name': 'Search', 'contents': [] },
     {
       'kind': 'category',
+      'name': 'RULES',
+      'colour': '#7B1FA2',
+      'contents': [
+        {
+          'kind': 'category',
+          'name': 'Rule Definition',
+          'colour': '#7B1FA2',
+          'contents': [
+            { 'kind': 'block', 'type': 'RULE_HEADER' },
+          ]
+        },
+      ]
+    },
+    {
+      'kind': 'category',
       'name': 'ACTIONS',
       'colour': '#FBC02D',
       'contents': [
@@ -59,6 +74,30 @@ var TOOLBOX_CONFIG = {
             { 'kind': 'block', 'type': 'LessThanOrEqual' },
             { 'kind': 'block', 'type': 'GreaterThan' },
             { 'kind': 'block', 'type': 'GreaterThanOrEqual' },
+          ]
+        },
+      ]
+    },
+    {
+      'kind': 'category',
+      'name': 'SUBROUTINE',
+      'colour': '#795548',
+      'contents': [
+        {
+          'kind': 'category',
+          'name': 'Subroutine Definition',
+          'colour': '#795548',
+          'contents': [
+            { 'kind': 'block', 'type': 'SUBROUTINE_BLOCK' },
+          ]
+        },
+        {
+          'kind': 'category',
+          'name': 'Call Subroutine',
+          'colour': '#795548',
+          'contents': [
+            { 'kind': 'block', 'type': 'CallSubroutine' },
+            { 'kind': 'block', 'type': 'Return' },
           ]
         },
       ]
@@ -213,7 +252,7 @@ var TOOLBOX_CONFIG = {
       'contents': [
         {
           'kind': 'category',
-          'name': 'GENERAL',
+          'name': 'Modification',
           'colour': '#0097A7',
           'contents': [
             { 'kind': 'block', 'type': 'SetVariableAtIndex' },
@@ -706,6 +745,21 @@ var TOOLBOX_CONFIG = {
             { 'kind': 'block', 'type': 'EventTeam' },
             { 'kind': 'block', 'type': 'EventVictim' },
             { 'kind': 'block', 'type': 'EventWeapon' },
+          ]
+        },
+      ]
+    },
+    {
+      'kind': 'category',
+      'name': 'MOD',
+      'colour': '#333333',
+      'contents': [
+        {
+          'kind': 'category',
+          'name': 'Game Mode',
+          'colour': '#333333',
+          'contents': [
+            { 'kind': 'block', 'type': 'MOD_BLOCK' },
           ]
         },
       ]

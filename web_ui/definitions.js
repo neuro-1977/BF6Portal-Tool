@@ -2461,6 +2461,29 @@ Blockly.defineBlocksWithJsonArray(
     "output": null
   },
   {
+    "type": "MOD_BLOCK",
+    "message0": "MOD %1 %2 %3 ",
+    "args0": [
+      {
+        "type": "field_input",
+        "name": "FIELD_VALUE",
+        "text": "MyGameMode"
+      },
+      {
+        "type": "input_value",
+        "name": "mod_name"
+      },
+      {
+        "type": "input_value",
+        "name": "description"
+      }
+    ],
+    "colour": "#4A4A4A",
+    "tooltip": "",
+    "helpUrl": "",
+    "nextStatement": null
+  },
+  {
     "type": "SetObjectiveState",
     "message0": "SetObjectiveState %1 %2 ",
     "args0": [
@@ -2852,6 +2875,81 @@ Blockly.defineBlocksWithJsonArray(
     ],
     "colour": "#C2185B",
     "tooltip": "Teleports the player to a location",
+    "helpUrl": "",
+    "previousStatement": null,
+    "nextStatement": null
+  },
+  {
+    "type": "RULE_HEADER",
+    "message0": "RULE %1 %2 %3 %4 %5 ",
+    "args0": [
+      {
+        "type": "field_input",
+        "name": "FIELD_VALUE",
+        "text": "New Rule"
+      },
+      {
+        "type": "input_value",
+        "name": "rule_name"
+      },
+      {
+        "type": "input_value",
+        "name": "event_type"
+      },
+      {
+        "type": "input_value",
+        "name": "scope"
+      },
+      {
+        "type": "input_value",
+        "name": "is_global"
+      }
+    ],
+    "colour": "#7B1FA2",
+    "tooltip": "",
+    "helpUrl": "",
+    "nextStatement": null
+  },
+  {
+    "type": "SUBROUTINE_BLOCK",
+    "message0": "SUBROUTINE %1 %2 ",
+    "args0": [
+      {
+        "type": "field_input",
+        "name": "FIELD_VALUE",
+        "text": "NewSubroutine"
+      },
+      {
+        "type": "input_value",
+        "name": "subroutine_name"
+      }
+    ],
+    "colour": "#795548",
+    "tooltip": "",
+    "helpUrl": "",
+    "nextStatement": null
+  },
+  {
+    "type": "CallSubroutine",
+    "message0": "Call Subroutine %1 ",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "subroutine_name"
+      }
+    ],
+    "colour": "#795548",
+    "tooltip": "Executes a subroutine",
+    "helpUrl": "",
+    "previousStatement": null,
+    "nextStatement": null
+  },
+  {
+    "type": "Return",
+    "message0": "Return",
+    "args0": [],
+    "colour": "#795548",
+    "tooltip": "Returns from the current subroutine",
     "helpUrl": "",
     "previousStatement": null,
     "nextStatement": null
