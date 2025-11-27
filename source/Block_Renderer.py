@@ -1,6 +1,7 @@
 import tkinter as tk
 from block_shapes import BlockShapes
 from tkinter import ttk
+import math
 
 class BlockRenderer:
     """
@@ -11,6 +12,68 @@ class BlockRenderer:
         self.canvas = editor.canvas
         self.CHILD_BLOCK_WIDTH = editor.CHILD_BLOCK_WIDTH
         self.CHILD_BLOCK_HEIGHT = editor.CHILD_BLOCK_HEIGHT
+
+    def draw_grid(self):
+        """Draw a background grid on the canvas based on current zoom.
+
+        Grid lines are tagged with 'grid' so they can be cleared/redrawn.
+        """
+        try:
+            canvas = self.canvas
+            # remove old grid lines
+            try:
+                canvas.delete("grid")
+            except Exception:
+                pass
+
+            # Compute visible area - use full scrollregion to cover entire canvas
+            scrollregion = canvas.cget("scrollregion")
+            if scrollregion:
+                coords = [float(x) for x in scrollregion.split()]
+                left, top, right, bottom = coords[0], coords[1], coords[2], coords[3]
+            else:
+                # Fallback to visible area
+                left = canvas.canvasx(0)
+                top = canvas.canvasy(0)
+                right = canvas.canvasx(canvas.winfo_width())
+                bottom = canvas.canvasy(canvas.winfo_height())
+
+            # Base spacing (logical) and effective spacing considering zoom
+            base = getattr(self.editor, "BASE_GRID", 20)
+            spacing = max(8, base * self.editor.zoom_scale)
+            minor_spacing = spacing / 2
+
+            # Start positions aligned to spacing grid
+            start_x = (math.floor(left / spacing) * spacing) if spacing else left
+            x = start_x
+            # Draw minor vertical lines first (lighter)
+            minor_color = "#2a2a2a"
+            major_color = "#333333"
+            while x <= right:
+                # minor lines between major ones
+                mx = x + minor_spacing
+                if mx < right:
+                    canvas.create_line(mx, top, mx, bottom, fill=minor_color, width=1, tag="grid")
+                # major line
+                canvas.create_line(x, top, x, bottom, fill=major_color, width=1, tag="grid")
+                x += spacing
+
+            start_y = (math.floor(top / spacing) * spacing) if spacing else top
+            y = start_y
+            while y <= bottom:
+                my = y + minor_spacing
+                if my < bottom:
+                    canvas.create_line(left, my, right, my, fill=minor_color, width=1, tag="grid")
+                canvas.create_line(left, y, right, y, fill=major_color, width=1, tag="grid")
+                y += spacing
+
+            # Ensure grid is at the very back
+            try:
+                canvas.tag_lower("grid")
+            except Exception:
+                pass
+        except Exception:
+            pass
 
     def draw_block(self, block_id):
         """Draws or updates the visual representation of a block."""

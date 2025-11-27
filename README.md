@@ -34,6 +34,24 @@ python .\source\Block_Editor.py
 - **Code Output**: Live editable code preview pane with bidirectional sync
 - **Import/Export**: Save and load workspaces as JSON files
 
+## Codebase Architecture
+
+The project is organized into modular components for maintainability:
+
+- **`source/`**: Core application code
+  - **`Block_Editor.py`**: Main application entry point and controller.
+  - **`Block_Renderer.py`**: Handles all visual drawing on the canvas (blocks, grid, connections).
+  - **`Input_Handler.py`**: Manages user input (mouse clicks, drags, keyboard shortcuts).
+  - **`Sidebar_Manager.py`**: Manages the left sidebar (categories, search, block spawning).
+  - **`TopBar_Manager.py`**: Manages the top toolbar (Import/Export, Analyze) and zoom controls.
+  - **`Block_Mover.py`**: Handles block movement and snapping logic.
+  - **`Block_Data_Manager.py`**: Loads and manages block definitions from JSON assets.
+  - **`Code_Generator.py`**: Generates text code from the visual block structure.
+  - **`workspace_loader.py`**: Handles loading saved workspaces from JSON.
+- **`assets/`**: JSON data files defining block behavior and appearance.
+- **`docs/`**: Documentation and reference materials.
+- **`tools/`**: Helper scripts for cataloging and maintenance.
+
 ## Usage
 
 ### Creating Blocks
