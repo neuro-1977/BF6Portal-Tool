@@ -122,6 +122,74 @@
       trashcan: true
     });
 
+    // Search Functionality
+    document.getElementById('blockSearch').addEventListener('input', function(e) {
+      var searchTerm = e.target.value.toLowerCase();
+      
+      if (!searchTerm) {
+        workspace.updateToolbox(TOOLBOX_CONFIG);
+        return;
+      }
+
+      // Filter the toolbox config
+      var newToolbox = {
+        kind: 'categoryToolbox',
+        contents: []
+      };
+
+      // Helper to search recursively
+      function searchCategory(category) {
+        var matchingBlocks = [];
+        
+        if (category.contents) {
+          category.contents.forEach(item => {
+            if (item.kind === 'block') {
+              if (item.type.toLowerCase().includes(searchTerm)) {
+                matchingBlocks.push(item);
+              }
+            } else if (item.kind === 'category') {
+              // Recursive search in subcategories
+              var subResults = searchCategory(item);
+              if (subResults.length > 0) {
+                 // If subcategory has matches, add them (flattened or structured?)
+                 // Let's flatten for search results to make it easy to find
+                 matchingBlocks = matchingBlocks.concat(subResults);
+              }
+            }
+          });
+        }
+        return matchingBlocks;
+      }
+
+      // Iterate top level categories
+      TOOLBOX_CONFIG.contents.forEach(cat => {
+        if (cat.kind === 'category') {
+           var matches = searchCategory(cat);
+           if (matches.length > 0) {
+             // Create a filtered category
+             newToolbox.contents.push({
+               kind: 'category',
+               name: cat.name,
+               colour: cat.colour,
+               contents: matches,
+               expanded: true // Expand to show results
+             });
+           }
+        }
+      });
+      
+      // If no matches found, show empty
+      if (newToolbox.contents.length === 0) {
+          newToolbox.contents.push({
+              kind: 'category',
+              name: 'No Results',
+              contents: []
+          });
+      }
+
+      workspace.updateToolbox(newToolbox);
+    });
+
     // Custom Context Menu Registry
     // 1. Refresh Workspace
     Blockly.ContextMenuRegistry.registry.register({
