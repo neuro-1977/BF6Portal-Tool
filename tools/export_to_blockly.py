@@ -149,17 +149,58 @@ def generate_blockly_definitions(workspace_root):
             except Exception as e:
                 print(f"Error processing {data_file}: {e}")
 
-    return block_definitions, toolbox_categories
+    # Load Help Data
+    help_data = {}
+    help_file = assets_dir / "block_help.json"
+    if help_file.exists():
+        try:
+            with open(help_file, 'r', encoding='utf-8') as f:
+                help_data = json.load(f)
+        except Exception as e:
+            print(f"Error loading help data: {e}")
 
-def write_output(definitions, toolbox, output_dir):
+    # Image Mapping (Simple heuristic for now)
+    # Map generic types to specific images if available
+    image_map = {
+        "MOD": "assets/img/BF6Portal/mod help.jpg",
+        "RULES": "assets/img/BF6Portal/ruleshelp.jpg",
+        "CONDITIONS": "assets/img/BF6Portal/condition help.jpg",
+        "ACTIONS": "assets/img/BF6Portal/control actions.jpg", # Fallback
+        "EVENTS": "assets/img/BF6Portal/event payloads1.jpg",
+        "MATH": "assets/img/BF6Portal/math1.jpg",
+        "LOGIC": "assets/img/BF6Portal/logic1.jpg",
+        "ARRAYS": "assets/img/BF6Portal/arrays.jpg",
+        "AUDIO": "assets/img/BF6Portal/audio.jpg",
+        "CAMERA": "assets/img/BF6Portal/camera.jpg",
+        "EFFECTS": "assets/img/BF6Portal/effects.jpg",
+        "GAMEPLAY": "assets/img/BF6Portal/gameplay1.jpg",
+        "OBJECTIVE": "assets/img/BF6Portal/objective1.jpg",
+        "PLAYER": "assets/img/BF6Portal/player 1.jpg",
+        "TRANSFORM": "assets/img/BF6Portal/transform.jpg",
+        "VEHICLE": "assets/img/BF6Portal/vehicle 1.jpg",
+        "UI": "assets/img/BF6Portal/user interface1.jpg"
+    }
+
+    return block_definitions, toolbox_categories, help_data, image_map
+
+def write_output(definitions, toolbox, help_data, image_map, output_dir):
     # Write definitions.js
     with open(os.path.join(output_dir, "definitions.js"), "w", encoding='utf-8') as f:
         f.write("Blockly.defineBlocksWithJsonArray(\n")
         json.dump(definitions, f, indent=2)
-        f.write("\n);")
+        f.write("\n);\n\n")
         
-    # Write toolbox.xml (or json structure for toolbox)
-    # We'll write a JS object that can be used to init the toolbox
+        # Write Help Data
+        f.write("var BLOCK_HELP = ")
+        json.dump(help_data, f, indent=2)
+        f.write(";\n\n")
+        
+        # Write Image Map
+        f.write("var BLOCK_IMAGES = ")
+        json.dump(image_map, f, indent=2)
+        f.write(";\n")
+        
+    # Write toolbox.js
     with open(os.path.join(output_dir, "toolbox.js"), "w", encoding='utf-8') as f:
         f.write("var TOOLBOX_CONFIG = {\n")
         f.write("  'kind': 'categoryToolbox',\n")
@@ -182,6 +223,6 @@ if __name__ == "__main__":
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     web_dir = os.path.join(root_dir, "web_ui")
     
-    defs, tools = generate_blockly_definitions(root_dir)
-    write_output(defs, tools, web_dir)
+    defs, tools, help_d, imgs = generate_blockly_definitions(root_dir)
+    write_output(defs, tools, help_d, imgs, web_dir)
     print(f"Generated {len(defs)} block definitions in {web_dir}")

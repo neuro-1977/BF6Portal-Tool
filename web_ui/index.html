@@ -18,10 +18,69 @@
       height: 100%;
       width: 100%;
     }
+    /* Help Modal Styles */
+    .modal {
+      display: none; 
+      position: fixed; 
+      z-index: 1000; 
+      left: 0;
+      top: 0;
+      width: 100%; 
+      height: 100%; 
+      overflow: auto; 
+      background-color: rgba(0,0,0,0.7); 
+    }
+    .modal-content {
+      background-color: #2d2d2d;
+      margin: 10% auto; 
+      padding: 20px;
+      border: 1px solid #444;
+      width: 60%; 
+      color: #eee;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover,
+    .close:focus {
+      color: #fff;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .help-image {
+      max-width: 100%;
+      height: auto;
+      margin-top: 10px;
+      border: 1px solid #555;
+    }
+    .help-section {
+      margin-bottom: 15px;
+    }
+    .help-section h3 {
+      border-bottom: 1px solid #555;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+      color: #4fc3f7;
+    }
   </style>
 </head>
 <body>
   <div id="blocklyDiv"></div>
+
+  <!-- Help Modal -->
+  <div id="helpModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="helpTitle">Block Help</h2>
+      <div id="helpBody"></div>
+    </div>
+  </div>
 
   <script>
     // Initialize Blockly
@@ -45,6 +104,98 @@
       },
       trashcan: true
     });
+
+    // Custom Context Menu Registry
+    // 1. Refresh Workspace
+    Blockly.ContextMenuRegistry.registry.register({
+      displayText: 'Refresh Workspace',
+      preconditionFn: function(scope) {
+        return 'enabled';
+      },
+      callback: function(scope) {
+        location.reload();
+      },
+      scopeType: Blockly.ContextMenuRegistry.ScopeType.WORKSPACE,
+      id: 'refresh_workspace',
+      weight: 0, // Top of the list
+    });
+
+    // 2. Block Help
+    Blockly.ContextMenuRegistry.registry.register({
+      displayText: 'Show Help',
+      preconditionFn: function(scope) {
+        return 'enabled';
+      },
+      callback: function(scope) {
+        var block = scope.block;
+        showHelp(block.type);
+      },
+      scopeType: Blockly.ContextMenuRegistry.ScopeType.BLOCK,
+      id: 'show_block_help',
+      weight: 100,
+    });
+
+    // Help Modal Logic
+    var modal = document.getElementById("helpModal");
+    var span = document.getElementsByClassName("close")[0];
+    var helpTitle = document.getElementById("helpTitle");
+    var helpBody = document.getElementById("helpBody");
+
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    function showHelp(blockType) {
+      // Try to find help data
+      // 1. Direct match in BLOCK_HELP
+      // 2. Category match (e.g. all MATH blocks might share help if not specific)
+      
+      var data = BLOCK_HELP[blockType];
+      var image = BLOCK_IMAGES[blockType];
+      
+      // Fallback: Try to find category-level image if no specific image
+      if (!image) {
+         // Simple heuristic: check if blockType starts with a category name
+         for (var key in BLOCK_IMAGES) {
+             if (blockType.startsWith(key)) {
+                 image = BLOCK_IMAGES[key];
+                 break;
+             }
+         }
+      }
+
+      var html = "";
+      
+      if (data) {
+        helpTitle.innerText = data.title || blockType;
+        html += `<div class="help-section"><p>${data.description || "No description available."}</p></div>`;
+        
+        if (data.usage && data.usage.length > 0) {
+            html += `<div class="help-section"><h3>Usage</h3><ul>`;
+            data.usage.forEach(u => html += `<li>${u}</li>`);
+            html += `</ul></div>`;
+        }
+        
+        if (data.tips && data.tips.length > 0) {
+            html += `<div class="help-section"><h3>Tips</h3><ul>`;
+            data.tips.forEach(t => html += `<li>${t}</li>`);
+            html += `</ul></div>`;
+        }
+      } else {
+        helpTitle.innerText = blockType;
+        html += `<p>No specific help data available for this block.</p>`;
+      }
+
+      if (image) {
+        html += `<div class="help-section"><h3>Reference Image</h3><img src="${image}" class="help-image" alt="${blockType} Reference"></div>`;
+      }
+
+      helpBody.innerHTML = html;
+      modal.style.display = "block";
+    }
   </script>
-</body>
-</html>
