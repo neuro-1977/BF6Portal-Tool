@@ -50,44 +50,6 @@
                 "param_icons": {"value_a": "123", "value_b": "123"},
                 "description": "Returns true if A is greater than or equal to B"
             }
-        },
-        "Logic": {
-            "And": {
-                "label": "And",
-                "type": "CONDITIONS",
-                "args": ["condition_a", "condition_b"],
-                "param_labels": {"condition_a": "", "condition_b": "And"},
-                "param_icons": {"condition_a": "⚙", "condition_b": "⚙"},
-                "description": "Returns true if both conditions are true"
-            },
-            "Or": {
-                "label": "Or",
-                "type": "CONDITIONS",
-                "args": ["condition_a", "condition_b"],
-                "param_labels": {"condition_a": "", "condition_b": "Or"},
-                "param_icons": {"condition_a": "⚙", "condition_b": "⚙"},
-                "description": "Returns true if either condition is true"
-            },
-            "Not": {
-                "label": "Not",
-                "type": "CONDITIONS",
-                "args": ["condition"],
-                "param_labels": {"condition": "Not"},
-                "param_icons": {"condition": "⚙"},
-                "description": "Returns the opposite of the condition"
-            },
-            "True": {
-                "label": "True",
-                "type": "CONDITIONS",
-                "args": [],
-                "description": "Boolean true value"
-            },
-            "False": {
-                "label": "False",
-                "type": "CONDITIONS",
-                "args": [],
-                "description": "Boolean false value"
-            }
         }
     }
 }

@@ -61,18 +61,6 @@ var TOOLBOX_CONFIG = {
             { 'kind': 'block', 'type': 'GreaterThanOrEqual' },
           ]
         },
-        {
-          'kind': 'category',
-          'name': 'Logic',
-          'colour': '#43A047',
-          'contents': [
-            { 'kind': 'block', 'type': 'And' },
-            { 'kind': 'block', 'type': 'Or' },
-            { 'kind': 'block', 'type': 'Not' },
-            { 'kind': 'block', 'type': 'True' },
-            { 'kind': 'block', 'type': 'False' },
-          ]
-        },
       ]
     },
     {
