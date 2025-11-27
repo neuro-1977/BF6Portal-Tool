@@ -200,7 +200,16 @@ class BlockRenderer:
         
         # Check for custom widget definitions (from JSON)
         widgets_def = block.get("widgets", {})
-        args_def = block.get("args", [])
+        
+        # Determine argument keys (Portal style 'inputs' or legacy 'args')
+        arg_keys = []
+        if "inputs" in block and block["inputs"]:
+            arg_keys = list(block["inputs"].keys())
+        elif "args" in block:
+            if isinstance(block["args"], list):
+                arg_keys = block["args"]
+            elif isinstance(block["args"], dict):
+                arg_keys = list(block["args"].keys())
         
         # If no custom widgets, use default label and render args
         if not widgets_def:
@@ -217,18 +226,24 @@ class BlockRenderer:
             self._bind_drag_events(lbl, block_id)
             
             # Render Arguments (Inputs)
-            if args_def:
+            if arg_keys:
                 # Container for args to keep them neat
                 args_frame = tk.Frame(frame, bg=block.get("color", "#555555"))
                 args_frame.pack(side="left", padx=5)
                 self._bind_drag_events(args_frame, block_id)
                 
-                for arg in args_def:
+                for arg in arg_keys:
+                    # Get label and icon
+                    label_text = block.get("param_labels", {}).get(arg, arg)
+                    icon = block.get("param_icons", {}).get(arg, "")
+                    
+                    display_text = f"{icon} {label_text}" if icon else label_text
+
                     # Create a visual "socket" or label for the argument
                     # For now, a small label with a distinct background
                     arg_lbl = tk.Label(
                         args_frame,
-                        text=arg,
+                        text=display_text,
                         bg="#333333", # Darker background for input slot
                         fg="#aaaaaa",
                         font=("Arial", 8),

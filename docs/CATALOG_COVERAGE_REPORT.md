@@ -4,8 +4,8 @@ Generated on: 27/11/2025
 
 **Summary:**
 - Total Expected Blocks: 207
-- Total Implemented Blocks: 180
-- Coverage: 86%
+- Total Implemented Blocks: 197
+- Coverage: 95%
 
 ---
 
@@ -274,31 +274,37 @@ Progress: 1/16 (6.2%)
 
 ---
 ## LOGIC
-Progress: 5/12 (41.7%)
+Progress: 10/12 (83.3%)
 
 ### ❌ Missing
-- And
-- False
 - For Each
-- Not
 - Null
-- Or
-- True
 
 ### ✅ Implemented
+- And
 - Break
 - Continue
+- False
 - For Variable
 - If
+- Not
+- Or
+- True
 - While
 
 ### ⚠️ Extra / Unmatched Names
+- Equal
+- Greater Than
+- Greater Than Or Equal
+- Less Than
+- Less Than Or Equal
+- Not Equal
 - Wait
 - Wait Until
 
 ---
 ## MATH
-Progress: 9/23 (39.1%)
+Progress: 10/23 (43.5%)
 
 ### ❌ Missing
 - Clamp
@@ -312,7 +318,6 @@ Progress: 9/23 (39.1%)
 - Number constant
 - Power
 - Random Number
-- Round
 - Sin
 - Tan
 
@@ -324,6 +329,7 @@ Progress: 9/23 (39.1%)
 - Min
 - Modulo
 - Multiply
+- Round
 - Square Root
 - Subtract
 
@@ -331,7 +337,9 @@ Progress: 9/23 (39.1%)
 - Arc Cosine
 - Arc Sine
 - Arc Tangent
+- Ceiling
 - Cosine
+- Floor
 - Raise To Power
 - Random Integer
 - Random Real
@@ -375,7 +383,7 @@ Progress: 0/0 (0.0%)
 
 ---
 ## PLAYER
-Progress: 1/21 (4.8%)
+Progress: 2/21 (9.5%)
 
 ### ❌ Missing
 - Enable Player Input
@@ -383,7 +391,6 @@ Progress: 1/21 (4.8%)
 - Get Player Health
 - Get Player Input
 - Get Player Name
-- Get Player Position
 - Get Player Score
 - Get Player Team
 - Get Player Velocity
@@ -400,9 +407,11 @@ Progress: 1/21 (4.8%)
 - Teleport Player
 
 ### ✅ Implemented
+- Get Player Position
 - Set Player Health
 
 ### ⚠️ Extra / Unmatched Names
+- Enable Input
 - Event Player
 - Facing Direction Of
 - Health

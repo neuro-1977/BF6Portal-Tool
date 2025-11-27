@@ -72,6 +72,23 @@
                 "description": "Returns base raised to the power of exponent"
             }
         },
+        "Trigonometry": {
+            "Sin": { "label": "Sine", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} },
+            "Cos": { "label": "Cosine", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} },
+            "Tan": { "label": "Tangent", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} },
+            "Asin": { "label": "Arc Sine", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} },
+            "Acos": { "label": "Arc Cosine", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} },
+            "Atan": { "label": "Arc Tangent", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} }
+        },
+        "Rounding": {
+            "Round": { "label": "Round", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} },
+            "Ceil": { "label": "Ceiling", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} },
+            "Floor": { "label": "Floor", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} }
+        },
+        "Random": {
+            "RandomReal": { "label": "Random Real", "type": "VALUE", "args": ["min", "max"], "param_icons": {"min": "123", "max": "123"} },
+            "RandomInteger": { "label": "Random Integer", "type": "VALUE", "args": ["min", "max"], "param_icons": {"min": "123", "max": "123"} }
+        },
         "Functions": {
             "AbsoluteValue": {
                 "label": "Absolute Value",

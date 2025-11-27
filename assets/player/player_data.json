@@ -238,6 +238,33 @@
                 },
                 "description": "Modifies a player variable"
             }
+        },
+        "Input": {
+            "EnablePlayerInput": {
+                "label": "Enable Input",
+                "type": "ACTIONS",
+                "args": ["player", "enable"],
+                "param_labels": {"player": "Player", "enable": "Enable"},
+                "param_icons": {"player": "👤", "enable": "⚙"},
+                "description": "Enables or disables player input"
+            }
+        },
+        "Transform": {
+            "GetPlayerPosition": {
+                "label": "Get Player Position",
+                "type": "VALUE",
+                "args": ["player"],
+                "param_icons": {"player": "👤"},
+                "description": "Returns the position vector of the player"
+            },
+            "Teleport": {
+                "label": "Teleport",
+                "type": "ACTIONS",
+                "args": ["player", "position", "rotation"],
+                "param_labels": {"player": "Player", "position": "Position", "rotation": "Rotation"},
+                "param_icons": {"player": "👤", "position": "📍", "rotation": "🔄"},
+                "description": "Teleports the player to a location"
+            }
         }
     }
 }

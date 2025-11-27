@@ -61,6 +61,85 @@
                 "description": "Repeats nested blocks while condition is true"
             }
         },
+        "Boolean Logic": {
+            "And": {
+                "label": "And",
+                "type": "VALUE",
+                "args": ["a", "b"],
+                "param_icons": {"a": "⚙", "b": "⚙"},
+                "description": "Returns True if both inputs are True"
+            },
+            "Or": {
+                "label": "Or",
+                "type": "VALUE",
+                "args": ["a", "b"],
+                "param_icons": {"a": "⚙", "b": "⚙"},
+                "description": "Returns True if either input is True"
+            },
+            "Not": {
+                "label": "Not",
+                "type": "VALUE",
+                "args": ["a"],
+                "param_icons": {"a": "⚙"},
+                "description": "Returns the opposite boolean value"
+            },
+            "True": {
+                "label": "True",
+                "type": "VALUE",
+                "args": [],
+                "description": "Boolean True value"
+            },
+            "False": {
+                "label": "False",
+                "type": "VALUE",
+                "args": [],
+                "description": "Boolean False value"
+            }
+        },
+        "Comparison": {
+            "Equal": {
+                "label": "Equal",
+                "type": "VALUE",
+                "args": ["a", "b"],
+                "param_icons": {"a": "123", "b": "123"},
+                "description": "Returns True if inputs are equal"
+            },
+            "NotEqual": {
+                "label": "Not Equal",
+                "type": "VALUE",
+                "args": ["a", "b"],
+                "param_icons": {"a": "123", "b": "123"},
+                "description": "Returns True if inputs are not equal"
+            },
+            "GreaterThan": {
+                "label": "Greater Than",
+                "type": "VALUE",
+                "args": ["a", "b"],
+                "param_icons": {"a": "123", "b": "123"},
+                "description": "Returns True if A > B"
+            },
+            "LessThan": {
+                "label": "Less Than",
+                "type": "VALUE",
+                "args": ["a", "b"],
+                "param_icons": {"a": "123", "b": "123"},
+                "description": "Returns True if A < B"
+            },
+            "GreaterThanEqual": {
+                "label": "Greater Than Or Equal",
+                "type": "VALUE",
+                "args": ["a", "b"],
+                "param_icons": {"a": "123", "b": "123"},
+                "description": "Returns True if A >= B"
+            },
+            "LessThanEqual": {
+                "label": "Less Than Or Equal",
+                "type": "VALUE",
+                "args": ["a", "b"],
+                "param_icons": {"a": "123", "b": "123"},
+                "description": "Returns True if A <= B"
+            }
+        },
         "Loops": {
             "ForVariable": {
                 "label": "ForVariable",
