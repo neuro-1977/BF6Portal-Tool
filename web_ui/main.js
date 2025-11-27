@@ -14,10 +14,45 @@ var workspace = Blockly.inject('blocklyDiv', {
   grid: {
     spacing: 20,
     length: 3,
-    colour: '#ccc',
+    colour: '#444',
     snap: true
   },
   trashcan: true
+});
+
+// Initialize Default MOD Block
+var modBlock = workspace.newBlock('MOD_BLOCK');
+modBlock.initSvg();
+modBlock.render();
+modBlock.moveBy(50, 50);
+
+// Save/Load Functionality
+document.getElementById('saveBtn').addEventListener('click', function() {
+  var xml = Blockly.Xml.workspaceToDom(workspace);
+  var xmlText = Blockly.Xml.domToPrettyText(xml);
+  var blob = new Blob([xmlText], {type: 'text/xml'});
+  var a = document.createElement('a');
+  a.download = 'portal_rules.xml';
+  a.href = URL.createObjectURL(blob);
+  a.click();
+});
+
+document.getElementById('loadBtn').addEventListener('click', function() {
+  document.getElementById('loadInput').click();
+});
+
+document.getElementById('loadInput').addEventListener('change', function(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var xmlText = e.target.result;
+    var xml = Blockly.Xml.textToDom(xmlText);
+    workspace.clear();
+    Blockly.Xml.domToWorkspace(xml, workspace);
+  };
+  reader.readAsText(file);
 });
 
 // Search Functionality
