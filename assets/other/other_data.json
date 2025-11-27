@@ -1,0 +1,12 @@
+{
+    "color": "#757575",
+    "sub_categories": {
+        "GENERAL": {
+            "Comment": {
+                "label": "Comment",
+                "type": "ACTIONS",
+                "args": ["text"]
+            }
+        }
+    }
+}

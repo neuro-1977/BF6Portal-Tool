@@ -1,0 +1,191 @@
+{
+    "color": "#1565C0",
+    "sub_categories": {
+        "Position": {
+            "Vector": {
+                "label": "Vector",
+                "type": "VALUE",
+                "args": ["x", "y", "z"],
+                "param_labels": {
+                    "x": "X",
+                    "y": "Y",
+                    "z": "Z"
+                },
+                "param_icons": {
+                    "x": "123",
+                    "y": "123",
+                    "z": "123"
+                },
+                "description": "Creates a vector from X, Y, Z components"
+            },
+            "VectorTowards": {
+                "label": "Vector Towards",
+                "type": "VALUE",
+                "args": ["start_pos", "end_pos"],
+                "param_labels": {
+                    "start_pos": "Start",
+                    "end_pos": "End"
+                },
+                "param_icons": {
+                    "start_pos": "📍",
+                    "end_pos": "📍"
+                },
+                "description": "Creates a direction vector from start to end"
+            },
+            "DistanceBetween": {
+                "label": "Distance Between",
+                "type": "VALUE",
+                "args": ["position_a", "position_b"],
+                "param_labels": {
+                    "position_a": "Position A",
+                    "position_b": "Position B"
+                },
+                "param_icons": {
+                    "position_a": "📍",
+                    "position_b": "📍"
+                },
+                "description": "Returns distance between two positions"
+            },
+            "XComponentOf": {
+                "label": "X Component Of",
+                "type": "VALUE",
+                "args": ["vector"],
+                "param_labels": {
+                    "vector": "Vector"
+                },
+                "param_icons": {
+                    "vector": "📍"
+                },
+                "description": "Returns the X component of a vector"
+            },
+            "YComponentOf": {
+                "label": "Y Component Of",
+                "type": "VALUE",
+                "args": ["vector"],
+                "param_labels": {
+                    "vector": "Vector"
+                },
+                "param_icons": {
+                    "vector": "📍"
+                },
+                "description": "Returns the Y component of a vector"
+            },
+            "ZComponentOf": {
+                "label": "Z Component Of",
+                "type": "VALUE",
+                "args": ["vector"],
+                "param_labels": {
+                    "vector": "Vector"
+                },
+                "param_icons": {
+                    "vector": "📍"
+                },
+                "description": "Returns the Z component of a vector"
+            }
+        },
+        "Vector Operations": {
+            "Normalize": {
+                "label": "Normalize",
+                "type": "VALUE",
+                "args": ["vector"],
+                "param_labels": {
+                    "vector": "Vector"
+                },
+                "param_icons": {
+                    "vector": "📍"
+                },
+                "description": "Returns a normalized vector (length 1)"
+            },
+            "DotProduct": {
+                "label": "Dot Product",
+                "type": "VALUE",
+                "args": ["vector_a", "vector_b"],
+                "param_labels": {
+                    "vector_a": "Vector A",
+                    "vector_b": "Vector B"
+                },
+                "param_icons": {
+                    "vector_a": "📍",
+                    "vector_b": "📍"
+                },
+                "description": "Returns the dot product of two vectors"
+            },
+            "CrossProduct": {
+                "label": "Cross Product",
+                "type": "VALUE",
+                "args": ["vector_a", "vector_b"],
+                "param_labels": {
+                    "vector_a": "Vector A",
+                    "vector_b": "Vector B"
+                },
+                "param_icons": {
+                    "vector_a": "📍",
+                    "vector_b": "📍"
+                },
+                "description": "Returns the cross product of two vectors"
+            },
+            "VectorMagnitude": {
+                "label": "Magnitude Of",
+                "type": "VALUE",
+                "args": ["vector"],
+                "param_labels": {
+                    "vector": "Vector"
+                },
+                "param_icons": {
+                    "vector": "📍"
+                },
+                "description": "Returns the length of a vector"
+            }
+        },
+        "Directions": {
+            "Up": {
+                "label": "Up",
+                "type": "VALUE",
+                "args": [],
+                "param_labels": {},
+                "param_icons": {},
+                "description": "Returns the up direction vector (0, 1, 0)"
+            },
+            "Down": {
+                "label": "Down",
+                "type": "VALUE",
+                "args": [],
+                "param_labels": {},
+                "param_icons": {},
+                "description": "Returns the down direction vector (0, -1, 0)"
+            },
+            "Left": {
+                "label": "Left",
+                "type": "VALUE",
+                "args": [],
+                "param_labels": {},
+                "param_icons": {},
+                "description": "Returns the left direction vector (-1, 0, 0)"
+            },
+            "Right": {
+                "label": "Right",
+                "type": "VALUE",
+                "args": [],
+                "param_labels": {},
+                "param_icons": {},
+                "description": "Returns the right direction vector (1, 0, 0)"
+            },
+            "Forward": {
+                "label": "Forward",
+                "type": "VALUE",
+                "args": [],
+                "param_labels": {},
+                "param_icons": {},
+                "description": "Returns the forward direction vector (0, 0, 1)"
+            },
+            "Backward": {
+                "label": "Backward",
+                "type": "VALUE",
+                "args": [],
+                "param_labels": {},
+                "param_icons": {},
+                "description": "Returns the backward direction vector (0, 0, -1)"
+            }
+        }
+    }
+}

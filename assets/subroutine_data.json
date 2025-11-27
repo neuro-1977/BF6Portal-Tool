@@ -1,0 +1,28 @@
+{
+    "color": "#7E3F96",
+    "sub_categories": {
+        "Subroutine Definition": {
+            "SUBROUTINE_BLOCK": {
+                "label": "SUBROUTINE",
+                "type": "SUBROUTINE",
+                "args": ["subroutine_name"],
+                "has_input_field": true,
+                "input_type": "text",
+                "default_value": "NewSubroutine",
+                "widgets": {
+                    "subroutine_name": {"type": "text_input", "default": "NewSubroutine"}
+                }
+            }
+        },
+        "Call Subroutine": {
+            "CALL_SUBROUTINE": {
+                "label": "Call Subroutine",
+                "type": "SEQUENCE",
+                "args": ["subroutine_name"],
+                "widgets": {
+                    "subroutine_name": {"type": "dropdown", "options": ["NewSubroutine"], "default": "NewSubroutine"}
+                }
+            }
+        }
+    }
+}

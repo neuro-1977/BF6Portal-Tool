@@ -1,0 +1,17 @@
+{
+    "color": "#558B2F",
+    "sub_categories": {
+        "GENERAL": {
+            "SpawnVehicle": {
+                "label": "SpawnVehicle",
+                "type": "ACTIONS",
+                "args": ["vehicle_type", "position", "rotation"]
+            },
+            "DestroyVehicle": {
+                "label": "DestroyVehicle",
+                "type": "ACTIONS",
+                "args": ["vehicle"]
+            }
+        }
+    }
+}

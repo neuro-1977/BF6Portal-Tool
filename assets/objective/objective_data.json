@@ -1,0 +1,17 @@
+{
+    "color": "#F9A825",
+    "sub_categories": {
+        "GENERAL": {
+            "SetObjectiveState": {
+                "label": "SetObjectiveState",
+                "type": "ACTIONS",
+                "args": ["objective", "state"]
+            },
+            "GetObjectiveState": {
+                "label": "GetObjectiveState",
+                "type": "VALUE",
+                "args": ["objective"]
+            }
+        }
+    }
+}

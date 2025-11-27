@@ -1,0 +1,243 @@
+{
+    "color": "#EF6C00",
+    "sub_categories": {
+        "GENERAL": {
+            "SetVariableAtIndex": {
+                "label": "SetVariableAtIndex",
+                "type": "ACTIONS",
+                "args": ["variable", "index", "value"],
+                "description": "Sets a value at a specific index in an array variable"
+            }
+        },
+        "Creation": {
+            "EmptyArray": {
+                "label": "Empty Array",
+                "type": "VALUE",
+                "args": [],
+                "param_labels": {},
+                "param_icons": {},
+                "description": "Creates an empty array"
+            },
+            "ArrayFromPlayers": {
+                "label": "All Players",
+                "type": "VALUE",
+                "args": ["team"],
+                "param_labels": {
+                    "team": "Team"
+                },
+                "param_icons": {
+                    "team": "👥"
+                },
+                "description": "Creates an array of all players, optionally filtered by team"
+            },
+            "ArrayFromDeadPlayers": {
+                "label": "All Dead Players",
+                "type": "VALUE",
+                "args": ["team"],
+                "param_labels": {
+                    "team": "Team"
+                },
+                "param_icons": {
+                    "team": "👥"
+                },
+                "description": "Creates an array of all dead players"
+            },
+            "ArrayFromLivingPlayers": {
+                "label": "All Living Players",
+                "type": "VALUE",
+                "args": ["team"],
+                "param_labels": {
+                    "team": "Team"
+                },
+                "param_icons": {
+                    "team": "👥"
+                },
+                "description": "Creates an array of all living players"
+            }
+        },
+        "Manipulation": {
+            "AppendToArray": {
+                "label": "Append To Array",
+                "type": "VALUE",
+                "args": ["array", "value"],
+                "param_labels": {
+                    "array": "Array",
+                    "value": "Value"
+                },
+                "param_icons": {
+                    "array": "📋",
+                    "value": "⚙"
+                },
+                "description": "Adds a value to the end of an array"
+            },
+            "RemoveFromArray": {
+                "label": "Remove From Array",
+                "type": "VALUE",
+                "args": ["array", "value"],
+                "param_labels": {
+                    "array": "Array",
+                    "value": "Value"
+                },
+                "param_icons": {
+                    "array": "📋",
+                    "value": "⚙"
+                },
+                "description": "Removes a value from an array"
+            },
+            "RemoveFromArrayByIndex": {
+                "label": "Remove From Array By Index",
+                "type": "VALUE",
+                "args": ["array", "index"],
+                "param_labels": {
+                    "array": "Array",
+                    "index": "Index"
+                },
+                "param_icons": {
+                    "array": "📋",
+                    "index": "123"
+                },
+                "description": "Removes an element at a specific index"
+            },
+            "ArraySlice": {
+                "label": "Array Slice",
+                "type": "VALUE",
+                "args": ["array", "start_index", "count"],
+                "param_labels": {
+                    "array": "Array",
+                    "start_index": "Start Index",
+                    "count": "Count"
+                },
+                "param_icons": {
+                    "array": "📋",
+                    "start_index": "123",
+                    "count": "123"
+                },
+                "description": "Returns a portion of an array"
+            },
+            "RandomValueInArray": {
+                "label": "Random Value In Array",
+                "type": "VALUE",
+                "args": ["array"],
+                "param_labels": {
+                    "array": "Array"
+                },
+                "param_icons": {
+                    "array": "📋"
+                },
+                "description": "Returns a random element from the array"
+            }
+        },
+        "Access": {
+            "ValueInArray": {
+                "label": "Value In Array",
+                "type": "VALUE",
+                "args": ["array", "index"],
+                "param_labels": {
+                    "array": "Array",
+                    "index": "Index"
+                },
+                "param_icons": {
+                    "array": "📋",
+                    "index": "123"
+                },
+                "description": "Returns the value at the specified index"
+            },
+            "FirstOf": {
+                "label": "First Of",
+                "type": "VALUE",
+                "args": ["array"],
+                "param_labels": {
+                    "array": "Array"
+                },
+                "param_icons": {
+                    "array": "📋"
+                },
+                "description": "Returns the first element in the array"
+            },
+            "LastOf": {
+                "label": "Last Of",
+                "type": "VALUE",
+                "args": ["array"],
+                "param_labels": {
+                    "array": "Array"
+                },
+                "param_icons": {
+                    "array": "📋"
+                },
+                "description": "Returns the last element in the array"
+            },
+            "IndexOfArrayValue": {
+                "label": "Index Of Array Value",
+                "type": "VALUE",
+                "args": ["array", "value"],
+                "param_labels": {
+                    "array": "Array",
+                    "value": "Value"
+                },
+                "param_icons": {
+                    "array": "📋",
+                    "value": "⚙"
+                },
+                "description": "Returns the index of a value in the array"
+            }
+        },
+        "Query": {
+            "CountOf": {
+                "label": "Count Of",
+                "type": "VALUE",
+                "args": ["array"],
+                "param_labels": {
+                    "array": "Array"
+                },
+                "param_icons": {
+                    "array": "📋"
+                },
+                "description": "Returns the number of elements in the array"
+            },
+            "ArrayContains": {
+                "label": "Array Contains",
+                "type": "CONDITION",
+                "args": ["array", "value"],
+                "param_labels": {
+                    "array": "Array",
+                    "value": "Value"
+                },
+                "param_icons": {
+                    "array": "📋",
+                    "value": "⚙"
+                },
+                "description": "Returns true if array contains the value"
+            }
+        },
+        "Filtering": {
+            "FilteredArray": {
+                "label": "Filtered Array",
+                "type": "VALUE",
+                "args": ["array", "condition"],
+                "param_labels": {
+                    "array": "Array",
+                    "condition": "Condition"
+                },
+                "param_icons": {
+                    "array": "📋",
+                    "condition": "⚙"
+                },
+                "description": "Returns array with elements matching condition"
+            },
+            "SortedArray": {
+                "label": "Sorted Array",
+                "type": "VALUE",
+                "args": ["array", "value_rank"],
+                "param_labels": {
+                    "array": "Array",
+                    "value_rank": "Value Rank"
+                },
+                "param_icons": {
+                    "array": "📋",
+                    "value_rank": "⚙"
+                },
+                "description": "Returns a sorted copy of the array"
+            }
+        }
+    }
+}

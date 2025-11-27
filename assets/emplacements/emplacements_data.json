@@ -1,0 +1,12 @@
+{
+    "color": "#2E7D32",
+    "sub_categories": {
+        "GENERAL": {
+            "DeployEmplacement": {
+                "label": "DeployEmplacement",
+                "type": "ACTIONS",
+                "args": ["emplacement_id", "position", "rotation"]
+            }
+        }
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "color": "#2E7D32", 
+    "sub_categories": {
+        "Game Events": {
+            "ON_START": {"label": "On Game Start", "type": "EVENTS", "args": []},
+            "ON_PLAYER_JOIN": {"label": "On Player Join", "type": "EVENTS", "args": ["player"]}
+        }
+    }
+}

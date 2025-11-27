@@ -1,0 +1,62 @@
+{
+    "color": "#0277BD",
+    "sub_categories": {
+        "Literals": {
+            "Number": {
+                "label": "Number",
+                "type": "VALUE",
+                "args": [],
+                "has_input_field": true,
+                "input_type": "number",
+                "default_value": "0",
+                "description": "A numeric value",
+                "width": 100,
+                "height": 30
+            },
+            "String": {
+                "label": "String",
+                "type": "VALUE",
+                "args": [],
+                "has_input_field": true,
+                "input_type": "text",
+                "default_value": "",
+                "description": "A text value",
+                "width": 150,
+                "height": 30
+            },
+            "Boolean": {
+                "label": "Boolean",
+                "type": "VALUE",
+                "args": [],
+                "has_dropdown": true,
+                "dropdown_values": ["True", "False"],
+                "default_value": "True",
+                "description": "A true/false value",
+                "width": 120,
+                "height": 30
+            }
+        },
+        "Variables": {
+            "SetVariable": {
+                "label": "Set Variable",
+                "type": "ACTIONS",
+                "args": ["variable", "value"],
+                "param_labels": {"variable": "Variable", "value": "Value"},
+                "description": "Sets the value of a variable",
+                "width": 200,
+                "height": 30
+            },
+            "GetVariable": {
+                "label": "Get Variable",
+                "type": "VALUE",
+                "args": ["variable_name"],
+                "param_labels": {"variable_name": "Variable"},
+                "has_input_field": true,
+                "input_type": "text",
+                "description": "Gets the value of a variable",
+                "width": 180,
+                "height": 30
+            }
+        }
+    }
+}

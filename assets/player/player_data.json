@@ -1,0 +1,243 @@
+{
+    "color": "#00695C",
+    "sub_categories": {
+        "Player State": {
+            "EventPlayer": {
+                "label": "Event Player",
+                "type": "VALUE",
+                "args": [],
+                "param_labels": {},
+                "param_icons": {},
+                "description": "Returns the player that triggered the event"
+            },
+            "GetPlayerHealth": {
+                "label": "Health",
+                "type": "VALUE",
+                "args": ["player"],
+                "param_labels": {
+                    "player": "Player"
+                },
+                "param_icons": {
+                    "player": "👤"
+                },
+                "description": "Returns the player's current health"
+            },
+            "GetPlayerMaxHealth": {
+                "label": "Max Health",
+                "type": "VALUE",
+                "args": ["player"],
+                "param_labels": {
+                    "player": "Player"
+                },
+                "param_icons": {
+                    "player": "👤"
+                },
+                "description": "Returns the player's maximum health"
+            },
+            "IsPlayerAlive": {
+                "label": "Is Alive",
+                "type": "CONDITION",
+                "args": ["player"],
+                "param_labels": {
+                    "player": "Player"
+                },
+                "param_icons": {
+                    "player": "👤"
+                },
+                "description": "Returns true if player is alive"
+            },
+            "IsPlayerDead": {
+                "label": "Is Dead",
+                "type": "CONDITION",
+                "args": ["player"],
+                "param_labels": {
+                    "player": "Player"
+                },
+                "param_icons": {
+                    "player": "👤"
+                },
+                "description": "Returns true if player is dead"
+            },
+            "GetPlayerTeam": {
+                "label": "Team Of",
+                "type": "VALUE",
+                "args": ["player"],
+                "param_labels": {
+                    "player": "Player"
+                },
+                "param_icons": {
+                    "player": "👤"
+                },
+                "description": "Returns the player's team"
+            }
+        },
+        "Player Actions": {
+            "SetPlayerHealth": {
+                "label": "Set Player Health",
+                "type": "SEQUENCE",
+                "args": ["player", "health"],
+                "param_labels": {
+                    "player": "Player",
+                    "health": "Health"
+                },
+                "param_icons": {
+                    "player": "👤",
+                    "health": "123"
+                },
+                "description": "Sets the player's health to a specific value"
+            },
+            "KillPlayer": {
+                "label": "Kill",
+                "type": "SEQUENCE",
+                "args": ["player"],
+                "param_labels": {
+                    "player": "Player"
+                },
+                "param_icons": {
+                    "player": "👤"
+                },
+                "description": "Kills the specified player"
+            },
+            "RespawnPlayer": {
+                "label": "Respawn",
+                "type": "SEQUENCE",
+                "args": ["player"],
+                "param_labels": {
+                    "player": "Player"
+                },
+                "param_icons": {
+                    "player": "👤"
+                },
+                "description": "Respawns the specified player"
+            },
+            "TeleportPlayer": {
+                "label": "Teleport",
+                "type": "SEQUENCE",
+                "args": ["player", "position"],
+                "param_labels": {
+                    "player": "Player",
+                    "position": "Position"
+                },
+                "param_icons": {
+                    "player": "👤",
+                    "position": "📍"
+                },
+                "description": "Teleports player to a position"
+            },
+            "SetPlayerMaxHealth": {
+                "label": "Set Max Health",
+                "type": "SEQUENCE",
+                "args": ["player", "max_health"],
+                "param_labels": {
+                    "player": "Player",
+                    "max_health": "Max Health"
+                },
+                "param_icons": {
+                    "player": "👤",
+                    "max_health": "123"
+                },
+                "description": "Sets the player's maximum health"
+            }
+        },
+        "Player Info": {
+            "GetPlayerPosition": {
+                "label": "Position Of",
+                "type": "VALUE",
+                "args": ["player"],
+                "param_labels": {
+                    "player": "Player"
+                },
+                "param_icons": {
+                    "player": "👤"
+                },
+                "description": "Returns the player's position"
+            },
+            "GetPlayerVelocity": {
+                "label": "Velocity Of",
+                "type": "VALUE",
+                "args": ["player"],
+                "param_labels": {
+                    "player": "Player"
+                },
+                "param_icons": {
+                    "player": "👤"
+                },
+                "description": "Returns the player's velocity vector"
+            },
+            "GetPlayerSpeed": {
+                "label": "Speed Of",
+                "type": "VALUE",
+                "args": ["player"],
+                "param_labels": {
+                    "player": "Player"
+                },
+                "param_icons": {
+                    "player": "👤"
+                },
+                "description": "Returns the player's speed"
+            },
+            "GetPlayerFacingDirection": {
+                "label": "Facing Direction Of",
+                "type": "VALUE",
+                "args": ["player"],
+                "param_labels": {
+                    "player": "Player"
+                },
+                "param_icons": {
+                    "player": "👤"
+                },
+                "description": "Returns the direction the player is facing"
+            }
+        },
+        "Player Variables": {
+            "GetPlayerVariable": {
+                "label": "Player Variable",
+                "type": "VALUE",
+                "args": ["player", "variable"],
+                "param_labels": {
+                    "player": "Player",
+                    "variable": "Variable"
+                },
+                "param_icons": {
+                    "player": "👤",
+                    "variable": "📝"
+                },
+                "description": "Gets a player variable value"
+            },
+            "SetPlayerVariable": {
+                "label": "Set Player Variable",
+                "type": "SEQUENCE",
+                "args": ["player", "variable", "value"],
+                "param_labels": {
+                    "player": "Player",
+                    "variable": "Variable",
+                    "value": "Value"
+                },
+                "param_icons": {
+                    "player": "👤",
+                    "variable": "📝",
+                    "value": "⚙"
+                },
+                "description": "Sets a player variable to a value"
+            },
+            "ModifyPlayerVariable": {
+                "label": "Modify Player Variable",
+                "type": "SEQUENCE",
+                "args": ["player", "variable", "operation", "value"],
+                "param_labels": {
+                    "player": "Player",
+                    "variable": "Variable",
+                    "operation": "Operation",
+                    "value": "Value"
+                },
+                "param_icons": {
+                    "player": "👤",
+                    "variable": "📝",
+                    "operation": "⚙",
+                    "value": "123"
+                },
+                "description": "Modifies a player variable"
+            }
+        }
+    }
+}

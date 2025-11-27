@@ -1,0 +1,31 @@
+{
+    "color": "#039BE5",
+    "sub_categories": {
+        "UI Elements": {
+            "AddUIContainer": {
+                "label": "Add UI Container",
+                "type": "ACTIONS",
+                "args": ["id", "position", "rotation", "anchor", "player"],
+                "description": "Adds a UI container"
+            },
+            "AddUIText": {
+                "label": "Add UI Text",
+                "type": "ACTIONS",
+                "args": ["id", "position", "rotation", "anchor", "text", "player"],
+                "description": "Adds text to the UI"
+            }
+        },
+        "GENERAL": {
+            "ShowMessage": {
+                "label": "ShowMessage",
+                "type": "ACTIONS",
+                "args": ["message", "duration"]
+            },
+            "ShowNotification": {
+                "label": "ShowNotification",
+                "type": "ACTIONS",
+                "args": ["title", "message"]
+            }
+        }
+    }
+}

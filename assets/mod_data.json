@@ -1,0 +1,19 @@
+{
+    "color": "#4A4A4A",
+    "sub_categories": {
+        "Game Mode": {
+            "MOD_BLOCK": {
+                "label": "MOD",
+                "type": "MOD",
+                "args": ["mod_name", "description"],
+                "has_input_field": true,
+                "input_type": "text",
+                "default_value": "MyGameMode",
+                "widgets": {
+                    "mod_name": {"type": "text_input", "default": "MyGameMode"},
+                    "description": {"type": "text_input", "default": "Description"}
+                }
+            }
+        }
+    }
+}

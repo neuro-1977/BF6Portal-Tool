@@ -1,0 +1,42 @@
+{
+    "color": "#AB47BC",
+    "sub_categories": {
+        "GENERAL": {
+            "LoadMusic": {
+                "label": "LoadMusic",
+                "type": "ACTIONS",
+                "args": ["music_id"]
+            },
+            "PlayMusic": {
+                "label": "PlayMusic",
+                "type": "ACTIONS",
+                "args": ["music_id", "players"]
+            },
+            "SetMusicParam": {
+                "label": "SetMusicParam",
+                "type": "ACTIONS",
+                "args": ["music_id", "param", "players"]
+            },
+            "UnloadMusic": {
+                "label": "UnloadMusic",
+                "type": "ACTIONS",
+                "args": ["music_id"]
+            },
+            "PlaySound": {
+                "label": "PlaySound",
+                "type": "ACTIONS",
+                "args": ["sound_id", "position", "players", "volume", "pitch"]
+            },
+            "PlayVO": {
+                "label": "PlayVO",
+                "type": "ACTIONS",
+                "args": ["vo_id", "speaker", "listener", "players"]
+            },
+            "StopSound": {
+                "label": "StopSound",
+                "type": "ACTIONS",
+                "args": ["sound_id", "players"]
+            }
+        }
+    }
+}

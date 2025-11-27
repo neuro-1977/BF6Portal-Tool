@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "battlefield-portal-blocks"
+version = "1.0b1"
+description = "Visual block editor for Battlefield Portal scripts"
+authors = [ { name = "Your Name" } ]
+readme = "README.md"
+license = { text = "MIT" }
+dependencies = ["Pillow"]

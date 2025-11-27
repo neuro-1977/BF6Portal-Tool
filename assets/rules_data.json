@@ -1,0 +1,20 @@
+{
+    "color": "#7E3F96", 
+    "sub_categories": {
+        "Rule Definition": {
+            "RULE_HEADER": {
+                "label": "RULE", 
+                "type": "RULES", 
+                "args": ["rule_name", "event_type", "scope", "is_global"],
+                "has_input_field": true,
+                "input_type": "text",
+                "default_value": "New Rule",
+                "widgets": {
+                    "rule_name": {"type": "text_input", "default": "New Rule"},
+                    "event_type": {"type": "dropdown", "options": ["Ongoing", "OnPlayerJoin", "OnPlayerDeath", "OnPlayerSpawn"], "default": "Ongoing"},
+                    "scope": {"type": "dropdown", "options": ["Global", "Team", "Squad", "Player"], "default": "Global"}
+                }
+            }
+        }
+    }
+}

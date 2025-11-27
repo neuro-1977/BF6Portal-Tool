@@ -1,0 +1,115 @@
+{
+  "MOD": {
+    "title": "MOD Block",
+    "description": "The root container for all game logic. Every script must start with a MOD block. Think of it as the main container for your game mode modifications.",
+    "usage": [
+      "All RULES blocks must be placed inside a MOD block",
+      "Can contain multiple RULES and SUBROUTINE blocks",
+      "Defines the scope of your game mode modifications",
+      "Each MOD should have a unique identifier"
+    ],
+    "snap_info": "Purple snap point on left bar - RULES blocks snap here. The purple color indicates that only purple RULES blocks can connect.",
+    "tips": [
+      "Start every project with a MOD block - it's your foundation",
+      "Organize related RULES into the same MOD for better structure",
+      "Use descriptive names for your mod ID (e.g., 'CustomGameMode' not 'Mod1')",
+      "Keep MODs focused - separate different game modes into different MOD blocks"
+    ]
+  },
+  "RULES": {
+    "title": "RULES Block",
+    "description": "Defines a game rule with CONDITIONS and ACTIONS. Rules execute when their conditions are met. This is where the 'if-then' logic of your game mode lives.",
+    "usage": [
+      "Must be placed inside a MOD block (snap to purple point on MOD's left bar)",
+      "Can contain CONDITIONS blocks (snap to blue point on RULES left bar)",
+      "Can contain ACTIONS blocks (snap to yellow point on RULES left bar)",
+      "Can contain SUBROUTINE blocks (snap to brown point on RULES left bar)",
+      "Executes when all CONDITIONS are true"
+    ],
+    "snap_info": "Snaps to MOD's purple point. Has three snap points on left bar: blue (CONDITIONS), yellow (ACTIONS), and brown (SUBROUTINE)",
+    "tips": [
+      "Name rules descriptively to show their purpose (e.g., 'OnPlayerSpawn', 'WhenTeamWins', 'IfHealthLow')",
+      "Keep rules focused on a single behavior or event",
+      "Test rules individually before combining them",
+      "Use CONDITIONS to control when ACTIONS execute",
+      "Multiple ACTIONS in a rule execute sequentially"
+    ]
+  },
+  "CONDITIONS": {
+    "title": "CONDITIONS Block",
+    "description": "Defines when a RULE should execute. All conditions must be true for the rule to activate. Think of this as the 'if' part of an if-statement.",
+    "usage": [
+      "Must be placed inside a RULES block (snap to blue point on RULES left bar)",
+      "Can contain EVENTS blocks (snap to green point at bottom)",
+      "Multiple conditions are evaluated with AND logic (all must be true)",
+      "If conditions are false, the ACTIONS won't execute"
+    ],
+    "snap_info": "Snaps to RULES blue point on left bar. Has green snap point at bottom for EVENTS blocks",
+    "tips": [
+      "Use specific conditions to avoid unnecessary rule firing",
+      "Combine multiple EVENTS in CONDITIONS for complex logic",
+      "Test edge cases where conditions might overlap",
+      "Consider what happens when conditions become false after being true",
+      "Keep condition logic simple and readable"
+    ]
+  },
+  "ACTIONS": {
+    "title": "ACTIONS Block",
+    "description": "Defines what happens when a RULE executes. Actions are performed in sequence. This is the 'then' part of an if-then statement.",
+    "usage": [
+      "Must be placed inside a RULES block (snap to yellow point on RULES left bar)",
+      "Can contain up to 3 EVENTS blocks (snap to green points inside the block)",
+      "Actions execute in order from left to right",
+      "Each EVENTS block in ACTIONS represents a specific action to perform"
+    ],
+    "snap_info": "Snaps to RULES yellow point on left bar. Has 3 green snap points inside the block (horizontally spaced) for EVENTS blocks",
+    "tips": [
+      "Order matters - actions execute sequentially from left to right",
+      "Use wait/delay actions for timing-dependent sequences",
+      "Chain multiple ACTIONS blocks for complex sequences",
+      "Block will expand to fit more EVENTS (feature coming soon)",
+      "Test each action individually before combining them",
+      "Consider side effects when actions modify game state"
+    ]
+  },
+  "EVENTS": {
+    "title": "EVENTS Block",
+    "description": "Specific game events or actions that trigger or execute within CONDITIONS/ACTIONS. These are the building blocks of your game logic.",
+    "usage": [
+      "Can snap to ACTIONS blocks (green points inside ACTIONS)",
+      "Can snap to CONDITIONS blocks (green point at bottom)",
+      "Defines specific game events (spawn, damage, score, team change, etc.)",
+      "Can have parameters to configure behavior",
+      "Acts differently depending on whether it's in CONDITIONS or ACTIONS"
+    ],
+    "snap_info": "Snaps to green points on ACTIONS or CONDITIONS blocks. Green color indicates EVENTS can connect here.",
+    "tips": [
+      "Choose events that match your rule's purpose",
+      "Many events have parameters you can configure in the properties",
+      "Events can be chained together for complex logic",
+      "In CONDITIONS: events check if something is true",
+      "In ACTIONS: events make something happen",
+      "Read event descriptions carefully to understand their behavior"
+    ]
+  },
+  "SUBROUTINE": {
+    "title": "SUBROUTINE Block",
+    "description": "Reusable logic blocks that can be called from multiple places. Like functions in traditional programming, they help avoid repeating code.",
+    "usage": [
+      "Can snap to RULES block (brown snap point on RULES left bar)",
+      "Can also snap to MOD block as standalone subroutines",
+      "Acts as a container for reusable rule logic",
+      "Can be called from multiple different RULES",
+      "Helps keep code DRY (Don't Repeat Yourself)"
+    ],
+    "snap_info": "Snaps to RULES brown point (next to yellow) or directly to MOD block",
+    "tips": [
+      "Use for logic that repeats across multiple rules",
+      "Name subroutines clearly to show their purpose (e.g., 'ResetPlayer', 'CheckVictory')",
+      "Keep subroutines focused and modular",
+      "Test subroutines in isolation before using them in multiple places",
+      "Document what parameters your subroutine expects",
+      "Think of subroutines as mini-mods within your main mod"
+    ]
+  }
+}

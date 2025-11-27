@@ -1,0 +1,24 @@
+{
+    "color": "#F9A825", 
+    "sub_categories": {
+        "AI": {
+            "AIBattlefieldBehaviour": {"label": "AIBattlefieldBehaviour", "type": "ACTIONS", "args": ["player"]},
+            "AIDefendPositionBehaviour": {"label": "AIDefendPositionBehaviour", "type": "ACTIONS", "args": ["player"]},
+            "AIIdleBehaviour": {"label": "AIIdleBehaviour", "type": "ACTIONS", "args": ["player"]},
+            "AILOSMoveTOBehaviour": {"label": "AILOSMoveTOBehaviour", "type": "ACTIONS", "args": ["player"]},
+            "AIMoveToBehaviour": {"label": "AIMoveToBehaviour", "type": "ACTIONS", "args": ["player"]},
+            "AIParachuteBehaviour": {"label": "AIParachuteBehaviour", "type": "ACTIONS", "args": ["player"]},
+            "AIValidateMoveToBehaviour": {"label": "AIValidateMoveToBehaviour", "type": "ACTIONS", "args": ["player"]},
+            "AIWaypointIdleBehaviour": {"label": "AIWaypointIdleBehaviour", "type": "ACTIONS", "args": ["player"]}
+        },
+        "Player": {
+            "SetPlayerHealth": {"label": "SetPlayerHealth", "type": "ACTIONS", "args": ["player", "amount"]},
+            "SetPlayerLoadout": {"label": "SetPlayerLoadout", "type": "ACTIONS", "args": ["player", "loadout"]},
+            "Teleport": {"label": "Teleport", "type": "ACTIONS", "args": ["player", "location"]}
+        },
+        "Game": {
+            "EndRound": {"label": "EndRound", "type": "ACTIONS", "args": ["winner"]},
+            "PauseRound": {"label": "PauseRound", "type": "ACTIONS", "args": []}
+        }
+    }
+}

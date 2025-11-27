@@ -1,0 +1,59 @@
+{
+    "color": "#0277BD",
+    "sub_categories": {
+        "Control Flow": {
+            "Break": {
+                "label": "Break",
+                "type": "SEQUENCE",
+                "args": [],
+                "description": "Exits the current loop immediately"
+            },
+            "Continue": {
+                "label": "Continue",
+                "type": "SEQUENCE",
+                "args": [],
+                "description": "Skips to the next iteration of the current loop"
+            },
+            "If": {
+                "label": "If",
+                "type": "C_SHAPED",
+                "args": ["condition"],
+                "param_labels": {},
+                "param_icons": {
+                    "condition": "⚙"
+                },
+                "description": "Executes nested blocks if condition is true"
+            },
+            "While": {
+                "label": "While",
+                "type": "C_SHAPED",
+                "args": ["condition"],
+                "param_labels": {},
+                "param_icons": {
+                    "condition": "123"
+                },
+                "description": "Repeats nested blocks while condition is true"
+            }
+        },
+        "Loops": {
+            "ForVariable": {
+                "label": "ForVariable",
+                "type": "C_SHAPED",
+                "args": ["from_value", "to_value", "by_value"],
+                "param_labels": {
+                    "from_value": "From",
+                    "to_value": "To",
+                    "by_value": "By"
+                },
+                "param_icons": {
+                    "from_value": "123",
+                    "to_value": "123",
+                    "by_value": "123"
+                },
+                "description": "Loops from starting value to ending value by increment",
+                "width": 480,
+                "height": 42
+            }
+        }
+    }
+}

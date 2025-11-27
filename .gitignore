@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Private development files - DO NOT COMMIT
+assets/img/*.jpg
+assets/img/*.png
+assets/downloaded/*.json
+assets/downloaded/*.ts
+
+# Keep only essential assets for the project
+!assets/img/icons/.gitkeep

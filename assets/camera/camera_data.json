@@ -1,0 +1,17 @@
+{
+    "color": "#00ACC1",
+    "sub_categories": {
+        "GENERAL": {
+            "SetCameraTypeForAll": {
+                "label": "SetCameraTypeForAll",
+                "type": "ACTIONS",
+                "args": ["camera_type", "duration"]
+            },
+            "SetCameraTypeForPlayer": {
+                "label": "SetCameraTypeForPlayer",
+                "type": "ACTIONS",
+                "args": ["player", "camera_type", "duration"]
+            }
+        }
+    }
+}

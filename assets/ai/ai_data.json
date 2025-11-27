@@ -1,0 +1,37 @@
+{
+    "color": "#D32F2F",
+    "sub_categories": {
+        "BEHAVIOR": {
+            "AIBattlefieldBehavior": {
+                "label": "AIBattlefieldBehavior",
+                "type": "ACTIONS",
+                "args": ["player"]
+            },
+            "AIDefendPositionBehavior": {
+                "label": "AIDefendPositionBehavior",
+                "type": "ACTIONS",
+                "args": ["player", "position", "radius", "time"]
+            },
+            "AIIdleBehavior": {
+                "label": "AIIdleBehavior",
+                "type": "ACTIONS",
+                "args": ["player"]
+            },
+            "AILOSMoveToBehavior": {
+                "label": "AILOSMoveToBehavior",
+                "type": "ACTIONS",
+                "args": ["player", "position"]
+            },
+            "AIMoveToBehavior": {
+                "label": "AIMoveToBehavior",
+                "type": "ACTIONS",
+                "args": ["player", "position"]
+            },
+            "AIParachuteBehavior": {
+                "label": "AIParachuteBehavior",
+                "type": "ACTIONS",
+                "args": ["player"]
+            }
+        }
+    }
+}

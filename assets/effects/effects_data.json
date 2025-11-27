@@ -1,0 +1,24 @@
+{
+    "color": "#FBC02D",
+    "sub_categories": {
+        "SCREENEFFECTS": {
+            "EnableScreenEffect": {
+                "label": "EnableScreenEffect",
+                "type": "ACTIONS",
+                "args": ["player", "effect_type", "enabled"]
+            }
+        },
+        "VFX": {
+            "EnableVFX": {
+                "label": "EnableVFX",
+                "type": "ACTIONS",
+                "args": ["vfx_id", "enabled"]
+            },
+            "MoveVFX": {
+                "label": "MoveVFX",
+                "type": "ACTIONS",
+                "args": ["vfx_id", "position", "rotation"]
+            }
+        }
+    }
+}
