@@ -1,3 +1,16 @@
+# 1.0.4beta (2025-11-27)
+
+- Web UI sidebar/toolbox is now always expanded and flat, matching the official Portal system. All categories/blocks are visible under group headers, no nested categories.
+- Packaging improvements: PyInstaller spec updated to include all modules and assets, preventing missing module errors in the executable.
+
+# 1.02-beta (2025-11-27)
+
+- Sidebar/menu UI now matches the official Battlefield Portal: always-expanded, flat list with all categories/blocks visible under group separators. No expand/collapse arrows. Group headers are non-interactive separators with icons. This fixes the previous issue where only group headers were visible.
+
+# 1.0.3 (2025-11-27)
+
+- Sidebar/menu UI now matches the official Battlefield Portal: always-expanded, flat list with all categories/blocks visible under group separators. No expand/collapse arrows. Group headers are non-interactive separators with icons. This fixes the previous issue where only group headers were visible.
+
 # Release 1.02-beta
 
 ## Highlights

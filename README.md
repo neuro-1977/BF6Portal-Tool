@@ -1,3 +1,8 @@
+# Version 1.0.4beta (2025-11-27)
+
+- Web UI sidebar/toolbox is now always expanded and flat, matching the official Portal system. All categories/blocks are visible under group headers, no nested categories.
+- Packaging improvements: PyInstaller spec updated to include all modules and assets, preventing missing module errors in the executable.
+
 # BF6 Portal-Tool
 
 ![UI Mockup](docs/ui_mockup.svg)

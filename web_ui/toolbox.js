@@ -6,38 +6,53 @@ var TOOLBOX_CONFIG = {
       'name': 'Core',
       'colour': '#333',
       'contents': [
-        {
-          'kind': 'category',
-          'name': 'MOD',
-          'colour': '#4A4A4A',
-          'contents': [
-            {
-              'kind': 'category',
-              'name': 'Game Mode',
-              'colour': '#4A4A4A',
-              'contents': [
-                { 'kind': 'block', 'type': 'MOD_BLOCK' },
-              ]
-            },
-          ]
-        },
-        {
-          'kind': 'category',
-          'name': 'RULES',
-          'colour': '#7B1FA2',
-          'contents': [
-            {
-              'kind': 'category',
-              'name': 'Rule Definition',
-              'colour': '#7B1FA2',
-              'contents': [
-                { 'kind': 'block', 'type': 'RULE_HEADER' },
-              ]
-            },
-          ]
-        },
-        {
-          'kind': 'category',
+        { 'kind': 'block', 'type': 'MOD_BLOCK' },
+        { 'kind': 'block', 'type': 'RULE_HEADER' },
+        // Add all other Core blocks here, flat, no nested categories
+      ]
+    },
+    {
+      'kind': 'category',
+      'name': 'Actions',
+      'colour': '#f7c843',
+      'contents': [
+        // Add all Actions blocks here, flat
+      ]
+    },
+    {
+      'kind': 'category',
+      'name': 'Logic & Data',
+      'colour': '#3bb273',
+      'contents': [
+        // Add all Logic & Data blocks here, flat
+      ]
+    },
+    {
+      'kind': 'category',
+      'name': 'World',
+      'colour': '#f44336',
+      'contents': [
+        // Add all World blocks here, flat
+      ]
+    },
+    {
+      'kind': 'category',
+      'name': 'Presentation',
+      'colour': '#2196f3',
+      'contents': [
+        // Add all Presentation blocks here, flat
+      ]
+    },
+    {
+      'kind': 'category',
+      'name': 'Other',
+      'colour': '#9e9e9e',
+      'contents': [
+        // Add all Other blocks here, flat
+      ]
+    }
+  ]
+};
           'name': 'EVENTS',
           'colour': '#D32F2F',
           'contents': [

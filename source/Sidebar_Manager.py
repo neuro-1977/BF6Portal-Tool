@@ -127,62 +127,93 @@ class SidebarManager:
     def create_category_buttons(self):
         """Creates the category buttons in the sidebar."""
         self.tab_buttons = {}
-        # Official Portal category order and exact color mapping (from screenshots)
+        # Grouped categories with representative block type for icon
+        # Official Portal flat sidebar: (category, color, icon, text_fg)
         official_categories = [
-            ("RULES", "#a259e6", "white"),
-            ("AI", "#f7c843", "#222"),
-            ("ARRAYS", "#f7c843", "#222"),
-            ("AUDIO", "#f7c843", "#222"),
-            ("CAMERA", "#f7c843", "#222"),
-            ("EFFECTS", "#f7c843", "#222"),
-            ("EMPLACEMENTS", "#f7c843", "#222"),
-            ("GAMEPLAY", "#f7c843", "#222"),
-            ("LOGIC", "#f7c843", "#222"),
-            ("OBJECTIVE", "#f7c843", "#222"),
-            ("OTHER", "#f7c843", "#222"),
-            ("PLAYER", "#f7c843", "#222"),
-            ("TRANSFORM", "#f7c843", "#222"),
-            ("USER INTERFACE", "#f7c843", "#222"),
-            ("VEHICLES", "#f7c843", "#222"),
-            ("EVENT PAYLOADS", "#3bb273", "white"),
-            ("MATH", "#3bb273", "white"),
-            ("SELECTION LISTS", "#3bb273", "white"),
-            ("LITERALS", "#3bb273", "white"),
-            ("VARIABLES", "#e67e22", "#222"),
-            ("SUBROUTINES", "#e67e22", "#222"),
-            ("CONTROL ACTIONS", "#e67e22", "#222")
+            ("MOD", "#4A4A4A", "mod_shape", "white", "Core"),
+            ("RULES", "#a259e6", "rules_shape", "white", None),
+            ("EVENTS", "#a259e6", "event_shape", "white", None),
+            ("SUBROUTINE", "#e67e22", "subroutine_shape", "#222", None),
+            ("ACTIONS", "#f7c843", "action_shape", "#222", "Actions"),
+            ("CONDITIONS", "#3bb273", "condition_shape", "white", "Logic & Data"),
+            ("LOGIC", "#a259e6", "logic_shape", "white", None),
+            ("MATH", "#3bb273", "math_shape", "white", None),
+            ("VALUES", "#3bb273", "value_shape", "white", None),
+            ("ARRAYS", "#3bb273", "array_shape", "white", None),
+            ("PLAYER", "#f44336", "player_shape", "white", "World"),
+            ("VEHICLES", "#f44336", "vehicle_shape", "white", None),
+            ("GAMEPLAY", "#f44336", "gameplay_shape", "white", None),
+            ("OBJECTIVE", "#f7c843", "objective_shape", "#222", None),
+            ("EMPLACEMENTS", "#f7c843", "emplacement_shape", "#222", None),
+            ("USER INTERFACE", "#2196f3", "ui_shape", "white", "Presentation"),
+            ("AUDIO", "#2196f3", "audio_shape", "white", None),
+            ("CAMERA", "#2196f3", "camera_shape", "white", None),
+            ("EFFECTS", "#2196f3", "effects_shape", "white", None),
+            ("TRANSFORM", "#2196f3", "transform_shape", "white", None),
+            ("AI", "#9e9e9e", "ai_shape", "white", "Other"),
+            ("OTHER", "#9e9e9e", "other_shape", "white", None)
         ]
 
-        def create_category_btn(cat_name, cat_color, text_fg, label_text=None, is_sub=False):
-            if label_text is None:
-                label_text = cat_name
-            pad_left = 20 if is_sub else 6
-            btn_frame = tk.Frame(
-                self.sidebar_content,
-                bg=cat_color,
-                height=30,
-                cursor="hand2",
-                relief="flat",
-                bd=0
-            )
-            btn_frame.pack(fill="x", padx=(pad_left, 6), pady=1)
-            btn_frame.pack_propagate(False)
-            lbl = tk.Label(
-                btn_frame,
-                text=label_text,
-                bg=cat_color,
-                fg=text_fg,
-                font=("Arial", 9, "bold"),
-                anchor="w" if is_sub else "center",
-                padx=6 if is_sub else 0
-            )
-            lbl.pack(fill="both", expand=True)
-            btn_frame.bind("<Button-1>", lambda e, n=cat_name: self.on_tab_click(n))
-            lbl.bind("<Button-1>", lambda e, n=cat_name: self.on_tab_click(n))
-            self.tab_buttons[cat_name] = btn_frame
+        last_group = None
+        # Group categories by group name
+        from collections import OrderedDict
+        group_map = OrderedDict()
+        for cat_name, cat_color, icon_shape, text_fg, group in official_categories:
+            if group not in group_map:
+                group_map[group] = []
+            group_map[group].append((cat_name, cat_color, icon_shape, text_fg))
 
-        for name, color, text_fg in official_categories:
-            create_category_btn(name, color, text_fg)
+        for group, cats in group_map.items():
+            # Draw colored separator (not expandable, no arrow)
+            sep = tk.Frame(self.sidebar_content, bg="#232323", height=18)
+            sep.pack(fill="x", pady=(8, 0))
+            sep.pack_propagate(False)
+            icon_canvas = tk.Canvas(sep, width=22, height=16, bg="#232323", highlightthickness=0, bd=0)
+            icon_canvas.pack(side="left", padx=(6, 2), pady=1)
+            # Draw group icon (use MOD, ACTIONS, CONDITIONS, PLAYER, UI, AI shapes)
+            if group == "Core":
+                shape_coords = BlockShapes.get_blockly_container_shape(2, 2, 18, 12, 4)
+                icon_color = "#4A4A4A"
+            elif group == "Actions":
+                shape_coords = BlockShapes.get_blockly_statement_shape(2, 2, 18, 12, top_notch=True, bottom_notch=True)
+                icon_color = "#f7c843"
+            elif group == "Logic & Data":
+                shape_coords = BlockShapes.get_horizontal_snap_shape(2, 2, 18, 12, left_tab=True, right_tab=False)
+                icon_color = "#3bb273"
+            elif group == "World":
+                shape_coords = BlockShapes.get_blockly_statement_shape(2, 2, 18, 12, top_notch=True, bottom_notch=True)
+                icon_color = "#f44336"
+            elif group == "Presentation":
+                shape_coords = BlockShapes.get_blockly_statement_shape(2, 2, 18, 12, top_notch=True, bottom_notch=True)
+                icon_color = "#2196f3"
+            elif group == "Other":
+                shape_coords = BlockShapes.get_blockly_statement_shape(2, 2, 18, 12, top_notch=True, bottom_notch=True)
+                icon_color = "#9e9e9e"
+            else:
+                shape_coords = BlockShapes.get_blockly_statement_shape(2, 2, 18, 12, top_notch=True, bottom_notch=True)
+                icon_color = "#888888"
+            icon_canvas.create_polygon(shape_coords, fill=icon_color, outline="#333333", width=1)
+            group_label = tk.Label(sep, text=group, bg="#232323", fg="#e0e0e0", font=("Arial", 9, "bold"), anchor="w")
+            group_label.pack(side="left", padx=(2, 0))
+            # Draw all categories in this group
+            for cat_name, cat_color, icon_shape, text_fg in cats:
+                btn_frame = tk.Frame(self.sidebar_content, bg=cat_color, height=28, cursor="hand2", relief="flat", bd=0)
+                btn_frame.pack(fill="x", padx=(8, 8), pady=1)
+                btn_frame.pack_propagate(False)
+                icon_canvas = tk.Canvas(btn_frame, width=22, height=18, bg=cat_color, highlightthickness=0, bd=0)
+                icon_canvas.pack(side="left", padx=(2, 2), pady=2)
+                # Draw the block icon for the category
+                if hasattr(BlockShapes, icon_shape):
+                    shape_fn = getattr(BlockShapes, icon_shape)
+                    shape_coords = shape_fn(2, 2, 18, 14)
+                else:
+                    shape_coords = BlockShapes.get_blockly_statement_shape(2, 2, 18, 14, top_notch=True, bottom_notch=True)
+                icon_canvas.create_polygon(shape_coords, fill=cat_color, outline="#333333", width=1)
+                lbl = tk.Label(btn_frame, text=cat_name, bg=cat_color, fg=text_fg, font=("Arial", 9, "bold"), anchor="w")
+                lbl.pack(side="left", fill="both", expand=True, padx=(2, 0))
+                btn_frame.bind("<Button-1>", lambda e, n=cat_name: self.on_tab_click(n))
+                lbl.bind("<Button-1>", lambda e, n=cat_name: self.on_tab_click(n))
+                self.tab_buttons[cat_name] = btn_frame
 
     def on_tab_click(self, tab_name):
         """Handle tab click - show/hide dropdown panel with items."""
