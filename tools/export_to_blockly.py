@@ -62,7 +62,7 @@ def generate_blockly_definitions(workspace_root):
     assets_dir = root / "assets"
     
     block_definitions = []
-    toolbox_categories = {} # Category -> List of block types
+    toolbox_categories = {} # Category -> {Subcategory -> [blocks]}
 
     print(f"Scanning {assets_dir}...")
 
@@ -71,7 +71,7 @@ def generate_blockly_definitions(workspace_root):
             continue
             
         cat_name = category_dir.name.upper()
-        toolbox_categories[cat_name] = []
+        toolbox_categories[cat_name] = {}
         
         # Find json files
         for data_file in category_dir.glob("*_data.json"):
@@ -85,6 +85,9 @@ def generate_blockly_definitions(workspace_root):
                 # Handle subcategories
                 if "sub_categories" in data:
                     for sub_name, blocks in data["sub_categories"].items():
+                        if sub_name not in toolbox_categories[cat_name]:
+                            toolbox_categories[cat_name][sub_name] = []
+                            
                         for block_id, block_def in blocks.items():
                             
                             # SPECIAL HANDLING: RULE BLOCK
@@ -106,7 +109,7 @@ def generate_blockly_definitions(workspace_root):
                                     "helpUrl": ""
                                 }
                                 block_definitions.append(b_def)
-                                toolbox_categories[cat_name].append(block_id)
+                                toolbox_categories[cat_name][sub_name].append(block_id)
                                 continue
 
                             # Create Blockly Definition
@@ -188,7 +191,7 @@ def generate_blockly_definitions(workspace_root):
                                 # Hats usually don't have previous statement
                             
                             block_definitions.append(b_def)
-                            toolbox_categories[cat_name].append(block_id)
+                            toolbox_categories[cat_name][sub_name].append(block_id)
                             
             except Exception as e:
                 print(f"Error processing {data_file}: {e}")
@@ -256,15 +259,36 @@ def write_output(definitions, toolbox, help_data, image_map, output_dir):
         # Sort categories based on configuration
         sorted_cats = sorted(toolbox.items(), key=lambda item: CATEGORY_CONFIG.get(item[0], {}).get("order", 99))
 
-        for cat, blocks in sorted_cats:
+        for cat, subcats in sorted_cats:
             color = CATEGORY_CONFIG.get(cat, {}).get("color", "#333333")
             f.write(f"    {{\n")
             f.write(f"      'kind': 'category',\n")
             f.write(f"      'name': '{cat}',\n")
             f.write(f"      'colour': '{color}',\n")
             f.write(f"      'contents': [\n")
-            for b in blocks:
-                f.write(f"        {{ 'kind': 'block', 'type': '{b}' }},\n")
+            
+            # Iterate through subcategories
+            for sub_name, blocks in subcats.items():
+                # If there's only one subcategory or it's generic, maybe flatten? 
+                # But user asked for expansion. Let's make subcategories.
+                # However, Blockly categories don't nest visually like a tree in the simple toolbox.
+                # They usually just list blocks.
+                # BUT, we can use labels or nested categories if we want a tree.
+                # User said "yellow, which expands into all yellow actions".
+                # This implies the top level is ACTIONS, and clicking it shows subcategories?
+                # Or clicking it shows all blocks grouped?
+                # Let's try nested categories for now.
+                
+                f.write(f"        {{\n")
+                f.write(f"          'kind': 'category',\n")
+                f.write(f"          'name': '{sub_name}',\n")
+                f.write(f"          'colour': '{color}',\n")
+                f.write(f"          'contents': [\n")
+                for b in blocks:
+                    f.write(f"            {{ 'kind': 'block', 'type': '{b}' }},\n")
+                f.write(f"          ]\n")
+                f.write(f"        }},\n")
+                
             f.write(f"      ]\n")
             f.write(f"    }},\n")
             
