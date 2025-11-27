@@ -28,21 +28,39 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         return super().translate_path(path)
 
 def main():
-    # Change to web directory so serving works correctly
-    os.chdir(WEB_DIR)
-    
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
-        print(f"Serving at http://localhost:{PORT}")
-        print("Press Ctrl+C to stop.")
+    try:
+        # Verify directories exist
+        if not os.path.exists(WEB_DIR):
+            print(f"CRITICAL ERROR: Web UI directory not found at: {WEB_DIR}")
+            print("Ensure the 'web_ui' folder exists.")
+            input("Press Enter to exit...")
+            return
+
+        # Change to web directory so serving works correctly
+        os.chdir(WEB_DIR)
         
-        # Open browser automatically
-        webbrowser.open(f"http://localhost:{PORT}")
+        # Allow port reuse to prevent "Address already in use" errors
+        socketserver.TCPServer.allow_reuse_address = True
         
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            print("\nStopping server...")
-            httpd.server_close()
+        with socketserver.TCPServer(("", PORT), Handler) as httpd:
+            print(f"Serving at http://localhost:{PORT}")
+            print("Press Ctrl+C to stop.")
+            
+            # Open browser automatically
+            webbrowser.open(f"http://localhost:{PORT}")
+            
+            try:
+                httpd.serve_forever()
+            except KeyboardInterrupt:
+                print("\nStopping server...")
+                httpd.server_close()
+                
+    except Exception as e:
+        print(f"\nAn error occurred: {e}")
+        import traceback
+        traceback.print_exc()
+        print("\n")
+        input("Press Enter to exit...")
 
 if __name__ == "__main__":
     main()
