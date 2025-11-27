@@ -3,34 +3,116 @@
     "sub_categories": {
         "BEHAVIOR": {
             "AIBattlefieldBehavior": {
-                "label": "AIBattlefieldBehavior",
+                "label": "AI Battlefield Behavior",
                 "type": "ACTIONS",
-                "args": ["player"]
+                "args": ["player"],
+                "description": "Sets the AI to standard battlefield combat behavior"
             },
             "AIDefendPositionBehavior": {
-                "label": "AIDefendPositionBehavior",
+                "label": "AI Defend Position Behavior",
                 "type": "ACTIONS",
-                "args": ["player", "position", "radius", "time"]
+                "args": ["player", "position", "radius", "time"],
+                "description": "Orders AI to defend a specific area"
             },
             "AIIdleBehavior": {
-                "label": "AIIdleBehavior",
+                "label": "AI Idle Behavior",
                 "type": "ACTIONS",
-                "args": ["player"]
-            },
-            "AILOSMoveToBehavior": {
-                "label": "AILOSMoveToBehavior",
-                "type": "ACTIONS",
-                "args": ["player", "position"]
+                "args": ["player"],
+                "description": "Sets the AI to idle state"
             },
             "AIMoveToBehavior": {
-                "label": "AIMoveToBehavior",
+                "label": "AI Move To Behavior",
                 "type": "ACTIONS",
-                "args": ["player", "position"]
+                "args": ["player", "position", "sprint"],
+                "description": "Orders AI to move to a location"
             },
             "AIParachuteBehavior": {
-                "label": "AIParachuteBehavior",
+                "label": "AI Parachute Behavior",
                 "type": "ACTIONS",
-                "args": ["player"]
+                "args": ["player"],
+                "description": "Orders AI to deploy parachute"
+            },
+            "AIWaypointIdleBehavior": {
+                "label": "AI Waypoint Idle Behavior",
+                "type": "ACTIONS",
+                "args": ["player", "time"],
+                "description": "AI waits at a waypoint for a duration"
+            },
+            "AIFollowPlayer": {
+                "label": "AI Follow Player",
+                "type": "ACTIONS",
+                "args": ["ai_player", "target_player", "distance"],
+                "description": "Orders AI to follow a specific player"
+            },
+            "AIHoldPosition": {
+                "label": "AI Hold Position",
+                "type": "ACTIONS",
+                "args": ["player"],
+                "description": "Orders AI to hold their current position"
+            },
+            "AIAttackTarget": {
+                "label": "AI Attack Target",
+                "type": "ACTIONS",
+                "args": ["ai_player", "target_player"],
+                "description": "Orders AI to attack a specific target"
+            },
+            "SetAIBehavior": {
+                "label": "Set AI Behavior",
+                "type": "ACTIONS",
+                "args": ["player", "behavior_mode"],
+                "description": "Sets the general behavior mode for the AI"
+            }
+        },
+        "SPAWNING": {
+            "DeployAI": {
+                "label": "Deploy AI",
+                "type": "ACTIONS",
+                "args": ["team", "soldier_type", "position", "kit"],
+                "description": "Spawns a new AI soldier"
+            },
+            "DespawnAI": {
+                "label": "Despawn AI",
+                "type": "ACTIONS",
+                "args": ["player"],
+                "description": "Removes an AI soldier from the game"
+            },
+            "SetAISpawnLocation": {
+                "label": "Set AI Spawn Location",
+                "type": "ACTIONS",
+                "args": ["team", "position"],
+                "description": "Sets where AI soldiers will spawn"
+            }
+        },
+        "STATE": {
+            "SetAIHealth": {
+                "label": "Set AI Health",
+                "type": "ACTIONS",
+                "args": ["player", "amount"],
+                "description": "Sets the health of an AI soldier"
+            },
+            "SetAITeam": {
+                "label": "Set AI Team",
+                "type": "ACTIONS",
+                "args": ["player", "team_id"],
+                "description": "Changes the team of an AI soldier"
+            },
+            "GetAIHealth": {
+                "label": "Get AI Health",
+                "type": "VALUE",
+                "args": ["player"],
+                "description": "Returns the current health of an AI soldier"
+            },
+            "GetAITeam": {
+                "label": "Get AI Team",
+                "type": "VALUE",
+                "args": ["player"],
+                "description": "Returns the team ID of an AI soldier"
+            },
+            "AIIsAlive": {
+                "label": "AI Is Alive",
+                "type": "CONDITION",
+                "args": ["player"],
+                "description": "Checks if an AI soldier is currently alive"
             }
         }
     }

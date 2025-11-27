@@ -4,12 +4,12 @@ Generated on: 27/11/2025
 
 **Summary:**
 - Total Expected Blocks: 207
-- Total Implemented Blocks: 152
-- Coverage: 73%
+- Total Implemented Blocks: 171
+- Coverage: 82%
 
 ---
 
-## ACTIONS
+## ACTION
 Progress: 0/0 (0.0%)
 
 ### ⚠️ Extra / Unmatched Names
@@ -46,14 +46,21 @@ Progress: 0/11 (0.0%)
 
 ---
 ## AI
-Progress: 5/19 (26.3%)
+Progress: 18/19 (94.7%)
 
 ### ❌ Missing
+- AI Move To Position
+
+### ✅ Implemented
 - AI Attack Target
+- AI Battlefield Behavior
+- AI Defend Position Behavior
 - AI Follow Player
 - AI Hold Position
+- AI Idle Behavior
 - AI Is Alive
-- AI Move To Position
+- AI Move To Behavior
+- AI Parachute Behavior
 - AI Waypoint Idle Behavior
 - Deploy AI
 - Despawn AI
@@ -64,21 +71,11 @@ Progress: 5/19 (26.3%)
 - Set AI Spawn Location
 - Set AI Team
 
-### ✅ Implemented
-- AI Battlefield Behavior
-- AI Defend Position Behavior
-- AI Idle Behavior
-- AI Move To Behavior
-- AI Parachute Behavior
-
-### ⚠️ Extra / Unmatched Names
-- AILOSMoveToBehavior
-
 ---
 ## ARRAY
-Progress: 0/18 (0.0%)
+Progress: 18/18 (100.0%)
 
-### ❌ Missing
+### ✅ Implemented
 - Add to Array
 - Array Length
 - Array Literal
@@ -98,29 +95,14 @@ Progress: 0/18 (0.0%)
 - Slice Array
 - Sort Array
 
----
-## ARRAYS
-Progress: 0/0 (0.0%)
-
 ### ⚠️ Extra / Unmatched Names
-- Add to Array
 - All Dead Players
 - All Living Players
 - All Players
-- Array Length
-- Contains
-- Create Empty Array
-- Filter Array
 - First Of
-- Get Array Element
-- Index Of
 - Last Of
 - Random Value In Array
-- Remove from Array
 - Remove from Array by Index
-- Set Array Element
-- Slice Array
-- Sort Array
 
 ---
 ## AUDIO
@@ -162,7 +144,7 @@ Progress: 0/9 (0.0%)
 - SetCameraTypeForPlayer
 
 ---
-## CONDITIONS
+## CONDITION
 Progress: 0/0 (0.0%)
 
 ### ⚠️ Extra / Unmatched Names
@@ -217,6 +199,13 @@ Progress: 0/7 (0.0%)
 - MoveVFX
 
 ---
+## EMPLACEMENT
+Progress: 0/0 (0.0%)
+
+### ⚠️ Extra / Unmatched Names
+- DeployEmplacement
+
+---
 ## EMPLACEMENTS
 Progress: 0/6 (0.0%)
 
@@ -228,11 +217,8 @@ Progress: 0/6 (0.0%)
 - Stationary Weapon
 - Turret
 
-### ⚠️ Extra / Unmatched Names
-- DeployEmplacement
-
 ---
-## EVENTS
+## EVENT
 Progress: 0/0 (0.0%)
 
 ### ⚠️ Extra / Unmatched Names
@@ -505,8 +491,16 @@ Progress: 0/0 (0.0%)
 - String
 
 ---
+## VEHICLE
+Progress: 0/0 (0.0%)
+
+### ⚠️ Extra / Unmatched Names
+- DestroyVehicle
+- SpawnVehicle
+
+---
 ## VEHICLES
-Progress: 1/15 (6.7%)
+Progress: 0/15 (0.0%)
 
 ### ❌ Missing
 - APC
@@ -521,13 +515,8 @@ Progress: 1/15 (6.7%)
 - Lock Vehicle
 - Set Vehicle Health
 - Set Vehicle Speed
+- Spawn Vehicle
 - Tank
 - Transport
-
-### ✅ Implemented
-- Spawn Vehicle
-
-### ⚠️ Extra / Unmatched Names
-- DestroyVehicle
 
 ---

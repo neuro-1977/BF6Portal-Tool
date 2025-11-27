@@ -18,6 +18,18 @@
                 "param_icons": {},
                 "description": "Creates an empty array"
             },
+            "ArrayLiteral": {
+                "label": "Array Literal",
+                "type": "VALUE",
+                "args": ["value1", "value2", "value3"],
+                "description": "Creates an array from a list of values"
+            },
+            "ArrayOfSize": {
+                "label": "Array of Size",
+                "type": "VALUE",
+                "args": ["size", "initial_value"],
+                "description": "Creates an array of a specific size filled with a value"
+            },
             "ArrayFromPlayers": {
                 "label": "All Players",
                 "type": "VALUE",
@@ -56,6 +68,24 @@
             }
         },
         "Manipulation": {
+            "ClearArray": {
+                "label": "Clear Array",
+                "type": "ACTIONS",
+                "args": ["array"],
+                "description": "Removes all elements from an array"
+            },
+            "ConcatArrays": {
+                "label": "Concat Arrays",
+                "type": "VALUE",
+                "args": ["array1", "array2"],
+                "description": "Combines two arrays into one"
+            },
+            "ReverseArray": {
+                "label": "Reverse Array",
+                "type": "VALUE",
+                "args": ["array"],
+                "description": "Reverses the order of elements in an array"
+            },
             "AppendToArray": {
                 "label": "Add to Array",
                 "type": "VALUE",
@@ -210,6 +240,18 @@
             }
         },
         "Filtering": {
+            "ForEachInArray": {
+                "label": "For Each in Array",
+                "type": "C_SHAPED",
+                "args": ["array", "variable"],
+                "description": "Executes nested blocks for each item in the array"
+            },
+            "MapArray": {
+                "label": "Map Array",
+                "type": "VALUE",
+                "args": ["array", "mapping_expression"],
+                "description": "Creates a new array by applying a transformation to each element"
+            },
             "FilteredArray": {
                 "label": "Filter Array",
                 "type": "VALUE",
