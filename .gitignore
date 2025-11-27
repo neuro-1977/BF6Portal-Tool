@@ -18,6 +18,18 @@ ENV/
 .vscode/
 .idea/
 *.swp
+.history/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Distribution / Installer
+*.spec
+dist/
+build/
+installer/
 *.swo
 *~
 *.code-workspace

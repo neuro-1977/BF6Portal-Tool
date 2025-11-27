@@ -22,35 +22,38 @@ class BlockDataManager:
         self.ui = ui_instance
         self.BLOCK_DATA_PATH = Path(__file__).parent.parent / "assets"
 
-        # --- Static Block/Menu Data ---
-        # MAPPING: Menu name to placeholder color
-        # BLOCKLY-STYLE COLORS (Vibrant, saturated, distinct)
-        # Updated to match Battlefield Portal Reference Order
-        self.IMAGE_DATA = {
-            "RULES": "#7E3F96",          # Purple
-            "MOD": "#4A4A4A",            # Dark Grey (Wrapper)
-            "SUBROUTINE": "#FBC02D",     # Yellow (User Request)
-            "LOGIC": "#4CAF50",          # Green (User Request)
-            "MATH": "#795548",           # Brown (User Request - inferred)
-            "ARRAYS": "#9C27B0",         # Purple (User Request - inferred)
-            "AI": "#D32F2F",             # Red
-            "AUDIO": "#AB47BC",          # Purple/Pink
-            "CAMERA": "#00ACC1",         # Cyan
-            "EFFECTS": "#FBC02D",        # Yellow
-            "EMPLACEMENTS": "#2E7D32",   # Green
-            "GAMEPLAY": "#8D6E63",       # Brown
-            "OBJECTIVE": "#F9A825",      # Gold
-            "OTHER": "#757575",          # Grey
-            "PLAYER": "#00695C",         # Teal
-            "TRANSFORM": "#1565C0",      # Dark Blue
-            "USER INTERFACE": "#039BE5", # Light Blue
-            "VEHICLES": "#558B2F",       # Light Green
-            # Legacy/Internal categories (kept for compatibility if needed)
-            "EVENTS": "#2E7D32",
-            "CONDITIONS": "#0277BD",
-            "ACTIONS": "#FFC107",
-            "VALUES": "#0277BD",
-        }
+        # --- Load Theme Data ---
+        self.IMAGE_DATA = {}
+        self.ICON_PATHS = {}
+        self._load_theme_data()
+
+        # MAPPING: Menu name to placeholder color (Fallback if load fails)
+        if not self.IMAGE_DATA:
+            self.IMAGE_DATA = {
+                "RULES": "#7E3F96",          # Purple
+                "MOD": "#4A4A4A",            # Dark Grey (Wrapper)
+                "SUBROUTINE": "#FBC02D",     # Yellow (User Request)
+                "LOGIC": "#4CAF50",          # Green (User Request)
+                "MATH": "#795548",           # Brown (User Request - inferred)
+                "ARRAYS": "#9C27B0",         # Purple (User Request - inferred)
+                "AI": "#D32F2F",             # Red
+                "AUDIO": "#AB47BC",          # Purple/Pink
+                "CAMERA": "#00ACC1",         # Cyan
+                "EFFECTS": "#FBC02D",        # Yellow
+                "EMPLACEMENTS": "#2E7D32",   # Green
+                "GAMEPLAY": "#8D6E63",       # Brown
+                "OBJECTIVE": "#F9A825",      # Gold
+                "OTHER": "#757575",          # Grey
+                "PLAYER": "#00695C",         # Teal
+                "TRANSFORM": "#1565C0",      # Dark Blue
+                "USER INTERFACE": "#039BE5", # Light Blue
+                "VEHICLES": "#558B2F",       # Light Green
+                # Legacy/Internal categories (kept for compatibility if needed)
+                "EVENTS": "#2E7D32",
+                "CONDITIONS": "#0277BD",
+                "ACTIONS": "#FFC107",
+                "VALUES": "#0277BD",
+            }
 
         # Map for quick color lookup (only color needed for the palette background)
         # Here IMAGE_DATA already maps to color values
@@ -58,6 +61,21 @@ class BlockDataManager:
         self.current_tab_name = "RULES"  # Initial state
 
         # --- Dynamic Application State ---
+
+    def _load_theme_data(self):
+        """Loads theme colors and icon paths from assets/ui_theme.json."""
+        theme_path = self.BLOCK_DATA_PATH / "ui_theme.json"
+        try:
+            if theme_path.exists():
+                with open(theme_path, "r") as f:
+                    data = json.load(f)
+                    if "colors" in data:
+                        self.IMAGE_DATA.update(data["colors"])
+                    if "icons" in data:
+                        self.ICON_PATHS = data["icons"]
+        except Exception as e:
+            print(f"Error loading theme data: {e}")
+
         # This dictionary would eventually hold all the blocks and their connections
         self.block_state = {}
         self.block_data = self._load_block_data()

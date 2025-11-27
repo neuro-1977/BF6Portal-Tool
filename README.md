@@ -1,5 +1,7 @@
 # BF6 Portal-Tool
 
+![UI Mockup](docs/ui_mockup.svg)
+
 Visual block editor for building Battlefield Portal scripts with drag-and-drop functionality, block chaining, and code export.
 
 ## Quick Start
