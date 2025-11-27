@@ -4,9 +4,7 @@ import tkinter.font as tkfont
 import tkinter.messagebox
 import json
 import os
-import math
 import traceback
-from pathlib import Path
 
 from Block_Data_Manager import BlockDataManager
 from Sidebar_Manager import SidebarManager
@@ -17,8 +15,6 @@ from workspace_loader import load_blocks_from_json as workspace_load
 from Block_Mover import BlockMover
 from Zoom_Manager import ZoomManager
 from Workspace_Analyzer import WorkspaceAnalyzer
-from block_shapes import BlockShapes
-from block_hierarchy import BlockHierarchy
 from Code_Generator import CodeGenerator
 from Block_Renderer import BlockRenderer
 from Input_Handler import InputHandler

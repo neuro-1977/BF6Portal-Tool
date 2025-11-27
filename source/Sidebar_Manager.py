@@ -185,6 +185,9 @@ class SidebarManager:
 
     def show_dropdown(self, tab_name):
         """Show the dropdown panel with items for the given category."""
+        if not self.dropdown_panel:
+            return
+
         self.current_dropdown_tab = tab_name
         self.dropdown_visible = True
         
@@ -209,7 +212,8 @@ class SidebarManager:
         """Hide the dropdown panel."""
         self.dropdown_visible = False
         self.current_dropdown_tab = None
-        self.dropdown_panel.place_forget()
+        if self.dropdown_panel:
+            self.dropdown_panel.place_forget()
 
     def render_sidebar_list(self, tab_name, filter_text=None):
         """Render the block items for a category inside the sidebar list container."""
@@ -345,6 +349,9 @@ class SidebarManager:
 
     def on_search_change(self, *args):
         """Handle search input changes."""
+        if not self.search_var:
+            return
+            
         search_text = self.search_var.get().lower()
         
         # If we have a current tab, filter it
