@@ -9,7 +9,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#F9A825",
+    "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -24,7 +24,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#F9A825",
+    "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -39,7 +39,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#F9A825",
+    "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -54,7 +54,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#F9A825",
+    "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -69,7 +69,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#F9A825",
+    "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -84,7 +84,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#F9A825",
+    "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -99,7 +99,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#F9A825",
+    "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -114,7 +114,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#F9A825",
+    "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -133,7 +133,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "amount"
       }
     ],
-    "colour": "#F9A825",
+    "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -152,7 +152,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "loadout"
       }
     ],
-    "colour": "#F9A825",
+    "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -171,7 +171,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "location"
       }
     ],
-    "colour": "#F9A825",
+    "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -186,7 +186,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "winner"
       }
     ],
-    "colour": "#F9A825",
+    "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -196,7 +196,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "PauseRound",
     "message0": "PauseRound",
     "args0": [],
-    "colour": "#F9A825",
+    "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -551,7 +551,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Sets a value at a specific index in an array variable",
     "helpUrl": "",
     "previousStatement": null,
@@ -561,7 +561,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "EmptyArray",
     "message0": "Create Empty Array",
     "args0": [],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Creates an empty array",
     "helpUrl": "",
     "output": null
@@ -583,7 +583,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value3"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Creates an array from a list of values",
     "helpUrl": "",
     "output": null
@@ -601,7 +601,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "initial_value"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Creates an array of a specific size filled with a value",
     "helpUrl": "",
     "output": null
@@ -615,7 +615,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "team"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Creates an array of all players, optionally filtered by team",
     "helpUrl": "",
     "output": null
@@ -629,7 +629,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "team"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Creates an array of all dead players",
     "helpUrl": "",
     "output": null
@@ -643,7 +643,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "team"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Creates an array of all living players",
     "helpUrl": "",
     "output": null
@@ -657,7 +657,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "array"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Removes all elements from an array",
     "helpUrl": "",
     "previousStatement": null,
@@ -676,7 +676,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "array2"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Combines two arrays into one",
     "helpUrl": "",
     "output": null
@@ -690,7 +690,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "array"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Reverses the order of elements in an array",
     "helpUrl": "",
     "output": null
@@ -708,7 +708,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Adds a value to the end of an array",
     "helpUrl": "",
     "output": null
@@ -726,7 +726,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Removes a value from an array",
     "helpUrl": "",
     "output": null
@@ -744,7 +744,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "index"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Removes an element at a specific index",
     "helpUrl": "",
     "output": null
@@ -766,7 +766,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "count"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Returns a portion of an array",
     "helpUrl": "",
     "output": null
@@ -780,7 +780,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "array"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Returns a random element from the array",
     "helpUrl": "",
     "output": null
@@ -798,7 +798,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "index"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Returns the value at the specified index",
     "helpUrl": "",
     "output": null
@@ -812,7 +812,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "array"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Returns the first element in the array",
     "helpUrl": "",
     "output": null
@@ -826,7 +826,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "array"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Returns the last element in the array",
     "helpUrl": "",
     "output": null
@@ -844,7 +844,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Returns the index of a value in the array",
     "helpUrl": "",
     "output": null
@@ -858,7 +858,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "array"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Returns the number of elements in the array",
     "helpUrl": "",
     "output": null
@@ -876,7 +876,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Returns true if array contains the value",
     "helpUrl": "",
     "previousStatement": null,
@@ -899,7 +899,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "DO"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Executes nested blocks for each item in the array",
     "helpUrl": "",
     "previousStatement": null,
@@ -918,7 +918,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "mapping_expression"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Creates a new array by applying a transformation to each element",
     "helpUrl": "",
     "output": null
@@ -936,7 +936,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "condition"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Returns array with elements matching condition",
     "helpUrl": "",
     "output": null
@@ -954,7 +954,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value_rank"
       }
     ],
-    "colour": "#EF6C00",
+    "colour": "#0097A7",
     "tooltip": "Returns a sorted copy of the array",
     "helpUrl": "",
     "output": null
@@ -968,7 +968,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "music_id"
       }
     ],
-    "colour": "#AB47BC",
+    "colour": "#455A64",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -987,7 +987,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "players"
       }
     ],
-    "colour": "#AB47BC",
+    "colour": "#455A64",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -1010,7 +1010,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "players"
       }
     ],
-    "colour": "#AB47BC",
+    "colour": "#455A64",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -1025,7 +1025,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "music_id"
       }
     ],
-    "colour": "#AB47BC",
+    "colour": "#455A64",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -1056,7 +1056,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "pitch"
       }
     ],
-    "colour": "#AB47BC",
+    "colour": "#455A64",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -1083,7 +1083,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "players"
       }
     ],
-    "colour": "#AB47BC",
+    "colour": "#455A64",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -1102,7 +1102,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "players"
       }
     ],
-    "colour": "#AB47BC",
+    "colour": "#455A64",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -1121,7 +1121,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "camera_mode"
       }
     ],
-    "colour": "#00ACC1",
+    "colour": "#37474F",
     "tooltip": "Sets the camera mode for a specific player",
     "helpUrl": "",
     "previousStatement": null,
@@ -1140,7 +1140,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "target"
       }
     ],
-    "colour": "#00ACC1",
+    "colour": "#37474F",
     "tooltip": "Locks the player's camera to look at a target",
     "helpUrl": "",
     "previousStatement": null,
@@ -1163,7 +1163,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "duration"
       }
     ],
-    "colour": "#00ACC1",
+    "colour": "#37474F",
     "tooltip": "Applies a shake effect to the player's camera",
     "helpUrl": "",
     "previousStatement": null,
@@ -1182,7 +1182,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "fov"
       }
     ],
-    "colour": "#00ACC1",
+    "colour": "#37474F",
     "tooltip": "Sets the Field of View for the player's camera",
     "helpUrl": "",
     "previousStatement": null,
@@ -1197,7 +1197,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#00ACC1",
+    "colour": "#37474F",
     "tooltip": "Resets the player's camera to default",
     "helpUrl": "",
     "previousStatement": null,
@@ -1207,7 +1207,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "FirstPersonCamera",
     "message0": "First Person Camera",
     "args0": [],
-    "colour": "#00ACC1",
+    "colour": "#37474F",
     "tooltip": "First person camera mode",
     "helpUrl": "",
     "output": null
@@ -1216,7 +1216,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "ThirdPersonCamera",
     "message0": "Third Person Camera",
     "args0": [],
-    "colour": "#00ACC1",
+    "colour": "#37474F",
     "tooltip": "Third person camera mode",
     "helpUrl": "",
     "output": null
@@ -1225,7 +1225,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "FreeCamera",
     "message0": "Free Camera",
     "args0": [],
-    "colour": "#00ACC1",
+    "colour": "#37474F",
     "tooltip": "Free camera mode",
     "helpUrl": "",
     "output": null
@@ -1234,7 +1234,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "SpectatorCamera",
     "message0": "Spectator Camera",
     "args0": [],
-    "colour": "#00ACC1",
+    "colour": "#37474F",
     "tooltip": "Spectator camera mode",
     "helpUrl": "",
     "output": null
@@ -1252,7 +1252,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value_b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#43A047",
     "tooltip": "Returns true if A equals B",
     "helpUrl": "",
     "output": "Boolean"
@@ -1270,7 +1270,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value_b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#43A047",
     "tooltip": "Returns true if A does not equal B",
     "helpUrl": "",
     "output": "Boolean"
@@ -1288,7 +1288,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value_b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#43A047",
     "tooltip": "Returns true if A is less than B",
     "helpUrl": "",
     "output": "Boolean"
@@ -1306,7 +1306,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value_b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#43A047",
     "tooltip": "Returns true if A is less than or equal to B",
     "helpUrl": "",
     "output": "Boolean"
@@ -1324,7 +1324,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value_b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#43A047",
     "tooltip": "Returns true if A is greater than B",
     "helpUrl": "",
     "output": "Boolean"
@@ -1342,7 +1342,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value_b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#43A047",
     "tooltip": "Returns true if A is greater than or equal to B",
     "helpUrl": "",
     "output": "Boolean"
@@ -1360,7 +1360,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "condition_b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#43A047",
     "tooltip": "Returns true if both conditions are true",
     "helpUrl": "",
     "output": "Boolean"
@@ -1378,7 +1378,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "condition_b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#43A047",
     "tooltip": "Returns true if either condition is true",
     "helpUrl": "",
     "output": "Boolean"
@@ -1392,7 +1392,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "condition"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#43A047",
     "tooltip": "Returns the opposite of the condition",
     "helpUrl": "",
     "output": "Boolean"
@@ -1401,7 +1401,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "True",
     "message0": "True",
     "args0": [],
-    "colour": "#0277BD",
+    "colour": "#43A047",
     "tooltip": "Boolean true value",
     "helpUrl": "",
     "output": "Boolean"
@@ -1410,7 +1410,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "False",
     "message0": "False",
     "args0": [],
-    "colour": "#0277BD",
+    "colour": "#43A047",
     "tooltip": "Boolean false value",
     "helpUrl": "",
     "output": "Boolean"
@@ -1432,7 +1432,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "scale"
       }
     ],
-    "colour": "#FBC02D",
+    "colour": "#263238",
     "tooltip": "Plays a visual effect at a location",
     "helpUrl": "",
     "previousStatement": null,
@@ -1447,7 +1447,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "effect_id"
       }
     ],
-    "colour": "#FBC02D",
+    "colour": "#263238",
     "tooltip": "Stops a playing effect",
     "helpUrl": "",
     "previousStatement": null,
@@ -1462,7 +1462,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "particle_type"
       }
     ],
-    "colour": "#FBC02D",
+    "colour": "#263238",
     "tooltip": "Returns a particle effect type",
     "helpUrl": "",
     "output": null
@@ -1476,7 +1476,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "explosion_type"
       }
     ],
-    "colour": "#FBC02D",
+    "colour": "#263238",
     "tooltip": "Returns an explosion effect type",
     "helpUrl": "",
     "output": null
@@ -1498,7 +1498,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "duration"
       }
     ],
-    "colour": "#FBC02D",
+    "colour": "#263238",
     "tooltip": "Flashes the player's screen with a color",
     "helpUrl": "",
     "previousStatement": null,
@@ -1521,7 +1521,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "duration"
       }
     ],
-    "colour": "#FBC02D",
+    "colour": "#263238",
     "tooltip": "Fades the player's screen",
     "helpUrl": "",
     "previousStatement": null,
@@ -1540,7 +1540,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "filter_type"
       }
     ],
-    "colour": "#FBC02D",
+    "colour": "#263238",
     "tooltip": "Applies a visual filter to the player's screen",
     "helpUrl": "",
     "previousStatement": null,
@@ -1659,7 +1659,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "EndMatch",
     "message0": "End Match",
     "args0": [],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Ends the current match",
     "helpUrl": "",
     "previousStatement": null,
@@ -1674,7 +1674,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "time"
       }
     ],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Sets the match time remaining",
     "helpUrl": "",
     "previousStatement": null,
@@ -1684,7 +1684,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "GetMatchTime",
     "message0": "Match Time",
     "args0": [],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Returns the current match time",
     "helpUrl": "",
     "output": null
@@ -1693,7 +1693,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "PauseMatchTime",
     "message0": "Pause Match Time",
     "args0": [],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Pauses the match timer",
     "helpUrl": "",
     "previousStatement": null,
@@ -1703,7 +1703,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "ResumeMatchTime",
     "message0": "Resume Match Time",
     "args0": [],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Resumes the match timer",
     "helpUrl": "",
     "previousStatement": null,
@@ -1722,7 +1722,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "score"
       }
     ],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Sets a team's score",
     "helpUrl": "",
     "previousStatement": null,
@@ -1737,7 +1737,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "team"
       }
     ],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Returns a team's score",
     "helpUrl": "",
     "output": null
@@ -1755,7 +1755,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "amount"
       }
     ],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Adds to a team's score",
     "helpUrl": "",
     "previousStatement": null,
@@ -1770,7 +1770,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "team"
       }
     ],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Declares a team as the winner",
     "helpUrl": "",
     "previousStatement": null,
@@ -1789,7 +1789,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "time"
       }
     ],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Sets the player's respawn time",
     "helpUrl": "",
     "previousStatement": null,
@@ -1804,7 +1804,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Prevents player from respawning",
     "helpUrl": "",
     "previousStatement": null,
@@ -1819,7 +1819,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Allows player to respawn",
     "helpUrl": "",
     "previousStatement": null,
@@ -1834,7 +1834,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "variable"
       }
     ],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Gets a global variable value",
     "helpUrl": "",
     "output": null
@@ -1852,7 +1852,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Sets a global variable",
     "helpUrl": "",
     "previousStatement": null,
@@ -1875,7 +1875,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#8D6E63",
+    "colour": "#5D4037",
     "tooltip": "Modifies a global variable",
     "helpUrl": "",
     "previousStatement": null,
@@ -1890,7 +1890,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "seconds"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Pauses execution for a specified time",
     "helpUrl": "",
     "previousStatement": null,
@@ -1909,7 +1909,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "timeout"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Pauses execution until condition is true",
     "helpUrl": "",
     "previousStatement": null,
@@ -1919,7 +1919,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "Break",
     "message0": "Break",
     "args0": [],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Exits the current loop immediately",
     "helpUrl": "",
     "previousStatement": null,
@@ -1929,7 +1929,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "Continue",
     "message0": "Continue",
     "args0": [],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Skips to the next iteration of the current loop",
     "helpUrl": "",
     "previousStatement": null,
@@ -1948,7 +1948,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "DO"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Executes nested blocks if condition is true",
     "helpUrl": "",
     "previousStatement": null,
@@ -1967,7 +1967,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "DO"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Repeats nested blocks while condition is true",
     "helpUrl": "",
     "previousStatement": null,
@@ -1986,7 +1986,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Returns True if both inputs are True",
     "helpUrl": "",
     "output": null
@@ -2004,7 +2004,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Returns True if either input is True",
     "helpUrl": "",
     "output": null
@@ -2018,7 +2018,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "a"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Returns the opposite boolean value",
     "helpUrl": "",
     "output": null
@@ -2027,7 +2027,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "True",
     "message0": "True",
     "args0": [],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Boolean True value",
     "helpUrl": "",
     "output": null
@@ -2036,7 +2036,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "False",
     "message0": "False",
     "args0": [],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Boolean False value",
     "helpUrl": "",
     "output": null
@@ -2054,7 +2054,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Returns True if inputs are equal",
     "helpUrl": "",
     "output": null
@@ -2072,7 +2072,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Returns True if inputs are not equal",
     "helpUrl": "",
     "output": null
@@ -2090,7 +2090,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Returns True if A > B",
     "helpUrl": "",
     "output": null
@@ -2108,7 +2108,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Returns True if A < B",
     "helpUrl": "",
     "output": null
@@ -2126,7 +2126,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Returns True if A >= B",
     "helpUrl": "",
     "output": null
@@ -2144,7 +2144,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "b"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Returns True if A <= B",
     "helpUrl": "",
     "output": null
@@ -2170,7 +2170,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "DO"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#673AB7",
     "tooltip": "Loops from starting value to ending value by increment",
     "helpUrl": "",
     "previousStatement": null,
@@ -2189,7 +2189,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value_b"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the sum of two numbers",
     "helpUrl": "",
     "output": null
@@ -2207,7 +2207,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value_b"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the difference of two numbers",
     "helpUrl": "",
     "output": null
@@ -2225,7 +2225,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value_b"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the product of two numbers",
     "helpUrl": "",
     "output": null
@@ -2243,7 +2243,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value_b"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the quotient of two numbers",
     "helpUrl": "",
     "output": null
@@ -2261,7 +2261,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value_b"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the remainder after division",
     "helpUrl": "",
     "output": null
@@ -2279,7 +2279,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "exponent"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns base raised to the power of exponent",
     "helpUrl": "",
     "output": null
@@ -2293,7 +2293,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "angle"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the sine of an angle in degrees",
     "helpUrl": "",
     "output": null
@@ -2307,7 +2307,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "angle"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the cosine of an angle in degrees",
     "helpUrl": "",
     "output": null
@@ -2321,7 +2321,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "angle"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the tangent of an angle in degrees",
     "helpUrl": "",
     "output": null
@@ -2335,7 +2335,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the arc sine in degrees",
     "helpUrl": "",
     "output": null
@@ -2349,7 +2349,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the arc cosine in degrees",
     "helpUrl": "",
     "output": null
@@ -2363,7 +2363,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the arc tangent in degrees",
     "helpUrl": "",
     "output": null
@@ -2377,7 +2377,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "",
     "helpUrl": "",
     "output": null
@@ -2391,7 +2391,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "",
     "helpUrl": "",
     "output": null
@@ -2405,7 +2405,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "",
     "helpUrl": "",
     "output": null
@@ -2423,7 +2423,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "max"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns a random integer between min and max (inclusive)",
     "helpUrl": "",
     "output": null
@@ -2441,7 +2441,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "max"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns a random real number between min and max",
     "helpUrl": "",
     "output": null
@@ -2455,7 +2455,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the absolute value of a number",
     "helpUrl": "",
     "output": null
@@ -2469,7 +2469,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the square root of a number",
     "helpUrl": "",
     "output": null
@@ -2487,7 +2487,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value_b"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the smaller of two values",
     "helpUrl": "",
     "output": null
@@ -2505,7 +2505,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value_b"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Returns the larger of two values",
     "helpUrl": "",
     "output": null
@@ -2523,7 +2523,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "rounding_type"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#1976D2",
     "tooltip": "Rounds a number to nearest integer",
     "helpUrl": "",
     "output": null
@@ -2570,7 +2570,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "text"
       }
     ],
-    "colour": "#757575",
+    "colour": "#9E9E9E",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -2580,7 +2580,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "EventPlayer",
     "message0": "Event Player",
     "args0": [],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Returns the player that triggered the event",
     "helpUrl": "",
     "output": null
@@ -2594,7 +2594,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Returns the player's current health",
     "helpUrl": "",
     "output": null
@@ -2608,7 +2608,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Returns the player's maximum health",
     "helpUrl": "",
     "output": null
@@ -2622,7 +2622,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Returns true if player is alive",
     "helpUrl": "",
     "previousStatement": null,
@@ -2637,7 +2637,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Returns true if player is dead",
     "helpUrl": "",
     "previousStatement": null,
@@ -2652,7 +2652,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Returns the player's team",
     "helpUrl": "",
     "output": null
@@ -2670,7 +2670,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "health"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Sets the player's health to a specific value",
     "helpUrl": "",
     "previousStatement": null,
@@ -2685,7 +2685,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Kills the specified player",
     "helpUrl": "",
     "previousStatement": null,
@@ -2700,7 +2700,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Respawns the specified player",
     "helpUrl": "",
     "previousStatement": null,
@@ -2719,7 +2719,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "position"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Teleports player to a position",
     "helpUrl": "",
     "previousStatement": null,
@@ -2738,7 +2738,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "max_health"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Sets the player's maximum health",
     "helpUrl": "",
     "previousStatement": null,
@@ -2753,7 +2753,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Returns the player's position",
     "helpUrl": "",
     "output": null
@@ -2767,7 +2767,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Returns the player's velocity vector",
     "helpUrl": "",
     "output": null
@@ -2781,7 +2781,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Returns the player's speed",
     "helpUrl": "",
     "output": null
@@ -2795,7 +2795,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Returns the direction the player is facing",
     "helpUrl": "",
     "output": null
@@ -2813,7 +2813,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "variable"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Gets a player variable value",
     "helpUrl": "",
     "output": null
@@ -2835,7 +2835,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Sets a player variable to a value",
     "helpUrl": "",
     "previousStatement": null,
@@ -2862,7 +2862,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Modifies a player variable",
     "helpUrl": "",
     "previousStatement": null,
@@ -2881,7 +2881,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "enable"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Enables or disables player input",
     "helpUrl": "",
     "previousStatement": null,
@@ -2896,7 +2896,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Returns the position vector of the player",
     "helpUrl": "",
     "output": null
@@ -2918,7 +2918,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "rotation"
       }
     ],
-    "colour": "#00695C",
+    "colour": "#C2185B",
     "tooltip": "Teleports the player to a location",
     "helpUrl": "",
     "previousStatement": null,
@@ -2941,7 +2941,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "z"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Creates a vector from X, Y, Z components",
     "helpUrl": "",
     "output": null
@@ -2959,7 +2959,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "end_pos"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Creates a direction vector from start to end",
     "helpUrl": "",
     "output": null
@@ -2977,7 +2977,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "position_b"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Returns distance between two positions",
     "helpUrl": "",
     "output": null
@@ -2991,7 +2991,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "vector"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Returns the X component of a vector",
     "helpUrl": "",
     "output": null
@@ -3005,7 +3005,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "vector"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Returns the Y component of a vector",
     "helpUrl": "",
     "output": null
@@ -3019,7 +3019,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "vector"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Returns the Z component of a vector",
     "helpUrl": "",
     "output": null
@@ -3033,7 +3033,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "vector"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Returns a normalized vector (length 1)",
     "helpUrl": "",
     "output": null
@@ -3051,7 +3051,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "vector_b"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Returns the dot product of two vectors",
     "helpUrl": "",
     "output": null
@@ -3069,7 +3069,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "vector_b"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Returns the cross product of two vectors",
     "helpUrl": "",
     "output": null
@@ -3083,7 +3083,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "vector"
       }
     ],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Returns the length of a vector",
     "helpUrl": "",
     "output": null
@@ -3092,7 +3092,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "Up",
     "message0": "Up",
     "args0": [],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Returns the up direction vector (0, 1, 0)",
     "helpUrl": "",
     "output": null
@@ -3101,7 +3101,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "Down",
     "message0": "Down",
     "args0": [],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Returns the down direction vector (0, -1, 0)",
     "helpUrl": "",
     "output": null
@@ -3110,7 +3110,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "Left",
     "message0": "Left",
     "args0": [],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Returns the left direction vector (-1, 0, 0)",
     "helpUrl": "",
     "output": null
@@ -3119,7 +3119,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "Right",
     "message0": "Right",
     "args0": [],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Returns the right direction vector (1, 0, 0)",
     "helpUrl": "",
     "output": null
@@ -3128,7 +3128,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "Forward",
     "message0": "Forward",
     "args0": [],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Returns the forward direction vector (0, 0, 1)",
     "helpUrl": "",
     "output": null
@@ -3137,7 +3137,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "Backward",
     "message0": "Backward",
     "args0": [],
-    "colour": "#1565C0",
+    "colour": "#212121",
     "tooltip": "Returns the backward direction vector (0, 0, -1)",
     "helpUrl": "",
     "output": null
@@ -3159,7 +3159,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "duration"
       }
     ],
-    "colour": "#039BE5",
+    "colour": "#607D8B",
     "tooltip": "Shows a message to the player",
     "helpUrl": "",
     "previousStatement": null,
@@ -3186,7 +3186,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "duration"
       }
     ],
-    "colour": "#039BE5",
+    "colour": "#607D8B",
     "tooltip": "Shows a large message on screen",
     "helpUrl": "",
     "previousStatement": null,
@@ -3209,7 +3209,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "icon"
       }
     ],
-    "colour": "#039BE5",
+    "colour": "#607D8B",
     "tooltip": "Shows a notification toast",
     "helpUrl": "",
     "previousStatement": null,
@@ -3232,7 +3232,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "visible"
       }
     ],
-    "colour": "#039BE5",
+    "colour": "#607D8B",
     "tooltip": "Shows or hides specific HUD elements",
     "helpUrl": "",
     "previousStatement": null,
@@ -3255,7 +3255,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "text"
       }
     ],
-    "colour": "#039BE5",
+    "colour": "#607D8B",
     "tooltip": "Updates text on a custom HUD element",
     "helpUrl": "",
     "previousStatement": null,
@@ -3274,7 +3274,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "hud_config"
       }
     ],
-    "colour": "#039BE5",
+    "colour": "#607D8B",
     "tooltip": "Creates a custom HUD layout",
     "helpUrl": "",
     "previousStatement": null,
@@ -3297,7 +3297,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "text"
       }
     ],
-    "colour": "#039BE5",
+    "colour": "#607D8B",
     "tooltip": "Creates a 3D marker in the world",
     "helpUrl": "",
     "previousStatement": null,
@@ -3312,7 +3312,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "marker_id"
       }
     ],
-    "colour": "#039BE5",
+    "colour": "#607D8B",
     "tooltip": "Removes a world marker",
     "helpUrl": "",
     "previousStatement": null,
@@ -3335,7 +3335,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "text"
       }
     ],
-    "colour": "#039BE5",
+    "colour": "#607D8B",
     "tooltip": "Sets the objective marker for a player",
     "helpUrl": "",
     "previousStatement": null,
@@ -3350,7 +3350,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "entries"
       }
     ],
-    "colour": "#039BE5",
+    "colour": "#607D8B",
     "tooltip": "Updates the scoreboard data",
     "helpUrl": "",
     "previousStatement": null,
@@ -3369,7 +3369,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "visible"
       }
     ],
-    "colour": "#039BE5",
+    "colour": "#607D8B",
     "tooltip": "Forces the scoreboard to show or hide",
     "helpUrl": "",
     "previousStatement": null,
@@ -3385,7 +3385,7 @@ Blockly.defineBlocksWithJsonArray(
         "text": "0"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#0288D1",
     "tooltip": "A numeric value",
     "helpUrl": "",
     "output": null
@@ -3400,7 +3400,7 @@ Blockly.defineBlocksWithJsonArray(
         "text": ""
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#0288D1",
     "tooltip": "A text value",
     "helpUrl": "",
     "output": null
@@ -3424,7 +3424,7 @@ Blockly.defineBlocksWithJsonArray(
         ]
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#0288D1",
     "tooltip": "A true/false value",
     "helpUrl": "",
     "output": null
@@ -3442,7 +3442,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "value"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#0288D1",
     "tooltip": "Sets the value of a variable",
     "helpUrl": "",
     "previousStatement": null,
@@ -3462,7 +3462,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "variable_name"
       }
     ],
-    "colour": "#0277BD",
+    "colour": "#0288D1",
     "tooltip": "Gets the value of a variable",
     "helpUrl": "",
     "output": null
@@ -3484,7 +3484,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "team"
       }
     ],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "Spawns a vehicle at a location",
     "helpUrl": "",
     "previousStatement": null,
@@ -3499,7 +3499,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "vehicle"
       }
     ],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "Removes a vehicle from the game",
     "helpUrl": "",
     "previousStatement": null,
@@ -3509,7 +3509,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "VehicleTypeTank",
     "message0": "Tank",
     "args0": [],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "Tank vehicle type",
     "helpUrl": "",
     "output": null
@@ -3518,7 +3518,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "VehicleTypeAPC",
     "message0": "APC",
     "args0": [],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "APC vehicle type",
     "helpUrl": "",
     "output": null
@@ -3527,7 +3527,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "VehicleTypeHelicopter",
     "message0": "Helicopter",
     "args0": [],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "Helicopter vehicle type",
     "helpUrl": "",
     "output": null
@@ -3536,7 +3536,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "VehicleTypeJet",
     "message0": "Jet",
     "args0": [],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "Jet vehicle type",
     "helpUrl": "",
     "output": null
@@ -3545,7 +3545,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "VehicleTypeTransport",
     "message0": "Transport",
     "args0": [],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "Transport vehicle type",
     "helpUrl": "",
     "output": null
@@ -3559,7 +3559,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "vehicle"
       }
     ],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "Returns the current health of a vehicle",
     "helpUrl": "",
     "output": null
@@ -3577,7 +3577,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "health"
       }
     ],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "Sets the health of a vehicle",
     "helpUrl": "",
     "previousStatement": null,
@@ -3592,7 +3592,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "vehicle"
       }
     ],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "Returns the player driving the vehicle",
     "helpUrl": "",
     "output": null
@@ -3610,7 +3610,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "vehicle"
       }
     ],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "Forces a player out of a vehicle",
     "helpUrl": "",
     "previousStatement": null,
@@ -3629,7 +3629,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "team"
       }
     ],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "Locks a vehicle for a specific team",
     "helpUrl": "",
     "previousStatement": null,
@@ -3648,7 +3648,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "speed"
       }
     ],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "Sets the speed of a vehicle",
     "helpUrl": "",
     "previousStatement": null,
@@ -3663,7 +3663,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "vehicle"
       }
     ],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "Disables vehicle movement and weapons",
     "helpUrl": "",
     "previousStatement": null,
@@ -3678,7 +3678,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "vehicle"
       }
     ],
-    "colour": "#558B2F",
+    "colour": "#E64A19",
     "tooltip": "Enables vehicle movement and weapons",
     "helpUrl": "",
     "previousStatement": null,

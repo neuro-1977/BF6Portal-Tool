@@ -29,11 +29,32 @@ TYPE_MAPPING = {
     "TRANSFORM": {"type": "value"},
     "VEHICLE": {"type": "value"},
     "CONDITIONS": {"type": "value", "check": "Boolean"},
-    "EVENTS": {"type": "hat"}, # Event payloads are values, but Event Listeners are Hats?
+    "EVENTS": {"type": "hat"}, 
     "MOD": {"type": "hat"},
     "RULES": {"type": "hat"},
     "SUBROUTINE": {"type": "hat"},
     "C_SHAPED": {"type": "statement", "nested": True}
+}
+
+# Define Category Order and Colors
+CATEGORY_CONFIG = {
+    "RULES": {"order": 1, "color": "#7B1FA2"}, # Purple
+    "ACTIONS": {"order": 2, "color": "#FBC02D"}, # Yellow
+    "CONDITIONS": {"order": 3, "color": "#43A047"}, # Green
+    "SUBROUTINE": {"order": 4, "color": "#795548"}, # Brown
+    "LOGIC": {"order": 5, "color": "#673AB7"}, # Violet (Control Flow)
+    "MATH": {"order": 6, "color": "#1976D2"},
+    "VALUES": {"order": 7, "color": "#0288D1"},
+    "ARRAYS": {"order": 8, "color": "#0097A7"},
+    "PLAYER": {"order": 9, "color": "#C2185B"},
+    "VEHICLES": {"order": 10, "color": "#E64A19"},
+    "GAMEPLAY": {"order": 11, "color": "#5D4037"},
+    "UI": {"order": 12, "color": "#607D8B"},
+    "AUDIO": {"order": 13, "color": "#455A64"},
+    "CAMERA": {"order": 14, "color": "#37474F"},
+    "EFFECTS": {"order": 15, "color": "#263238"},
+    "TRANSFORM": {"order": 16, "color": "#212121"},
+    "OTHER": {"order": 99, "color": "#9E9E9E"}
 }
 
 def generate_blockly_definitions(workspace_root):
@@ -58,13 +79,36 @@ def generate_blockly_definitions(workspace_root):
                 with open(data_file, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     
-                color = data.get("color", "#333333")
+                # Use configured color if available, else file color
+                color = CATEGORY_CONFIG.get(cat_name, {}).get("color", data.get("color", "#333333"))
                 
                 # Handle subcategories
                 if "sub_categories" in data:
                     for sub_name, blocks in data["sub_categories"].items():
                         for block_id, block_def in blocks.items():
                             
+                            # SPECIAL HANDLING: RULE BLOCK
+                            if block_id == "Rule":
+                                b_def = {
+                                    "type": "Rule",
+                                    "message0": "RULE %1 Event %2 %3",
+                                    "args0": [
+                                        {"type": "field_input", "name": "NAME", "text": "New Rule"},
+                                        {"type": "field_dropdown", "name": "ONGOING", "options": [["Ongoing", "ONGOING"], ["One-off", "ONEOFF"]]},
+                                        {"type": "field_dropdown", "name": "SCOPE", "options": [["Global", "GLOBAL"], ["Team", "TEAM"], ["Player", "PLAYER"]]}
+                                    ],
+                                    "message1": "Conditions %1",
+                                    "args1": [{"type": "input_statement", "name": "CONDITIONS"}],
+                                    "message2": "Actions %1",
+                                    "args2": [{"type": "input_statement", "name": "ACTIONS"}],
+                                    "colour": color,
+                                    "tooltip": "Defines a game rule",
+                                    "helpUrl": ""
+                                }
+                                block_definitions.append(b_def)
+                                toolbox_categories[cat_name].append(block_id)
+                                continue
+
                             # Create Blockly Definition
                             b_def = {
                                 "type": block_id,
@@ -206,10 +250,18 @@ def write_output(definitions, toolbox, help_data, image_map, output_dir):
         f.write("  'kind': 'categoryToolbox',\n")
         f.write("  'contents': [\n")
         
-        for cat, blocks in toolbox.items():
+        # Add Search Category (Placeholder for now, or use a label)
+        f.write("    { 'kind': 'search', 'name': 'Search', 'contents': [] },\n")
+
+        # Sort categories based on configuration
+        sorted_cats = sorted(toolbox.items(), key=lambda item: CATEGORY_CONFIG.get(item[0], {}).get("order", 99))
+
+        for cat, blocks in sorted_cats:
+            color = CATEGORY_CONFIG.get(cat, {}).get("color", "#333333")
             f.write(f"    {{\n")
             f.write(f"      'kind': 'category',\n")
             f.write(f"      'name': '{cat}',\n")
+            f.write(f"      'colour': '{color}',\n")
             f.write(f"      'contents': [\n")
             for b in blocks:
                 f.write(f"        {{ 'kind': 'block', 'type': '{b}' }},\n")
