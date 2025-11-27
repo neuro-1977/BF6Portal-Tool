@@ -1,7 +1,6 @@
 var TOOLBOX_CONFIG = {
   'kind': 'categoryToolbox',
   'contents': [
-    { 'kind': 'search', 'name': 'Search', 'contents': [] },
     {
       'kind': 'category',
       'name': 'RULES',

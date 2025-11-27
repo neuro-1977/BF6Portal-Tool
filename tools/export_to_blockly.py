@@ -253,9 +253,6 @@ def write_output(definitions, toolbox, help_data, image_map, output_dir):
         f.write("  'kind': 'categoryToolbox',\n")
         f.write("  'contents': [\n")
         
-        # Add Search Category (Placeholder for now, or use a label)
-        f.write("    { 'kind': 'search', 'name': 'Search', 'contents': [] },\n")
-
         # Sort categories based on configuration
         sorted_cats = sorted(toolbox.items(), key=lambda item: CATEGORY_CONFIG.get(item[0], {}).get("order", 99))
 
