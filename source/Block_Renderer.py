@@ -60,8 +60,11 @@ class BlockRenderer:
         # 2.5 Draw Header (Portal Style)
         self._draw_block_header(block_id)
 
-        # 3. Draw Ghost Placeholders (if empty container)
-        self._draw_ghost_placeholders(block_id)
+        # 3. Draw Snap Indicators (White Borders)
+        self._draw_snap_indicators(block_id)
+        
+        # 3.5 Draw Grip Dots
+        self._draw_grip_dots(block_id)
 
         # 4. Create Widgets (Label, Inputs) if missing
         # OPTIMIZATION: Only create widgets if they don't exist.
@@ -97,8 +100,13 @@ class BlockRenderer:
         
         x, y = block["x"], block["y"]
         width = block.get("width", self.CHILD_BLOCK_WIDTH)
-        header_height = 35 if block_type == "RULES" else 45
-        if block_type in ["CONDITIONS", "ACTIONS"]:
+        
+        header_height = 45 # Default
+        if block_type == "RULES":
+            header_height = 35
+        elif block_type == "MOD":
+            header_height = 25 # Thinner header for "wrapper" look
+        elif block_type in ["CONDITIONS", "ACTIONS"]:
             header_height = 30
 
         # Draw a subtle separator line to define the header area
@@ -120,131 +128,68 @@ class BlockRenderer:
             tags=(f"header_{block_id}", block_id)
         )
 
-    def _draw_ghost_placeholders(self, block_id):
-        """Draws semi-transparent placeholder shapes for empty containers."""
+    def _draw_snap_indicators(self, block_id):
+        """Draws white borders on snap edges as requested."""
         block = self.editor.all_blocks[block_id]
-        
-        # Clear existing ghosts
-        self.canvas.delete(f"ghost_{block_id}")
-        
-        # Only for containers
-        if block.get("type") not in ["RULES", "CONDITIONS", "ACTIONS"]:
-            return
-
-        # Check if empty (no nested blocks)
-        has_children = False
-        if "nested_blocks" in block and block["nested_blocks"]:
-            has_children = True
-            
-        if has_children:
-            return
-
+        block_type = block.get("type", "SEQUENCE")
         x, y = block["x"], block["y"]
-        header_height = 35 if block.get("type") == "RULES" else 45
+        width = block.get("width", self.CHILD_BLOCK_WIDTH)
+        height = block.get("height", self.CHILD_BLOCK_HEIGHT)
         
-        ghosts = []
+        self.canvas.delete(f"snap_{block_id}")
         
-        if block.get("type") == "RULES":
-            # Ghost 1: Conditions (Puzzle Slot)
-            # Draw "Conditions" label
-            self.canvas.create_text(
-                x + 10, y + header_height + 20,
-                text="Conditions",
-                fill="#CCCCCC",
-                font=("Arial", 9, "bold"),
-                anchor="w",
-                tags=(f"ghost_{block_id}", block_id)
+        # Horizontal Snapping Blocks (Actions/Conditions/Values)
+        if block_type in ["CONDITIONS", "ACTIONS", "EVENTS", "VALUE", "LOGIC", "MATH", "ARRAYS", "PLAYER", "GAMEPLAY", "TRANSFORM"] or block.get("category") == "ACTIONS":
+            # Draw white bracket on LEFT edge (Input)
+            # A simple vertical line with small horizontal ticks
+            self.canvas.create_line(
+                x + 2, y + 4,
+                x + 2, y + height - 4,
+                fill="white",
+                width=2,
+                tags=(f"snap_{block_id}", block_id)
             )
-            # Draw Ghost Slot
-            ghost_width = 80
-            ghost_height = 30
-            g_x = x + 90
-            g_y = y + header_height + 5
-            coords = BlockShapes.get_horizontal_snap_shape(g_x, g_y, ghost_width, ghost_height)
             
-            self.canvas.create_polygon(
-                coords,
-                fill="#1a1a1a",
-                outline="#0277BD",
-                width=1,
-                tags=(f"ghost_{block_id}", block_id)
-            )
-            self.canvas.create_text(
-                g_x + ghost_width/2, g_y + ghost_height/2,
-                text="Condition...",
-                fill="#0277BD",
-                font=("Arial", 8, "italic"),
-                tags=(f"ghost_{block_id}", block_id)
+        # Vertical Snapping Blocks (Sequence)
+        elif block_type == "SEQUENCE":
+            # Draw white line on TOP edge (Previous)
+            self.canvas.create_line(
+                x + 4, y + 2,
+                x + width - 4, y + 2,
+                fill="white",
+                width=2,
+                tags=(f"snap_{block_id}", block_id)
             )
 
-            # Ghost 2: Actions (Puzzle Slot)
-            # Draw "Actions" label
-            self.canvas.create_text(
-                x + 10, y + header_height + 60,
-                text="Actions",
-                fill="#CCCCCC",
-                font=("Arial", 9, "bold"),
-                anchor="w",
-                tags=(f"ghost_{block_id}", block_id)
+    def _draw_grip_dots(self, block_id):
+        """Draws 3 vertical dots on the left side as a grip handle."""
+        block = self.editor.all_blocks[block_id]
+        x, y = block["x"], block["y"]
+        height = block.get("height", self.CHILD_BLOCK_HEIGHT)
+        
+        self.canvas.delete(f"grip_{block_id}")
+        
+        # Center vertically
+        cy = y + height / 2
+        dot_spacing = 5
+        dot_x = x + 8 # Indent slightly
+        
+        for i in range(-1, 2): # -1, 0, 1
+            dy = i * dot_spacing
+            self.canvas.create_oval(
+                dot_x - 1, cy + dy - 1,
+                dot_x + 1, cy + dy + 1,
+                fill="#AAAAAA",
+                outline="",
+                tags=(f"grip_{block_id}", block_id)
             )
-            # Draw Ghost Slot
-            g_y2 = y + header_height + 45
-            coords2 = BlockShapes.get_horizontal_snap_shape(g_x, g_y2, ghost_width, ghost_height)
-            
-            self.canvas.create_polygon(
-                coords2,
-                fill="#1a1a1a",
-                outline="#F9A825",
-                width=1,
-                tags=(f"ghost_{block_id}", block_id)
-            )
-            self.canvas.create_text(
-                g_x + ghost_width/2, g_y2 + ghost_height/2,
-                text="Action...",
-                fill="#F9A825",
-                font=("Arial", 8, "italic"),
-                tags=(f"ghost_{block_id}", block_id)
-            )
-            
-        elif block.get("type") == "CONDITIONS":
-            ghost_width = 60
-            ghost_height = 30
-            coords = BlockShapes.get_horizontal_snap_shape(x + 25, y + 35, ghost_width, ghost_height)
-            
-            self.canvas.create_polygon(
-                coords,
-                fill="#1a1a1a",
-                outline="#2E7D32",
-                width=1,
-                tags=(f"ghost_{block_id}", block_id)
-            )
-            self.canvas.create_text(
-                x + 25 + ghost_width/2, y + 35 + ghost_height/2,
-                text="+",
-                fill="#2E7D32",
-                font=("Arial", 12, "bold"),
-                tags=(f"ghost_{block_id}", block_id)
-            )
-            
-        elif block.get("type") == "ACTIONS":
-            ghost_width = 60
-            ghost_height = 30
-            coords = BlockShapes.get_horizontal_snap_shape(x + 25, y + 35, ghost_width, ghost_height)
-            
-            self.canvas.create_polygon(
-                coords,
-                fill="#1a1a1a",
-                outline="#F9A825",
-                width=1,
-                tags=(f"ghost_{block_id}", block_id)
-            )
-            self.canvas.create_text(
-                x + 25 + ghost_width/2, y + 35 + ghost_height/2,
-                text="+",
-                fill="#F9A825",
-                font=("Arial", 12, "bold"),
-                tags=(f"ghost_{block_id}", block_id)
-            )
+
+    def _draw_ghost_placeholders(self, block_id):
+        """
+        Deprecated: Ghost placeholders removed as requested.
+        Kept empty to prevent errors if called.
+        """
+        pass
 
     def _create_block_widgets(self, block_id):
         """Creates the Tkinter widgets (Label, Entry, Dropdowns) for a block."""
@@ -365,7 +310,7 @@ class BlockRenderer:
             block["y"] + 5, 
             window=frame, 
             anchor="nw", 
-            tags=(block_id, "widget_window")
+            tags=(block_id, "widget_window", f"widget_window_{block_id}")
         )
         
         # Store reference to widgets
@@ -391,8 +336,27 @@ class BlockRenderer:
         self.draw_block(block_id)
         
         # Update widget window position
-        widget_window_ids = self.canvas.find_withtag(f"{block_id} && widget_window")
+        # Note: find_withtag with logical operators like && is not supported in standard Tkinter
+        # We should search by the specific tag we assigned
+        widget_window_ids = self.canvas.find_withtag(f"widget_window_{block_id}")
         if widget_window_ids:
-            self.canvas.coords(widget_window_ids[0], x + 5, y + 5)
+            # Scale offset by zoom
+            offset = 5 * self.editor.zoom_scale
+            self.canvas.coords(widget_window_ids[0], x + offset, y + offset)
+            self.canvas.tag_raise(widget_window_ids[0])
+
+    def update_widget_position(self, block_id):
+        """Updates only the widget window position for a block."""
+        if block_id not in self.editor.all_blocks:
+            return
+            
+        block = self.editor.all_blocks[block_id]
+        x, y = block["x"], block["y"]
+        
+        widget_window_ids = self.canvas.find_withtag(f"widget_window_{block_id}")
+        if widget_window_ids:
+            # Scale offset by zoom
+            offset = 5 * self.editor.zoom_scale
+            self.canvas.coords(widget_window_ids[0], x + offset, y + offset)
             self.canvas.tag_raise(widget_window_ids[0])
 

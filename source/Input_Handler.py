@@ -52,8 +52,8 @@ class InputHandler:
         if self.editor.drag_data["block_id"] is None:
             return
 
-        dx = event.x_root - self.editor.drag_data["x"]
-        dy = event.y_root - self.editor.drag_data["y"]
+        dx = (event.x_root - self.editor.drag_data["x"]) / self.editor.zoom_scale
+        dy = (event.y_root - self.editor.drag_data["y"]) / self.editor.zoom_scale
 
         dragged_id = self.editor.drag_data["block_id"]
         dragged_block = self.editor.all_blocks.get(dragged_id)
@@ -306,6 +306,14 @@ class InputHandler:
                         command=lambda sid=sub_id: BlockHierarchy.navigate_to_subroutine(sid, self.editor)
                     )
                 menu.add_separator()
+
+        # Add "Jump to Definition" for Call Subroutine blocks
+        if block.get('label') == "Call Subroutine":
+             menu.add_command(
+                label="Jump to Definition",
+                command=lambda: self.jump_to_subroutine_definition(block_id)
+            )
+             menu.add_separator()
         
         # Add option to create subroutine
         if block_type == 'RULES':
@@ -337,3 +345,30 @@ class InputHandler:
             pass
         finally:
             menu.grab_release()
+
+    def jump_to_subroutine_definition(self, block_id):
+        """Finds the definition of the subroutine called by block_id and jumps to it."""
+        block = self.editor.all_blocks.get(block_id)
+        if not block: return
+        
+        # Get subroutine name from widget
+        # The widget key is 'subroutine_name' based on subroutine_data.json
+        sub_name_var = block.get("widget_vars", {}).get("subroutine_name")
+        if not sub_name_var: 
+            print("No subroutine name found on block.")
+            return
+        
+        target_name = sub_name_var.get()
+        
+        # Find definition
+        for b_id, b in self.editor.all_blocks.items():
+            if b.get("type") == "SUBROUTINE":
+                # Check its name widget
+                def_name_var = b.get("widget_vars", {}).get("subroutine_name")
+                if def_name_var and def_name_var.get() == target_name:
+                    # Found it!
+                    BlockHierarchy.navigate_to_subroutine(b_id, self.editor)
+                    self.editor.select_block(b_id)
+                    return
+        
+        print(f"Subroutine definition '{target_name}' not found.")

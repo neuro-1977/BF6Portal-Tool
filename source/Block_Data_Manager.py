@@ -28,14 +28,17 @@ class BlockDataManager:
         # Updated to match Battlefield Portal Reference Order
         self.IMAGE_DATA = {
             "RULES": "#7E3F96",          # Purple
+            "MOD": "#4A4A4A",            # Dark Grey (Wrapper)
+            "SUBROUTINE": "#FBC02D",     # Yellow (User Request)
+            "LOGIC": "#4CAF50",          # Green (User Request)
+            "MATH": "#795548",           # Brown (User Request - inferred)
+            "ARRAYS": "#9C27B0",         # Purple (User Request - inferred)
             "AI": "#D32F2F",             # Red
-            "ARRAYS": "#EF6C00",         # Orange
             "AUDIO": "#AB47BC",          # Purple/Pink
             "CAMERA": "#00ACC1",         # Cyan
             "EFFECTS": "#FBC02D",        # Yellow
             "EMPLACEMENTS": "#2E7D32",   # Green
             "GAMEPLAY": "#8D6E63",       # Brown
-            "LOGIC": "#0277BD",          # Blue
             "OBJECTIVE": "#F9A825",      # Gold
             "OTHER": "#757575",          # Grey
             "PLAYER": "#00695C",         # Teal
@@ -43,12 +46,10 @@ class BlockDataManager:
             "USER INTERFACE": "#039BE5", # Light Blue
             "VEHICLES": "#558B2F",       # Light Green
             # Legacy/Internal categories (kept for compatibility if needed)
-            "MOD": "#4A4A4A",
             "EVENTS": "#2E7D32",
             "CONDITIONS": "#0277BD",
-            "ACTIONS": "#F9A825",
+            "ACTIONS": "#FFC107",
             "VALUES": "#0277BD",
-            "MATH": "#1565C0",
         }
 
         # Map for quick color lookup (only color needed for the palette background)

@@ -5,7 +5,33 @@ This document summarizes the latest enhancements to the BF6 Portal Block Editor,
 
 ---
 
-## New Features
+## New Features (November 2025)
+
+### 1. **Visual & Layout Refinements**
+- **Horizontal Layout for Logic Chains**: CONDITIONS and ACTIONS now stack horizontally (side-by-side) instead of vertically, matching the Portal editor style.
+- **Improved Sidebar**: Sidebar items now render as miniature blocks (using `tk.Canvas`) instead of simple buttons, providing a better visual preview.
+- **Color Updates**: ACTIONS blocks are now Yellow (`#FFC107`) to match the official Portal editor.
+- **Ghost Placeholders**: "Add Action/Condition" placeholders (+) are now correctly positioned to the right of horizontal chains.
+
+### 2. **Zoom & Navigation Fixes**
+- **Zoom Crash Fix**: Fixed a critical issue where zooming caused widgets (inputs/dropdowns) to detach or crash the app.
+- **Smoother Dragging**: Optimized drag logic to account for zoom scale, preventing "jumpy" movement when zoomed in.
+- **Reset UI**: Added a "Reset UI" button to clear the workspace and restore defaults.
+- **Redraw Refresh**: Added a "Refresh" button to force a complete redraw of all blocks if visual glitches occur.
+
+### 3. **Code Preview & Export**
+- **Regenerate Code**: Renamed "Apply Code Changes" to "Regenerate Code" to clarify its function (updates the preview from the workspace).
+- **Export Options**: The Export button now opens a dialog allowing you to choose between **Workspace JSON** (`.json`) and **Portal Script** (`.txt`) formats.
+- **Minimizable Preview**: Fixed the "Live Code Output" pane so it can be properly toggled/minimized.
+
+### 4. **Bug Fixes**
+- **Double Spawn**: Fixed an issue where clicking a sidebar item would spawn two blocks.
+- **Missing Categories**: Restored visibility of "MOD", "RULES", "CONDITIONS", "ACTIONS", and "EVENTS" in the sidebar.
+- **Import Layout**: Fixed import logic to correctly position horizontal blocks.
+
+---
+
+## Previous Improvements
 
 ### 1. **Resizable Splitter Between Canvas and Code Pane**
 - **Location:** Between canvas workspace and live code output panel

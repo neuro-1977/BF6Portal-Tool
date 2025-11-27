@@ -15,13 +15,20 @@
             }
         },
         "Call Subroutine": {
-            "CALL_SUBROUTINE": {
+            "CallSubroutine": {
                 "label": "Call Subroutine",
                 "type": "SEQUENCE",
                 "args": ["subroutine_name"],
                 "widgets": {
                     "subroutine_name": {"type": "dropdown", "options": ["NewSubroutine"], "default": "NewSubroutine"}
-                }
+                },
+                "description": "Executes a subroutine"
+            },
+            "Return": {
+                "label": "Return",
+                "type": "SEQUENCE",
+                "args": [],
+                "description": "Returns from the current subroutine"
             }
         }
     }

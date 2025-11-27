@@ -2,6 +2,32 @@
     "color": "#0277BD",
     "sub_categories": {
         "Control Flow": {
+            "Wait": {
+                "label": "Wait",
+                "type": "ACTIONS",
+                "args": ["seconds"],
+                "param_labels": {
+                    "seconds": "Seconds"
+                },
+                "param_icons": {
+                    "seconds": "123"
+                },
+                "description": "Pauses execution for a specified time"
+            },
+            "WaitUntil": {
+                "label": "Wait Until",
+                "type": "ACTIONS",
+                "args": ["condition", "timeout"],
+                "param_labels": {
+                    "condition": "Condition",
+                    "timeout": "Timeout"
+                },
+                "param_icons": {
+                    "condition": "⚙",
+                    "timeout": "123"
+                },
+                "description": "Pauses execution until condition is true"
+            },
             "Break": {
                 "label": "Break",
                 "type": "SEQUENCE",

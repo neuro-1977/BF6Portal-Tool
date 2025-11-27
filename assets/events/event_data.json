@@ -4,6 +4,50 @@
         "Game Events": {
             "ON_START": {"label": "On Game Start", "type": "EVENTS", "args": []},
             "ON_PLAYER_JOIN": {"label": "On Player Join", "type": "EVENTS", "args": ["player"]}
+        },
+        "Event Payloads": {
+            "EventAttacker": {
+                "label": "Event Attacker",
+                "type": "VALUE",
+                "args": [],
+                "description": "The player who caused the event (e.g. the killer)"
+            },
+            "EventDamage": {
+                "label": "Event Damage",
+                "type": "VALUE",
+                "args": [],
+                "description": "The amount of damage dealt in the event"
+            },
+            "EventLocation": {
+                "label": "Event Location",
+                "type": "VALUE",
+                "args": [],
+                "description": "The location where the event occurred"
+            },
+            "EventPlayer": {
+                "label": "Event Player",
+                "type": "VALUE",
+                "args": [],
+                "description": "The primary player involved in the event"
+            },
+            "EventTeam": {
+                "label": "Event Team",
+                "type": "VALUE",
+                "args": [],
+                "description": "The team involved in the event"
+            },
+            "EventVictim": {
+                "label": "Event Victim",
+                "type": "VALUE",
+                "args": [],
+                "description": "The player who was the victim of the event"
+            },
+            "EventWeapon": {
+                "label": "Event Weapon",
+                "type": "VALUE",
+                "args": [],
+                "description": "The weapon used in the event"
+            }
         }
     }
 }

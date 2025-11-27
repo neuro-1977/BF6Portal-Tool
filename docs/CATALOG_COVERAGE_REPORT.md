@@ -4,8 +4,8 @@ Generated on: 27/11/2025
 
 **Summary:**
 - Total Expected Blocks: 207
-- Total Implemented Blocks: 171
-- Coverage: 82%
+- Total Implemented Blocks: 180
+- Coverage: 86%
 
 ---
 
@@ -222,6 +222,13 @@ Progress: 0/6 (0.0%)
 Progress: 0/0 (0.0%)
 
 ### ⚠️ Extra / Unmatched Names
+- Event Attacker
+- Event Damage
+- Event Location
+- Event Player
+- Event Team
+- Event Victim
+- Event Weapon
 - On Game Start
 - On Player Join
 
@@ -284,6 +291,10 @@ Progress: 5/12 (41.7%)
 - For Variable
 - If
 - While
+
+### ⚠️ Extra / Unmatched Names
+- Wait
+- Wait Until
 
 ---
 ## MATH

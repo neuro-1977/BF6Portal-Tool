@@ -334,8 +334,20 @@ def _import_portal_blocks(editor, portal_blocks):
         # Process Next (Sequence)
         next_block_data = block_data.get("next", {}).get("block")
         if next_block_data:
-            # Next block is a sibling, usually vertically stacked
-            next_id = process_block(next_block_data, parent_id=None, x=x, y=y+50, is_value=False)
+            # Determine layout direction based on current block type
+            # Default to vertical stacking
+            next_x = x
+            next_y = y + height + 5 # Use actual height + gap
+            
+            # Horizontal layout for specific types
+            if my_type in ["CONDITIONS", "ACTIONS"]:
+                 next_x = x + width - 10 # Overlap slightly for snapping visual? Or just gap?
+                 # Portal blocks snap tight. Let's use width.
+                 next_x = x + width
+                 next_y = y
+            
+            # Next block is a sibling
+            next_id = process_block(next_block_data, parent_id=None, x=next_x, y=next_y, is_value=False)
             editor.all_blocks[bid]["next_sibling_id"] = next_id
             
         return bid

@@ -1,14 +1,39 @@
-# Implementation Status - November 26, 2025
+# Implementation Status - November 27, 2025
 
 ## Summary of Recent Work
 
-This document tracks the implementation status of editable value blocks and dropdown menu support for the Portal Block Editor.
+This document tracks the implementation status of the Portal Block Editor, including the recent "Portal Style" visual overhaul.
 
 ---
 
 ## ✅ Completed Features
 
-### 1. Editable Value Blocks System
+### 1. Portal Style Visual Overhaul (November 27, 2025)
+
+**Status:** IMPLEMENTED ✓
+
+A major visual update to match the official Battlefield Portal web editor:
+
+#### Visual Changes:
+- **Flush Block Shapes**: Removed "puzzle piece" tabs/notches. Blocks now use clean, rounded rectangle shapes.
+- **Snap Indicators**: Added white vertical/horizontal lines to indicate snap edges (Left edge for Actions, Top edge for Sequence).
+- **Grip Dots**: Added 3 vertical dots on the left side of blocks to indicate draggable areas.
+- **Color Scheme Update**:
+  - **SUBROUTINE**: Yellow (`#FBC02D`)
+  - **LOGIC**: Green (`#4CAF50`)
+  - **MATH**: Brown (`#795548`)
+  - **ARRAYS**: Purple (`#9C27B0`)
+  - **MOD**: Dark Grey (`#4A4A4A`) - "Wrapper" style
+  - **RULES**: Purple (`#7E3F96`)
+- **MOD Block Redesign**: Reduced header height to 25px to give it a thinner, "wrapper" appearance.
+
+#### Functional Changes:
+- **Subroutine Navigation**: Added "Jump to Definition" in the context menu for "Call Subroutine" blocks.
+- **Workspace Analysis**: Added warnings for multiple MOD blocks (only one allowed per script).
+- **Reset UI**: Added a button to clear the workspace.
+- **Refresh**: Added a button to force a redraw of all blocks.
+
+### 2. Editable Value Blocks System
 
 **Status:** IMPLEMENTED ✓
 

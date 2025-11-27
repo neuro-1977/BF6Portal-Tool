@@ -1,24 +1,28 @@
 import tkinter as tk
-from tkinter import ttk, colorchooser, filedialog
-import math
+from tkinter import ttk, messagebox, filedialog
 import tkinter.font as tkfont
+import tkinter.messagebox
 import json
-import traceback  # Import traceback
+import os
+import math
+import traceback
+from pathlib import Path
+
 from Block_Data_Manager import BlockDataManager
 from editor_helpers import get_dropdown_items, update_code_output
 from io_handlers import show_exported_json, show_import_dialog
 from workspace_loader import load_blocks_from_json as workspace_load
 from Block_Mover import BlockMover
+from Zoom_Manager import ZoomManager
+from Workspace_Analyzer import WorkspaceAnalyzer
 from block_shapes import BlockShapes
 from block_hierarchy import BlockHierarchy
 from Code_Generator import CodeGenerator
-from Zoom_Manager import ZoomManager
 from Block_Renderer import BlockRenderer
 from Input_Handler import InputHandler
 # from Snap_Handler import SnapHandler  # Not used - Portal-style blocks connect via proximity
 from Help_System import HelpSystem
 from Error_Logger import get_logger, setup_exception_handler, log_tkinter_errors
-from pathlib import Path
 
 
 class BlockEditor:
@@ -418,11 +422,26 @@ class BlockEditor:
             self.zoom_scale = new_scale
 
             # Update visual positions
+            # We need to be careful here. The canvas.scale() call above already moved the canvas objects (polygons, text).
+            # But it DOES NOT move window objects (widgets).
+            # And update_block_position() redraws the polygon based on block["x"], which we just updated.
+            # So we might be double-moving or conflicting.
+            
+            # Better approach for Zoom:
+            # 1. Update logical coordinates (block["x"], etc)
+            # 2. Redraw everything from scratch at new scale
+            # This is safer than trying to scale existing objects + move widgets separately
+            
             for bid in list(self.all_blocks.keys()):
                 try:
-                    self.update_block_position(bid)
-                except Exception:
-                    pass
+                    # Force a full redraw of the block at the new position/scale
+                    self.block_renderer.draw_block(bid)
+                    
+                    # Update widget positions explicitly
+                    # Widgets are not scaled by canvas.scale(), so we must move them
+                    self.block_renderer.update_widget_position(bid)
+                except Exception as e:
+                    print(f"Error updating block {bid} during zoom: {e}")
 
             # Refresh scrollregion
             try:
@@ -596,8 +615,10 @@ class BlockEditor:
         
         for name, color in image_data.items():
             # Skip legacy/internal categories if they shouldn't be in the main menu
-            if name in ["MOD", "CONDITIONS", "ACTIONS", "EVENTS", "VALUES", "MATH"]:
-                continue
+            # User requested MOD/RULES/CONDITIONS to be visible.
+            # We will include them.
+            # if name in ["MOD", "CONDITIONS", "ACTIONS", "EVENTS", "VALUES", "MATH"]:
+            #    continue
 
             # Create category button
             create_category_btn(name, color)
@@ -832,8 +853,8 @@ class BlockEditor:
             
             apply_code_btn = tk.Button(
                 code_button_frame,
-                text="Apply Code Changes",
-                command=self.apply_code_changes,
+                text="Regenerate Code",
+                command=self.update_code_preview,
                 bg="#4CAF50",
                 fg="white",
                 font=("Arial", 9, "bold"),
@@ -843,10 +864,23 @@ class BlockEditor:
             )
             apply_code_btn.pack(side="left", padx=2)
             
-            refresh_code_btn = tk.Button(
+            reset_ui_btn = tk.Button(
+                code_button_frame,
+                text="Reset UI",
+                command=self.reset_workspace,
+                bg="#F44336",
+                fg="white",
+                font=("Arial", 9, "bold"),
+                activebackground="#D32F2F",
+                activeforeground="white",
+                bd=0,
+            )
+            reset_ui_btn.pack(side="left", padx=2)
+
+            refresh_btn = tk.Button(
                 code_button_frame,
                 text="Refresh",
-                command=self.refresh_ui,
+                command=self.redraw_all_blocks,
                 bg="#2196F3",
                 fg="white",
                 font=("Arial", 9, "bold"),
@@ -854,7 +888,7 @@ class BlockEditor:
                 activeforeground="white",
                 bd=0,
             )
-            refresh_code_btn.pack(side="left", padx=2)
+            refresh_btn.pack(side="left", padx=2)
 
             self.code_output_text = tk.Text(
                 self.right_code_frame,
@@ -871,6 +905,7 @@ class BlockEditor:
 
             self.right_pane_width = 360
             self.splitter_drag_data = {"x": 0}
+            self.is_code_pane_visible = True
 
     def on_splitter_press(self, event):
         """Handle splitter press event."""
@@ -1119,39 +1154,65 @@ class BlockEditor:
                 font=("Arial", 8, "bold"),
                 anchor="w",
                 padx=12,
-                pady=(10, 4)
+                pady=4  # Fixed: Tuple padding not supported in Label constructor on some systems
             )
-            sub_header.pack(fill="x")
+            sub_header.pack(fill="x", pady=(6, 0)) # Apply top margin here instead
 
             # Blocks
             for block_id, label_text in visible_blocks:
-                item_panel = tk.Frame(
+                # Use a Canvas to draw the block shape for a better visual preview
+                item_height = 34
+                item_width = 220
+                
+                item_canvas = tk.Canvas(
                     self.sidebar_list_container,
-                    bg=color,
-                    height=40,
+                    bg="#1a1a1a",
+                    height=item_height,
+                    width=item_width,
                     bd=0,
+                    highlightthickness=0,
                     cursor="hand2"
                 )
-                item_panel.pack(fill="x", padx=8, pady=2)
-                item_panel.pack_propagate(False)
+                item_canvas.pack(fill="x", padx=8, pady=2)
                 
-                lbl = tk.Label(
-                    item_panel,
+                # Determine shape based on category
+                shape_coords = []
+                shape_x_offset = 10  # Shift right to show left tabs
+                
+                if tab_name in ["CONDITIONS", "ACTIONS", "EVENTS"] or tab_name == "ACTIONS":
+                     shape_coords = BlockShapes.get_horizontal_snap_shape(shape_x_offset, 0, item_width, item_height, left_tab=True, right_tab=False)
+                elif tab_name in ["RULES", "MOD", "SUBROUTINE"]:
+                     # Simplified container shape
+                     shape_coords = BlockShapes.get_blockly_container_shape(shape_x_offset, 0, item_width, item_height, 10) 
+                else:
+                     # Standard statement shape
+                     shape_coords = BlockShapes.get_blockly_statement_shape(shape_x_offset, 0, item_width, item_height, top_notch=True, bottom_notch=True)
+
+                # Draw the block shape
+                item_canvas.create_polygon(
+                    shape_coords,
+                    fill=color,
+                    outline="#333333",
+                    width=1,
+                    tags=("block", block_id)
+                )
+                
+                # Draw text
+                item_canvas.create_text(
+                    shape_x_offset + 20, item_height/2,
                     text=label_text,
-                    bg=color,
-                    fg=text_fg,
+                    fill=text_fg,
                     font=("Arial", 9, "bold"),
                     anchor="w",
-                    padx=10
+                    tags=("text", block_id)
                 )
-                lbl.pack(side="left", fill="both", expand=True)
                 
                 # Bind clicks to spawn a block
-                for w in (item_panel, lbl):
-                    w.bind(
-                        "<Button-1>",
-                        lambda e, name=tab_name, k=block_id: self.spawn_block_from_sidebar(name, k)
-                    )
+                # We bind to the canvas and its items
+                callback = lambda e, name=tab_name, k=block_id: self.spawn_block_from_sidebar(name, k)
+                item_canvas.bind("<Button-1>", callback)
+                # item_canvas.tag_bind("block", "<Button-1>", callback)
+                # item_canvas.tag_bind("text", "<Button-1>", callback)
 
         if not any_items_shown:
              tk.Label(self.sidebar_list_container, text="No items found", bg="#1a1a1a", fg="#888888").pack(pady=10)
@@ -1849,11 +1910,14 @@ Height: {panel_info.get('h', 0)}"""
         
         # Create subroutine block
         sub_id = self.get_new_block_id()
+        # Use color from data manager if available, else fallback to Yellow
+        sub_color = self.data_manager.IMAGE_DATA.get("SUBROUTINE", "#FBC02D")
+        
         self.all_blocks[sub_id] = {
             'id': sub_id,
             'label': 'Subroutine',
             'type': 'SUBROUTINE',
-            'color': '#CD853F',  # Light orange-brown
+            'color': sub_color,
             'x': sub_x,
             'y': sub_y,
             'width': 280,
@@ -1896,6 +1960,9 @@ Height: {panel_info.get('h', 0)}"""
         self._remove_from_parent(block)
         
         # Remove widgets/canvas items
+        # Delete all canvas items associated with this block ID (including ghosts, headers, etc.)
+        self.canvas.delete(block_id)
+        
         if block["canvas_obj"]:
             self.canvas.delete(block["canvas_obj"])
         for widget in block["widgets"]:
@@ -2031,6 +2098,32 @@ Height: {panel_info.get('h', 0)}"""
             tk.messagebox.showerror("Error", f"Failed to apply changes: {e}")
 
 
+
+    def reset_workspace(self):
+        """Resets the workspace to the default state."""
+        if tk.messagebox.askyesno("Reset UI", "Are you sure you want to reset the workspace? Unsaved changes will be lost."):
+            self.canvas.delete("all")
+            self.draw_grid()
+            self.all_blocks.clear()
+            self.current_id = 0
+            self.place_initial_blocks()
+            self.update_code_preview()
+            self.logger.log_info("Workspace", "Workspace reset to default")
+
+    def redraw_all_blocks(self):
+        """Forces a complete redraw of all blocks to fix visual glitches."""
+        self.canvas.delete("all")
+        # Re-draw grid
+        self.draw_grid()
+        
+        # Re-draw all blocks
+        # Sort by ID to maintain some order, or just iterate
+        # We need to be careful about z-order.
+        # Ideally we should traverse the tree, but iterating all_blocks is safer for orphans.
+        for block_id in self.all_blocks:
+            self.block_renderer.draw_block(block_id)
+            
+        self.logger.log_info("Workspace", "Forced redraw of all blocks")
 
     def refresh_ui(self):
         """Refresh the UI and code preview."""
@@ -2248,10 +2341,77 @@ Height: {panel_info.get('h', 0)}"""
 
     def analyze_workspace(self):
         """Analyze the workspace for errors and suggestions."""
-        # Placeholder for analysis logic
-        # In the future, this will check for missing inputs, disconnected blocks, etc.
-        # For now, just show a message
-        tk.messagebox.showinfo("Analyze Workspace", "Analysis complete.\n\nNo errors found (Placeholder).")
+        analyzer = WorkspaceAnalyzer(self)
+        issues = analyzer.analyze()
+        
+        if not issues:
+            tk.messagebox.showinfo("Analyze Workspace", "Analysis complete.\n\nNo issues found! Great job.")
+            return
+
+        # Create a results window
+        result_window = tk.Toplevel(self.root)
+        result_window.title("Analysis Results")
+        result_window.geometry("600x400")
+        result_window.configure(bg="#1e1e1e")
+        
+        # Header
+        header = tk.Label(
+            result_window, 
+            text=f"Found {len(issues)} Issue(s)", 
+            font=("Arial", 14, "bold"),
+            bg="#1e1e1e", 
+            fg="white"
+        )
+        header.pack(pady=10)
+        
+        # List area
+        list_frame = tk.Frame(result_window, bg="#1e1e1e")
+        list_frame.pack(fill="both", expand=True, padx=10, pady=5)
+        
+        scrollbar = tk.Scrollbar(list_frame)
+        scrollbar.pack(side="right", fill="y")
+        
+        # Treeview for issues
+        columns = ("type", "message")
+        tree = ttk.Treeview(
+            list_frame, 
+            columns=columns, 
+            show="headings", 
+            yscrollcommand=scrollbar.set,
+            selectmode="browse"
+        )
+        
+        tree.heading("type", text="Type")
+        tree.heading("message", text="Message")
+        
+        tree.column("type", width=80, anchor="center")
+        tree.column("message", width=450, anchor="w")
+        
+        tree.pack(side="left", fill="both", expand=True)
+        scrollbar.config(command=tree.yview)
+        
+        # Style for treeview
+        style = ttk.Style()
+        style.configure("Treeview", rowheight=25)
+        
+        # Populate list
+        for issue in issues:
+            icon = "❌" if issue["type"] == "error" else "⚠️"
+            tree.insert("", "end", values=(f"{icon} {issue['type'].upper()}", issue["message"]), tags=(issue["type"],))
+            
+        tree.tag_configure("error", foreground="#ff5252")
+        tree.tag_configure("warning", foreground="#ffb74d")
+        
+        # Close button
+        close_btn = tk.Button(
+            result_window,
+            text="Close",
+            command=result_window.destroy,
+            bg="#444",
+            fg="white",
+            width=15
+        )
+        close_btn.pack(pady=10)
         
 if __name__ == "__main__":
     try:
