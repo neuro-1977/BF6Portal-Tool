@@ -48,6 +48,41 @@ Improvements to the project structure and visual assets.
 A major visual update to match the official Battlefield Portal web editor:
 
 #### Visual Changes:
+- **Dark Theme**: Implemented a dark grey/black theme consistent with the official editor.
+- **Sidebar Styling**:
+  - Dynamic color-coded flyout menus matching category colors.
+  - Improved text contrast for light-colored categories.
+- **Block Rendering**:
+  - Updated block shapes and colors to match Portal aesthetics.
+
+### 4. Distribution & Build System (November 27, 2025)
+
+**Status:** IMPLEMENTED ✓
+
+Enabled standalone executable generation for Windows users.
+
+#### Features:
+- **Build Script**: Created `tools/build_distribution.py` using PyInstaller.
+- **Resource Management**: Implemented `source/resource_helper.py` to handle path resolution for frozen (EXE) and dev environments.
+- **Asset Bundling**: Configured build to include all JSON assets and icons.
+
+### 5. Block Catalog Expansion (November 27, 2025)
+
+**Status:** IMPLEMENTED ✓
+
+Significantly expanded the block definitions to match the expected Portal catalog.
+
+#### Changes:
+- **Populated Categories**:
+  - `camera_data.json`: Added full suite of camera control blocks.
+  - `effects_data.json`: Added VFX and screen effect blocks.
+  - `ui_data.json`: Added HUD, Message, and Scoreboard blocks.
+  - `vehicles_data.json`: Added vehicle spawning and control blocks.
+- **Coverage**: Increased implemented block count from 197 to 228 (110% coverage relative to initial baseline).
+
+---
+
+## 🚧 In Progress / Next Steps
 - **Flush Block Shapes**: Removed "puzzle piece" tabs/notches. Blocks now use clean, rounded rectangle shapes.
 - **Snap Indicators**: Added white vertical/horizontal lines to indicate snap edges (Left edge for Actions, Top edge for Sequence).
 - **Grip Dots**: Added 3 vertical dots on the left side of blocks to indicate draggable areas.

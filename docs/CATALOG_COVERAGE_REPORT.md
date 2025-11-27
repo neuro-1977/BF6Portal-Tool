@@ -4,8 +4,8 @@ Generated on: 27/11/2025
 
 **Summary:**
 - Total Expected Blocks: 207
-- Total Implemented Blocks: 197
-- Coverage: 95%
+- Total Implemented Blocks: 228
+- Coverage: 110%
 
 ---
 
@@ -126,9 +126,9 @@ Progress: 2/5 (40.0%)
 
 ---
 ## CAMERA
-Progress: 0/9 (0.0%)
+Progress: 9/9 (100.0%)
 
-### ❌ Missing
+### ✅ Implemented
 - Camera Shake
 - First Person Camera
 - Free Camera
@@ -138,10 +138,6 @@ Progress: 0/9 (0.0%)
 - Set Player Camera
 - Spectator Camera
 - Third Person Camera
-
-### ⚠️ Extra / Unmatched Names
-- SetCameraTypeForAll
-- SetCameraTypeForPlayer
 
 ---
 ## CONDITION
@@ -182,9 +178,9 @@ Progress: 0/0 (0.0%)
 
 ---
 ## EFFECTS
-Progress: 0/7 (0.0%)
+Progress: 7/7 (100.0%)
 
-### ❌ Missing
+### ✅ Implemented
 - Apply Screen Filter
 - Explosion Effect
 - Particle Effect
@@ -192,11 +188,6 @@ Progress: 0/7 (0.0%)
 - Screen Fade
 - Screen Flash
 - Stop Effect
-
-### ⚠️ Extra / Unmatched Names
-- EnableScreenEffect
-- EnableVFX
-- MoveVFX
 
 ---
 ## EMPLACEMENT
@@ -477,10 +468,17 @@ Progress: 1/17 (5.9%)
 Progress: 0/0 (0.0%)
 
 ### ⚠️ Extra / Unmatched Names
-- Add UI Container
-- Add UI Text
-- ShowMessage
-- ShowNotification
+- Create Custom HUD
+- Create World Marker
+- Remove World Marker
+- Set HUD Visible
+- Set Objective Marker
+- Show Big Message
+- Show Message
+- Show Notification
+- Show Scoreboard
+- Update HUD Text
+- Update Scoreboard
 
 ---
 ## USER
@@ -515,8 +513,21 @@ Progress: 0/0 (0.0%)
 Progress: 0/0 (0.0%)
 
 ### ⚠️ Extra / Unmatched Names
-- DestroyVehicle
-- SpawnVehicle
+- APC
+- Despawn Vehicle
+- Disable Vehicle
+- Eject from Vehicle
+- Enable Vehicle
+- Get Vehicle Driver
+- Get Vehicle Health
+- Helicopter
+- Jet
+- Lock Vehicle
+- Set Vehicle Health
+- Set Vehicle Speed
+- Spawn Vehicle
+- Tank
+- Transport
 
 ---
 ## VEHICLES

@@ -1,23 +1,50 @@
 {
     "color": "#FBC02D",
     "sub_categories": {
-        "SCREENEFFECTS": {
-            "EnableScreenEffect": {
-                "label": "EnableScreenEffect",
+        "Visual Effects": {
+            "PlayEffect": {
+                "label": "Play Effect",
                 "type": "ACTIONS",
-                "args": ["player", "effect_type", "enabled"]
+                "args": ["effect_type", "location", "scale"],
+                "description": "Plays a visual effect at a location"
+            },
+            "StopEffect": {
+                "label": "Stop Effect",
+                "type": "ACTIONS",
+                "args": ["effect_id"],
+                "description": "Stops a playing effect"
+            },
+            "ParticleEffect": {
+                "label": "Particle Effect",
+                "type": "VALUE",
+                "args": ["particle_type"],
+                "description": "Returns a particle effect type"
+            },
+            "ExplosionEffect": {
+                "label": "Explosion Effect",
+                "type": "VALUE",
+                "args": ["explosion_type"],
+                "description": "Returns an explosion effect type"
             }
         },
-        "VFX": {
-            "EnableVFX": {
-                "label": "EnableVFX",
+        "Screen Effects": {
+            "ScreenFlash": {
+                "label": "Screen Flash",
                 "type": "ACTIONS",
-                "args": ["vfx_id", "enabled"]
+                "args": ["player", "color", "duration"],
+                "description": "Flashes the player's screen with a color"
             },
-            "MoveVFX": {
-                "label": "MoveVFX",
+            "ScreenFade": {
+                "label": "Screen Fade",
                 "type": "ACTIONS",
-                "args": ["vfx_id", "position", "rotation"]
+                "args": ["player", "fade_type", "duration"],
+                "description": "Fades the player's screen"
+            },
+            "ApplyScreenFilter": {
+                "label": "Apply Screen Filter",
+                "type": "ACTIONS",
+                "args": ["player", "filter_type"],
+                "description": "Applies a visual filter to the player's screen"
             }
         }
     }

@@ -192,6 +192,10 @@ class SidebarManager:
         self.current_dropdown_tab = tab_name
         self.dropdown_visible = True
         
+        # Get category color for border
+        color = self.editor.data_manager.palette_color_map.get(tab_name, "#2d2d2d")
+        self.dropdown_panel.configure(highlightbackground=color, highlightthickness=2)
+        
         # Use place to overlay the dropdown panel next to the sidebar
         self.dropdown_panel.place(
             x=self.SIDEBAR_WIDTH, 
@@ -233,14 +237,17 @@ class SidebarManager:
         sub_cats = cat_data.get("sub_categories", {})
         
         color = self.editor.data_manager.palette_color_map.get(tab_name, "#2d2d2d")
-        text_fg = "#000000" if tab_name == "ACTIONS" else "white"
+        
+        # Determine text color based on background brightness (simple heuristic or manual list)
+        light_categories = ["ACTIONS", "SUBROUTINE", "EFFECTS", "OBJECTIVE"]
+        text_fg = "#000000" if tab_name in light_categories else "white"
 
         # Main Header
         header = tk.Label(
             self.sidebar_list_container,
             text=f"{tab_name}",
-            bg="#2d2d2d",
-            fg="white",
+            bg=color,
+            fg=text_fg,
             font=("Arial", 11, "bold"),
             anchor="w",
             padx=12,

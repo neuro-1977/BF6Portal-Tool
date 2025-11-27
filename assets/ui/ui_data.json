@@ -1,30 +1,78 @@
 {
     "color": "#039BE5",
     "sub_categories": {
-        "UI Elements": {
-            "AddUIContainer": {
-                "label": "Add UI Container",
-                "type": "ACTIONS",
-                "args": ["id", "position", "rotation", "anchor", "player"],
-                "description": "Adds a UI container"
-            },
-            "AddUIText": {
-                "label": "Add UI Text",
-                "type": "ACTIONS",
-                "args": ["id", "position", "rotation", "anchor", "text", "player"],
-                "description": "Adds text to the UI"
-            }
-        },
-        "GENERAL": {
+        "Messages": {
             "ShowMessage": {
-                "label": "ShowMessage",
+                "label": "Show Message",
                 "type": "ACTIONS",
-                "args": ["message", "duration"]
+                "args": ["player", "message", "duration"],
+                "description": "Shows a message to the player"
+            },
+            "ShowBigMessage": {
+                "label": "Show Big Message",
+                "type": "ACTIONS",
+                "args": ["player", "title", "subtitle", "duration"],
+                "description": "Shows a large message on screen"
             },
             "ShowNotification": {
-                "label": "ShowNotification",
+                "label": "Show Notification",
                 "type": "ACTIONS",
-                "args": ["title", "message"]
+                "args": ["player", "text", "icon"],
+                "description": "Shows a notification toast"
+            }
+        },
+        "HUD Elements": {
+            "SetHUDVisible": {
+                "label": "Set HUD Visible",
+                "type": "ACTIONS",
+                "args": ["player", "hud_element", "visible"],
+                "description": "Shows or hides specific HUD elements"
+            },
+            "UpdateHUDText": {
+                "label": "Update HUD Text",
+                "type": "ACTIONS",
+                "args": ["player", "hud_id", "text"],
+                "description": "Updates text on a custom HUD element"
+            },
+            "CreateCustomHUD": {
+                "label": "Create Custom HUD",
+                "type": "ACTIONS",
+                "args": ["player", "hud_config"],
+                "description": "Creates a custom HUD layout"
+            }
+        },
+        "Indicators": {
+            "CreateWorldMarker": {
+                "label": "Create World Marker",
+                "type": "ACTIONS",
+                "args": ["location", "icon", "text"],
+                "description": "Creates a 3D marker in the world"
+            },
+            "RemoveWorldMarker": {
+                "label": "Remove World Marker",
+                "type": "ACTIONS",
+                "args": ["marker_id"],
+                "description": "Removes a world marker"
+            },
+            "SetObjectiveMarker": {
+                "label": "Set Objective Marker",
+                "type": "ACTIONS",
+                "args": ["player", "location", "text"],
+                "description": "Sets the objective marker for a player"
+            }
+        },
+        "Scoreboard": {
+            "UpdateScoreboard": {
+                "label": "Update Scoreboard",
+                "type": "ACTIONS",
+                "args": ["entries"],
+                "description": "Updates the scoreboard data"
+            },
+            "ShowScoreboard": {
+                "label": "Show Scoreboard",
+                "type": "ACTIONS",
+                "args": ["player", "visible"],
+                "description": "Forces the scoreboard to show or hide"
             }
         }
     }

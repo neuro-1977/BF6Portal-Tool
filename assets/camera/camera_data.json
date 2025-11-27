@@ -1,16 +1,62 @@
 {
     "color": "#00ACC1",
     "sub_categories": {
-        "GENERAL": {
-            "SetCameraTypeForAll": {
-                "label": "SetCameraTypeForAll",
+        "Camera Control": {
+            "SetPlayerCamera": {
+                "label": "Set Player Camera",
                 "type": "ACTIONS",
-                "args": ["camera_type", "duration"]
+                "args": ["player", "camera_mode"],
+                "description": "Sets the camera mode for a specific player"
             },
-            "SetCameraTypeForPlayer": {
-                "label": "SetCameraTypeForPlayer",
+            "LockCameraToTarget": {
+                "label": "Lock Camera to Target",
                 "type": "ACTIONS",
-                "args": ["player", "camera_type", "duration"]
+                "args": ["player", "target"],
+                "description": "Locks the player's camera to look at a target"
+            },
+            "CameraShake": {
+                "label": "Camera Shake",
+                "type": "ACTIONS",
+                "args": ["player", "intensity", "duration"],
+                "description": "Applies a shake effect to the player's camera"
+            },
+            "SetCameraFOV": {
+                "label": "Set Camera FOV",
+                "type": "ACTIONS",
+                "args": ["player", "fov"],
+                "description": "Sets the Field of View for the player's camera"
+            },
+            "ResetCamera": {
+                "label": "Reset Camera",
+                "type": "ACTIONS",
+                "args": ["player"],
+                "description": "Resets the player's camera to default"
+            }
+        },
+        "Camera Modes": {
+            "FirstPersonCamera": {
+                "label": "First Person Camera",
+                "type": "VALUE",
+                "args": [],
+                "description": "First person camera mode"
+            },
+            "ThirdPersonCamera": {
+                "label": "Third Person Camera",
+                "type": "VALUE",
+                "args": [],
+                "description": "Third person camera mode"
+            },
+            "FreeCamera": {
+                "label": "Free Camera",
+                "type": "VALUE",
+                "args": [],
+                "description": "Free camera mode"
+            },
+            "SpectatorCamera": {
+                "label": "Spectator Camera",
+                "type": "VALUE",
+                "args": [],
+                "description": "Spectator camera mode"
             }
         }
     }

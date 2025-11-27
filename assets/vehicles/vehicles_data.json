@@ -1,16 +1,102 @@
 {
     "color": "#558B2F",
     "sub_categories": {
-        "GENERAL": {
+        "Vehicle Spawning": {
             "SpawnVehicle": {
-                "label": "SpawnVehicle",
+                "label": "Spawn Vehicle",
                 "type": "ACTIONS",
-                "args": ["vehicle_type", "position", "rotation"]
+                "args": ["vehicle_type", "location", "team"],
+                "description": "Spawns a vehicle at a location"
             },
-            "DestroyVehicle": {
-                "label": "DestroyVehicle",
+            "DespawnVehicle": {
+                "label": "Despawn Vehicle",
                 "type": "ACTIONS",
-                "args": ["vehicle"]
+                "args": ["vehicle"],
+                "description": "Removes a vehicle from the game"
+            }
+        },
+        "Vehicle Types": {
+            "VehicleTypeTank": {
+                "label": "Tank",
+                "type": "VALUE",
+                "args": [],
+                "description": "Tank vehicle type"
+            },
+            "VehicleTypeAPC": {
+                "label": "APC",
+                "type": "VALUE",
+                "args": [],
+                "description": "APC vehicle type"
+            },
+            "VehicleTypeHelicopter": {
+                "label": "Helicopter",
+                "type": "VALUE",
+                "args": [],
+                "description": "Helicopter vehicle type"
+            },
+            "VehicleTypeJet": {
+                "label": "Jet",
+                "type": "VALUE",
+                "args": [],
+                "description": "Jet vehicle type"
+            },
+            "VehicleTypeTransport": {
+                "label": "Transport",
+                "type": "VALUE",
+                "args": [],
+                "description": "Transport vehicle type"
+            }
+        },
+        "Vehicle Properties": {
+            "GetVehicleHealth": {
+                "label": "Get Vehicle Health",
+                "type": "VALUE",
+                "args": ["vehicle"],
+                "description": "Returns the current health of a vehicle"
+            },
+            "SetVehicleHealth": {
+                "label": "Set Vehicle Health",
+                "type": "ACTIONS",
+                "args": ["vehicle", "health"],
+                "description": "Sets the health of a vehicle"
+            },
+            "GetVehicleDriver": {
+                "label": "Get Vehicle Driver",
+                "type": "VALUE",
+                "args": ["vehicle"],
+                "description": "Returns the player driving the vehicle"
+            },
+            "EjectFromVehicle": {
+                "label": "Eject from Vehicle",
+                "type": "ACTIONS",
+                "args": ["player", "vehicle"],
+                "description": "Forces a player out of a vehicle"
+            },
+            "LockVehicle": {
+                "label": "Lock Vehicle",
+                "type": "ACTIONS",
+                "args": ["vehicle", "team"],
+                "description": "Locks a vehicle for a specific team"
+            }
+        },
+        "Vehicle Control": {
+            "SetVehicleSpeed": {
+                "label": "Set Vehicle Speed",
+                "type": "ACTIONS",
+                "args": ["vehicle", "speed"],
+                "description": "Sets the speed of a vehicle"
+            },
+            "DisableVehicle": {
+                "label": "Disable Vehicle",
+                "type": "ACTIONS",
+                "args": ["vehicle"],
+                "description": "Disables vehicle movement and weapons"
+            },
+            "EnableVehicle": {
+                "label": "Enable Vehicle",
+                "type": "ACTIONS",
+                "args": ["vehicle"],
+                "description": "Enables vehicle movement and weapons"
             }
         }
     }
