@@ -12,6 +12,7 @@ Blockly.defineBlocksWithJsonArray(
     "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
+    "inputsInline": true,
     "previousStatement": null,
     "nextStatement": null
   },
@@ -27,6 +28,7 @@ Blockly.defineBlocksWithJsonArray(
     "colour": "#FBC02D",
     "tooltip": "",
     "helpUrl": "",
+    "inputsInline": true,
     "previousStatement": null,
     "nextStatement": null
   },
@@ -971,6 +973,7 @@ Blockly.defineBlocksWithJsonArray(
     "colour": "#455A64",
     "tooltip": "",
     "helpUrl": "",
+    "inputsInline": true,
     "previousStatement": null,
     "nextStatement": null
   },
@@ -1124,6 +1127,7 @@ Blockly.defineBlocksWithJsonArray(
     "colour": "#37474F",
     "tooltip": "Sets the camera mode for a specific player",
     "helpUrl": "",
+    "inputsInline": true,
     "previousStatement": null,
     "nextStatement": null
   },
@@ -1143,6 +1147,7 @@ Blockly.defineBlocksWithJsonArray(
     "colour": "#37474F",
     "tooltip": "Locks the player's camera to look at a target",
     "helpUrl": "",
+    "inputsInline": true,
     "previousStatement": null,
     "nextStatement": null
   },
@@ -1166,6 +1171,7 @@ Blockly.defineBlocksWithJsonArray(
     "colour": "#37474F",
     "tooltip": "Applies a shake effect to the player's camera",
     "helpUrl": "",
+    "inputsInline": true,
     "previousStatement": null,
     "nextStatement": null
   },
@@ -1185,6 +1191,7 @@ Blockly.defineBlocksWithJsonArray(
     "colour": "#37474F",
     "tooltip": "Sets the Field of View for the player's camera",
     "helpUrl": "",
+    "inputsInline": true,
     "previousStatement": null,
     "nextStatement": null
   },
@@ -1200,6 +1207,7 @@ Blockly.defineBlocksWithJsonArray(
     "colour": "#37474F",
     "tooltip": "Resets the player's camera to default",
     "helpUrl": "",
+    "inputsInline": true,
     "previousStatement": null,
     "nextStatement": null
   },
@@ -1495,7 +1503,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "rotation"
       }
     ],
-    "colour": "#2E7D32",
+    "colour": "#8D6E63",
     "tooltip": "",
     "helpUrl": "",
     "previousStatement": null,
@@ -1505,7 +1513,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "ON_START",
     "message0": "On Game Start",
     "args0": [],
-    "colour": "#2E7D32",
+    "colour": "#D32F2F",
     "tooltip": "",
     "helpUrl": "",
     "nextStatement": null
@@ -1519,7 +1527,7 @@ Blockly.defineBlocksWithJsonArray(
         "name": "player"
       }
     ],
-    "colour": "#2E7D32",
+    "colour": "#D32F2F",
     "tooltip": "",
     "helpUrl": "",
     "nextStatement": null
@@ -1528,7 +1536,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "EventAttacker",
     "message0": "Event Attacker",
     "args0": [],
-    "colour": "#2E7D32",
+    "colour": "#D32F2F",
     "tooltip": "The player who caused the event (e.g. the killer)",
     "helpUrl": "",
     "output": null
@@ -1537,7 +1545,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "EventDamage",
     "message0": "Event Damage",
     "args0": [],
-    "colour": "#2E7D32",
+    "colour": "#D32F2F",
     "tooltip": "The amount of damage dealt in the event",
     "helpUrl": "",
     "output": null
@@ -1546,7 +1554,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "EventLocation",
     "message0": "Event Location",
     "args0": [],
-    "colour": "#2E7D32",
+    "colour": "#D32F2F",
     "tooltip": "The location where the event occurred",
     "helpUrl": "",
     "output": null
@@ -1555,7 +1563,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "EventPlayer",
     "message0": "Event Player",
     "args0": [],
-    "colour": "#2E7D32",
+    "colour": "#D32F2F",
     "tooltip": "The primary player involved in the event",
     "helpUrl": "",
     "output": null
@@ -1564,7 +1572,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "EventTeam",
     "message0": "Event Team",
     "args0": [],
-    "colour": "#2E7D32",
+    "colour": "#D32F2F",
     "tooltip": "The team involved in the event",
     "helpUrl": "",
     "output": null
@@ -1573,7 +1581,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "EventVictim",
     "message0": "Event Victim",
     "args0": [],
-    "colour": "#2E7D32",
+    "colour": "#D32F2F",
     "tooltip": "The player who was the victim of the event",
     "helpUrl": "",
     "output": null
@@ -1582,7 +1590,7 @@ Blockly.defineBlocksWithJsonArray(
     "type": "EventWeapon",
     "message0": "Event Weapon",
     "args0": [],
-    "colour": "#2E7D32",
+    "colour": "#D32F2F",
     "tooltip": "The weapon used in the event",
     "helpUrl": "",
     "output": null
@@ -2908,6 +2916,7 @@ Blockly.defineBlocksWithJsonArray(
     "colour": "#7B1FA2",
     "tooltip": "",
     "helpUrl": "",
+    "previousStatement": null,
     "nextStatement": null
   },
   {
@@ -3829,6 +3838,1532 @@ var BLOCK_HELP = {
       "Test subroutines in isolation before using them in multiple places",
       "Document what parameters your subroutine expects",
       "Think of subroutines as mini-mods within your main mod"
+    ]
+  },
+  "AIBattlefieldBehaviour": {
+    "title": "AIBattlefieldBehaviour",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "AIDefendPositionBehaviour": {
+    "title": "AIDefendPositionBehaviour",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "AIIdleBehaviour": {
+    "title": "AIIdleBehaviour",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "AILOSMoveTOBehaviour": {
+    "title": "AILOSMoveTOBehaviour",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "AIMoveToBehaviour": {
+    "title": "AIMoveToBehaviour",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "AIParachuteBehaviour": {
+    "title": "AIParachuteBehaviour",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "AIValidateMoveToBehaviour": {
+    "title": "AIValidateMoveToBehaviour",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "AIWaypointIdleBehaviour": {
+    "title": "AIWaypointIdleBehaviour",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "SetPlayerHealth": {
+    "title": "SetPlayerHealth",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: player, amount"
+    ]
+  },
+  "SetPlayerLoadout": {
+    "title": "SetPlayerLoadout",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: player, loadout"
+    ]
+  },
+  "Teleport": {
+    "title": "Teleport",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: player, location"
+    ]
+  },
+  "EndRound": {
+    "title": "EndRound",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: winner"
+    ]
+  },
+  "PauseRound": {
+    "title": "PauseRound",
+    "description": "No description available.",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "AIBattlefieldBehavior": {
+    "title": "AI Battlefield Behavior",
+    "description": "Sets the AI to standard battlefield combat behavior",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "AIDefendPositionBehavior": {
+    "title": "AI Defend Position Behavior",
+    "description": "Orders AI to defend a specific area",
+    "usage": [
+      "Inputs: player, position, radius, time"
+    ]
+  },
+  "AIIdleBehavior": {
+    "title": "AI Idle Behavior",
+    "description": "Sets the AI to idle state",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "AIMoveToBehavior": {
+    "title": "AI Move To Behavior",
+    "description": "Orders AI to move to a location",
+    "usage": [
+      "Inputs: player, position, sprint"
+    ]
+  },
+  "AIParachuteBehavior": {
+    "title": "AI Parachute Behavior",
+    "description": "Orders AI to deploy parachute",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "AIWaypointIdleBehavior": {
+    "title": "AI Waypoint Idle Behavior",
+    "description": "AI waits at a waypoint for a duration",
+    "usage": [
+      "Inputs: player, time"
+    ]
+  },
+  "AIFollowPlayer": {
+    "title": "AI Follow Player",
+    "description": "Orders AI to follow a specific player",
+    "usage": [
+      "Inputs: ai_player, target_player, distance"
+    ]
+  },
+  "AIHoldPosition": {
+    "title": "AI Hold Position",
+    "description": "Orders AI to hold their current position",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "AIAttackTarget": {
+    "title": "AI Attack Target",
+    "description": "Orders AI to attack a specific target",
+    "usage": [
+      "Inputs: ai_player, target_player"
+    ]
+  },
+  "SetAIBehavior": {
+    "title": "Set AI Behavior",
+    "description": "Sets the general behavior mode for the AI",
+    "usage": [
+      "Inputs: player, behavior_mode"
+    ]
+  },
+  "DeployAI": {
+    "title": "Deploy AI",
+    "description": "Spawns a new AI soldier",
+    "usage": [
+      "Inputs: team, soldier_type, position, kit"
+    ]
+  },
+  "DespawnAI": {
+    "title": "Despawn AI",
+    "description": "Removes an AI soldier from the game",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "SetAISpawnLocation": {
+    "title": "Set AI Spawn Location",
+    "description": "Sets where AI soldiers will spawn",
+    "usage": [
+      "Inputs: team, position"
+    ]
+  },
+  "SetAIHealth": {
+    "title": "Set AI Health",
+    "description": "Sets the health of an AI soldier",
+    "usage": [
+      "Inputs: player, amount"
+    ]
+  },
+  "SetAITeam": {
+    "title": "Set AI Team",
+    "description": "Changes the team of an AI soldier",
+    "usage": [
+      "Inputs: player, team_id"
+    ]
+  },
+  "GetAIHealth": {
+    "title": "Get AI Health",
+    "description": "Returns the current health of an AI soldier",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "GetAITeam": {
+    "title": "Get AI Team",
+    "description": "Returns the team ID of an AI soldier",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "AIIsAlive": {
+    "title": "AI Is Alive",
+    "description": "Checks if an AI soldier is currently alive",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "SetVariableAtIndex": {
+    "title": "Set Array Element",
+    "description": "Sets a value at a specific index in an array variable",
+    "usage": [
+      "Inputs: variable, index, value"
+    ]
+  },
+  "EmptyArray": {
+    "title": "Create Empty Array",
+    "description": "Creates an empty array",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "ArrayLiteral": {
+    "title": "Array Literal",
+    "description": "Creates an array from a list of values",
+    "usage": [
+      "Inputs: value1, value2, value3"
+    ]
+  },
+  "ArrayOfSize": {
+    "title": "Array of Size",
+    "description": "Creates an array of a specific size filled with a value",
+    "usage": [
+      "Inputs: size, initial_value"
+    ]
+  },
+  "ArrayFromPlayers": {
+    "title": "All Players",
+    "description": "Creates an array of all players, optionally filtered by team",
+    "usage": [
+      "Inputs: team"
+    ]
+  },
+  "ArrayFromDeadPlayers": {
+    "title": "All Dead Players",
+    "description": "Creates an array of all dead players",
+    "usage": [
+      "Inputs: team"
+    ]
+  },
+  "ArrayFromLivingPlayers": {
+    "title": "All Living Players",
+    "description": "Creates an array of all living players",
+    "usage": [
+      "Inputs: team"
+    ]
+  },
+  "ClearArray": {
+    "title": "Clear Array",
+    "description": "Removes all elements from an array",
+    "usage": [
+      "Inputs: array"
+    ]
+  },
+  "ConcatArrays": {
+    "title": "Concat Arrays",
+    "description": "Combines two arrays into one",
+    "usage": [
+      "Inputs: array1, array2"
+    ]
+  },
+  "ReverseArray": {
+    "title": "Reverse Array",
+    "description": "Reverses the order of elements in an array",
+    "usage": [
+      "Inputs: array"
+    ]
+  },
+  "AppendToArray": {
+    "title": "Add to Array",
+    "description": "Adds a value to the end of an array",
+    "usage": [
+      "Inputs: array, value"
+    ]
+  },
+  "RemoveFromArray": {
+    "title": "Remove from Array",
+    "description": "Removes a value from an array",
+    "usage": [
+      "Inputs: array, value"
+    ]
+  },
+  "RemoveFromArrayByIndex": {
+    "title": "Remove from Array by Index",
+    "description": "Removes an element at a specific index",
+    "usage": [
+      "Inputs: array, index"
+    ]
+  },
+  "ArraySlice": {
+    "title": "Slice Array",
+    "description": "Returns a portion of an array",
+    "usage": [
+      "Inputs: array, start_index, count"
+    ]
+  },
+  "RandomValueInArray": {
+    "title": "Random Value In Array",
+    "description": "Returns a random element from the array",
+    "usage": [
+      "Inputs: array"
+    ]
+  },
+  "ValueInArray": {
+    "title": "Get Array Element",
+    "description": "Returns the value at the specified index",
+    "usage": [
+      "Inputs: array, index"
+    ]
+  },
+  "FirstOf": {
+    "title": "First Of",
+    "description": "Returns the first element in the array",
+    "usage": [
+      "Inputs: array"
+    ]
+  },
+  "LastOf": {
+    "title": "Last Of",
+    "description": "Returns the last element in the array",
+    "usage": [
+      "Inputs: array"
+    ]
+  },
+  "IndexOfArrayValue": {
+    "title": "Index Of",
+    "description": "Returns the index of a value in the array",
+    "usage": [
+      "Inputs: array, value"
+    ]
+  },
+  "CountOf": {
+    "title": "Array Length",
+    "description": "Returns the number of elements in the array",
+    "usage": [
+      "Inputs: array"
+    ]
+  },
+  "ArrayContains": {
+    "title": "Contains",
+    "description": "Returns true if array contains the value",
+    "usage": [
+      "Inputs: array, value"
+    ]
+  },
+  "ForEachInArray": {
+    "title": "For Each in Array",
+    "description": "Executes nested blocks for each item in the array",
+    "usage": [
+      "Inputs: array, variable"
+    ]
+  },
+  "MapArray": {
+    "title": "Map Array",
+    "description": "Creates a new array by applying a transformation to each element",
+    "usage": [
+      "Inputs: array, mapping_expression"
+    ]
+  },
+  "FilteredArray": {
+    "title": "Filter Array",
+    "description": "Returns array with elements matching condition",
+    "usage": [
+      "Inputs: array, condition"
+    ]
+  },
+  "SortedArray": {
+    "title": "Sort Array",
+    "description": "Returns a sorted copy of the array",
+    "usage": [
+      "Inputs: array, value_rank"
+    ]
+  },
+  "LoadMusic": {
+    "title": "LoadMusic",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: music_id"
+    ]
+  },
+  "PlayMusic": {
+    "title": "PlayMusic",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: music_id, players"
+    ]
+  },
+  "SetMusicParam": {
+    "title": "SetMusicParam",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: music_id, param, players"
+    ]
+  },
+  "UnloadMusic": {
+    "title": "UnloadMusic",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: music_id"
+    ]
+  },
+  "PlaySound": {
+    "title": "PlaySound",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: sound_id, position, players, volume, pitch"
+    ]
+  },
+  "PlayVO": {
+    "title": "PlayVO",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: vo_id, speaker, listener, players"
+    ]
+  },
+  "StopSound": {
+    "title": "StopSound",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: sound_id, players"
+    ]
+  },
+  "SetPlayerCamera": {
+    "title": "Set Player Camera",
+    "description": "Sets the camera mode for a specific player",
+    "usage": [
+      "Inputs: player, camera_mode"
+    ]
+  },
+  "LockCameraToTarget": {
+    "title": "Lock Camera to Target",
+    "description": "Locks the player's camera to look at a target",
+    "usage": [
+      "Inputs: player, target"
+    ]
+  },
+  "CameraShake": {
+    "title": "Camera Shake",
+    "description": "Applies a shake effect to the player's camera",
+    "usage": [
+      "Inputs: player, intensity, duration"
+    ]
+  },
+  "SetCameraFOV": {
+    "title": "Set Camera FOV",
+    "description": "Sets the Field of View for the player's camera",
+    "usage": [
+      "Inputs: player, fov"
+    ]
+  },
+  "ResetCamera": {
+    "title": "Reset Camera",
+    "description": "Resets the player's camera to default",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "FirstPersonCamera": {
+    "title": "First Person Camera",
+    "description": "First person camera mode",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "ThirdPersonCamera": {
+    "title": "Third Person Camera",
+    "description": "Third person camera mode",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "FreeCamera": {
+    "title": "Free Camera",
+    "description": "Free camera mode",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "SpectatorCamera": {
+    "title": "Spectator Camera",
+    "description": "Spectator camera mode",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "Equal": {
+    "title": "Equal",
+    "description": "Returns true if A equals B",
+    "usage": [
+      "Inputs: value_a, value_b"
+    ]
+  },
+  "NotEqual": {
+    "title": "Not Equal",
+    "description": "Returns true if A does not equal B",
+    "usage": [
+      "Inputs: value_a, value_b"
+    ]
+  },
+  "LessThan": {
+    "title": "Less Than",
+    "description": "Returns true if A is less than B",
+    "usage": [
+      "Inputs: value_a, value_b"
+    ]
+  },
+  "LessThanOrEqual": {
+    "title": "Less Than Or Equal",
+    "description": "Returns true if A is less than or equal to B",
+    "usage": [
+      "Inputs: value_a, value_b"
+    ]
+  },
+  "GreaterThan": {
+    "title": "Greater Than",
+    "description": "Returns true if A is greater than B",
+    "usage": [
+      "Inputs: value_a, value_b"
+    ]
+  },
+  "GreaterThanOrEqual": {
+    "title": "Greater Than Or Equal",
+    "description": "Returns true if A is greater than or equal to B",
+    "usage": [
+      "Inputs: value_a, value_b"
+    ]
+  },
+  "PlayEffect": {
+    "title": "Play Effect",
+    "description": "Plays a visual effect at a location",
+    "usage": [
+      "Inputs: effect_type, location, scale"
+    ]
+  },
+  "StopEffect": {
+    "title": "Stop Effect",
+    "description": "Stops a playing effect",
+    "usage": [
+      "Inputs: effect_id"
+    ]
+  },
+  "ParticleEffect": {
+    "title": "Particle Effect",
+    "description": "Returns a particle effect type",
+    "usage": [
+      "Inputs: particle_type"
+    ]
+  },
+  "ExplosionEffect": {
+    "title": "Explosion Effect",
+    "description": "Returns an explosion effect type",
+    "usage": [
+      "Inputs: explosion_type"
+    ]
+  },
+  "ScreenFlash": {
+    "title": "Screen Flash",
+    "description": "Flashes the player's screen with a color",
+    "usage": [
+      "Inputs: player, color, duration"
+    ]
+  },
+  "ScreenFade": {
+    "title": "Screen Fade",
+    "description": "Fades the player's screen",
+    "usage": [
+      "Inputs: player, fade_type, duration"
+    ]
+  },
+  "ApplyScreenFilter": {
+    "title": "Apply Screen Filter",
+    "description": "Applies a visual filter to the player's screen",
+    "usage": [
+      "Inputs: player, filter_type"
+    ]
+  },
+  "DeployEmplacement": {
+    "title": "DeployEmplacement",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: emplacement_id, position, rotation"
+    ]
+  },
+  "ON_START": {
+    "title": "On Game Start",
+    "description": "No description available.",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "ON_PLAYER_JOIN": {
+    "title": "On Player Join",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "EventAttacker": {
+    "title": "Event Attacker",
+    "description": "The player who caused the event (e.g. the killer)",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "EventDamage": {
+    "title": "Event Damage",
+    "description": "The amount of damage dealt in the event",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "EventLocation": {
+    "title": "Event Location",
+    "description": "The location where the event occurred",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "EventPlayer": {
+    "title": "Event Player",
+    "description": "The primary player involved in the event",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "EventTeam": {
+    "title": "Event Team",
+    "description": "The team involved in the event",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "EventVictim": {
+    "title": "Event Victim",
+    "description": "The player who was the victim of the event",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "EventWeapon": {
+    "title": "Event Weapon",
+    "description": "The weapon used in the event",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "EndMatch": {
+    "title": "End Match",
+    "description": "Ends the current match",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "SetMatchTime": {
+    "title": "Set Match Time",
+    "description": "Sets the match time remaining",
+    "usage": [
+      "Inputs: time"
+    ]
+  },
+  "GetMatchTime": {
+    "title": "Match Time",
+    "description": "Returns the current match time",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "PauseMatchTime": {
+    "title": "Pause Match Time",
+    "description": "Pauses the match timer",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "ResumeMatchTime": {
+    "title": "Resume Match Time",
+    "description": "Resumes the match timer",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "SetTeamScore": {
+    "title": "Set Team Score",
+    "description": "Sets a team's score",
+    "usage": [
+      "Inputs: team, score"
+    ]
+  },
+  "GetTeamScore": {
+    "title": "Team Score",
+    "description": "Returns a team's score",
+    "usage": [
+      "Inputs: team"
+    ]
+  },
+  "ModifyTeamScore": {
+    "title": "Modify Team Score",
+    "description": "Adds to a team's score",
+    "usage": [
+      "Inputs: team, amount"
+    ]
+  },
+  "DeclarePlayerTeamWinner": {
+    "title": "Declare Team Winner",
+    "description": "Declares a team as the winner",
+    "usage": [
+      "Inputs: team"
+    ]
+  },
+  "SetRespawnTime": {
+    "title": "Set Respawn Time",
+    "description": "Sets the player's respawn time",
+    "usage": [
+      "Inputs: player, time"
+    ]
+  },
+  "DisableRespawn": {
+    "title": "Disable Respawn",
+    "description": "Prevents player from respawning",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "EnableRespawn": {
+    "title": "Enable Respawn",
+    "description": "Allows player to respawn",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "GetGlobalVariable": {
+    "title": "Global Variable",
+    "description": "Gets a global variable value",
+    "usage": [
+      "Inputs: variable"
+    ]
+  },
+  "SetGlobalVariable": {
+    "title": "Set Global Variable",
+    "description": "Sets a global variable",
+    "usage": [
+      "Inputs: variable, value"
+    ]
+  },
+  "ModifyGlobalVariable": {
+    "title": "Modify Global Variable",
+    "description": "Modifies a global variable",
+    "usage": [
+      "Inputs: variable, operation, value"
+    ]
+  },
+  "Wait": {
+    "title": "Wait",
+    "description": "Pauses execution for a specified time",
+    "usage": [
+      "Inputs: seconds"
+    ]
+  },
+  "WaitUntil": {
+    "title": "Wait Until",
+    "description": "Pauses execution until condition is true",
+    "usage": [
+      "Inputs: condition, timeout"
+    ]
+  },
+  "Break": {
+    "title": "Break",
+    "description": "Exits the current loop immediately",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "Continue": {
+    "title": "Continue",
+    "description": "Skips to the next iteration of the current loop",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "If": {
+    "title": "If",
+    "description": "Executes nested blocks if condition is true",
+    "usage": [
+      "Inputs: condition"
+    ]
+  },
+  "While": {
+    "title": "While",
+    "description": "Repeats nested blocks while condition is true",
+    "usage": [
+      "Inputs: condition"
+    ]
+  },
+  "And": {
+    "title": "And",
+    "description": "Returns True if both inputs are True",
+    "usage": [
+      "Inputs: a, b"
+    ]
+  },
+  "Or": {
+    "title": "Or",
+    "description": "Returns True if either input is True",
+    "usage": [
+      "Inputs: a, b"
+    ]
+  },
+  "Not": {
+    "title": "Not",
+    "description": "Returns the opposite boolean value",
+    "usage": [
+      "Inputs: a"
+    ]
+  },
+  "True": {
+    "title": "True",
+    "description": "Boolean True value",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "False": {
+    "title": "False",
+    "description": "Boolean False value",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "GreaterThanEqual": {
+    "title": "Greater Than Or Equal",
+    "description": "Returns True if A >= B",
+    "usage": [
+      "Inputs: a, b"
+    ]
+  },
+  "LessThanEqual": {
+    "title": "Less Than Or Equal",
+    "description": "Returns True if A <= B",
+    "usage": [
+      "Inputs: a, b"
+    ]
+  },
+  "ForVariable": {
+    "title": "ForVariable",
+    "description": "Loops from starting value to ending value by increment",
+    "usage": [
+      "Inputs: from_value, to_value, by_value"
+    ]
+  },
+  "Add": {
+    "title": "Add",
+    "description": "Returns the sum of two numbers",
+    "usage": [
+      "Inputs: value_a, value_b"
+    ]
+  },
+  "Subtract": {
+    "title": "Subtract",
+    "description": "Returns the difference of two numbers",
+    "usage": [
+      "Inputs: value_a, value_b"
+    ]
+  },
+  "Multiply": {
+    "title": "Multiply",
+    "description": "Returns the product of two numbers",
+    "usage": [
+      "Inputs: value_a, value_b"
+    ]
+  },
+  "Divide": {
+    "title": "Divide",
+    "description": "Returns the quotient of two numbers",
+    "usage": [
+      "Inputs: value_a, value_b"
+    ]
+  },
+  "Modulo": {
+    "title": "Modulo",
+    "description": "Returns the remainder after division",
+    "usage": [
+      "Inputs: value_a, value_b"
+    ]
+  },
+  "RaiseToPower": {
+    "title": "Raise To Power",
+    "description": "Returns base raised to the power of exponent",
+    "usage": [
+      "Inputs: base, exponent"
+    ]
+  },
+  "Sine": {
+    "title": "Sine",
+    "description": "Returns the sine of an angle in degrees",
+    "usage": [
+      "Inputs: angle"
+    ]
+  },
+  "Cosine": {
+    "title": "Cosine",
+    "description": "Returns the cosine of an angle in degrees",
+    "usage": [
+      "Inputs: angle"
+    ]
+  },
+  "Tangent": {
+    "title": "Tangent",
+    "description": "Returns the tangent of an angle in degrees",
+    "usage": [
+      "Inputs: angle"
+    ]
+  },
+  "ArcSine": {
+    "title": "Arc Sine",
+    "description": "Returns the arc sine in degrees",
+    "usage": [
+      "Inputs: value"
+    ]
+  },
+  "ArcCosine": {
+    "title": "Arc Cosine",
+    "description": "Returns the arc cosine in degrees",
+    "usage": [
+      "Inputs: value"
+    ]
+  },
+  "ArcTangent": {
+    "title": "Arc Tangent",
+    "description": "Returns the arc tangent in degrees",
+    "usage": [
+      "Inputs: value"
+    ]
+  },
+  "Round": {
+    "title": "Round",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: value"
+    ]
+  },
+  "Ceil": {
+    "title": "Ceiling",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: value"
+    ]
+  },
+  "Floor": {
+    "title": "Floor",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: value"
+    ]
+  },
+  "RandomInteger": {
+    "title": "Random Integer",
+    "description": "Returns a random integer between min and max (inclusive)",
+    "usage": [
+      "Inputs: min, max"
+    ]
+  },
+  "RandomReal": {
+    "title": "Random Real",
+    "description": "Returns a random real number between min and max",
+    "usage": [
+      "Inputs: min, max"
+    ]
+  },
+  "AbsoluteValue": {
+    "title": "Absolute Value",
+    "description": "Returns the absolute value of a number",
+    "usage": [
+      "Inputs: value"
+    ]
+  },
+  "SquareRoot": {
+    "title": "Square Root",
+    "description": "Returns the square root of a number",
+    "usage": [
+      "Inputs: value"
+    ]
+  },
+  "Min": {
+    "title": "Min",
+    "description": "Returns the smaller of two values",
+    "usage": [
+      "Inputs: value_a, value_b"
+    ]
+  },
+  "Max": {
+    "title": "Max",
+    "description": "Returns the larger of two values",
+    "usage": [
+      "Inputs: value_a, value_b"
+    ]
+  },
+  "RoundToInteger": {
+    "title": "Round To Integer",
+    "description": "Rounds a number to nearest integer",
+    "usage": [
+      "Inputs: value, rounding_type"
+    ]
+  },
+  "MOD_BLOCK": {
+    "title": "MOD",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: mod_name, description"
+    ]
+  },
+  "SetObjectiveState": {
+    "title": "SetObjectiveState",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: objective, state"
+    ]
+  },
+  "GetObjectiveState": {
+    "title": "GetObjectiveState",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: objective"
+    ]
+  },
+  "Comment": {
+    "title": "Comment",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: text"
+    ]
+  },
+  "GetPlayerHealth": {
+    "title": "Health",
+    "description": "Returns the player's current health",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "GetPlayerMaxHealth": {
+    "title": "Max Health",
+    "description": "Returns the player's maximum health",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "IsPlayerAlive": {
+    "title": "Is Alive",
+    "description": "Returns true if player is alive",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "IsPlayerDead": {
+    "title": "Is Dead",
+    "description": "Returns true if player is dead",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "GetPlayerTeam": {
+    "title": "Team Of",
+    "description": "Returns the player's team",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "KillPlayer": {
+    "title": "Kill",
+    "description": "Kills the specified player",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "RespawnPlayer": {
+    "title": "Respawn",
+    "description": "Respawns the specified player",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "TeleportPlayer": {
+    "title": "Teleport",
+    "description": "Teleports player to a position",
+    "usage": [
+      "Inputs: player, position"
+    ]
+  },
+  "SetPlayerMaxHealth": {
+    "title": "Set Max Health",
+    "description": "Sets the player's maximum health",
+    "usage": [
+      "Inputs: player, max_health"
+    ]
+  },
+  "GetPlayerPosition": {
+    "title": "Position Of",
+    "description": "Returns the player's position",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "GetPlayerVelocity": {
+    "title": "Velocity Of",
+    "description": "Returns the player's velocity vector",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "GetPlayerSpeed": {
+    "title": "Speed Of",
+    "description": "Returns the player's speed",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "GetPlayerFacingDirection": {
+    "title": "Facing Direction Of",
+    "description": "Returns the direction the player is facing",
+    "usage": [
+      "Inputs: player"
+    ]
+  },
+  "GetPlayerVariable": {
+    "title": "Player Variable",
+    "description": "Gets a player variable value",
+    "usage": [
+      "Inputs: player, variable"
+    ]
+  },
+  "SetPlayerVariable": {
+    "title": "Set Player Variable",
+    "description": "Sets a player variable to a value",
+    "usage": [
+      "Inputs: player, variable, value"
+    ]
+  },
+  "ModifyPlayerVariable": {
+    "title": "Modify Player Variable",
+    "description": "Modifies a player variable",
+    "usage": [
+      "Inputs: player, variable, operation, value"
+    ]
+  },
+  "EnablePlayerInput": {
+    "title": "Enable Input",
+    "description": "Enables or disables player input",
+    "usage": [
+      "Inputs: player, enable"
+    ]
+  },
+  "RULE_HEADER": {
+    "title": "RULE",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: rule_name, event_type, scope, is_global"
+    ]
+  },
+  "SUBROUTINE_BLOCK": {
+    "title": "SUBROUTINE",
+    "description": "No description available.",
+    "usage": [
+      "Inputs: subroutine_name"
+    ]
+  },
+  "CallSubroutine": {
+    "title": "Call Subroutine",
+    "description": "Executes a subroutine",
+    "usage": [
+      "Inputs: subroutine_name"
+    ]
+  },
+  "Return": {
+    "title": "Return",
+    "description": "Returns from the current subroutine",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "Vector": {
+    "title": "Vector",
+    "description": "Creates a vector from X, Y, Z components",
+    "usage": [
+      "Inputs: x, y, z"
+    ]
+  },
+  "VectorTowards": {
+    "title": "Vector Towards",
+    "description": "Creates a direction vector from start to end",
+    "usage": [
+      "Inputs: start_pos, end_pos"
+    ]
+  },
+  "DistanceBetween": {
+    "title": "Distance Between",
+    "description": "Returns distance between two positions",
+    "usage": [
+      "Inputs: position_a, position_b"
+    ]
+  },
+  "XComponentOf": {
+    "title": "X Component Of",
+    "description": "Returns the X component of a vector",
+    "usage": [
+      "Inputs: vector"
+    ]
+  },
+  "YComponentOf": {
+    "title": "Y Component Of",
+    "description": "Returns the Y component of a vector",
+    "usage": [
+      "Inputs: vector"
+    ]
+  },
+  "ZComponentOf": {
+    "title": "Z Component Of",
+    "description": "Returns the Z component of a vector",
+    "usage": [
+      "Inputs: vector"
+    ]
+  },
+  "Normalize": {
+    "title": "Normalize",
+    "description": "Returns a normalized vector (length 1)",
+    "usage": [
+      "Inputs: vector"
+    ]
+  },
+  "DotProduct": {
+    "title": "Dot Product",
+    "description": "Returns the dot product of two vectors",
+    "usage": [
+      "Inputs: vector_a, vector_b"
+    ]
+  },
+  "CrossProduct": {
+    "title": "Cross Product",
+    "description": "Returns the cross product of two vectors",
+    "usage": [
+      "Inputs: vector_a, vector_b"
+    ]
+  },
+  "VectorMagnitude": {
+    "title": "Magnitude Of",
+    "description": "Returns the length of a vector",
+    "usage": [
+      "Inputs: vector"
+    ]
+  },
+  "Up": {
+    "title": "Up",
+    "description": "Returns the up direction vector (0, 1, 0)",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "Down": {
+    "title": "Down",
+    "description": "Returns the down direction vector (0, -1, 0)",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "Left": {
+    "title": "Left",
+    "description": "Returns the left direction vector (-1, 0, 0)",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "Right": {
+    "title": "Right",
+    "description": "Returns the right direction vector (1, 0, 0)",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "Forward": {
+    "title": "Forward",
+    "description": "Returns the forward direction vector (0, 0, 1)",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "Backward": {
+    "title": "Backward",
+    "description": "Returns the backward direction vector (0, 0, -1)",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "ShowMessage": {
+    "title": "Show Message",
+    "description": "Shows a message to the player",
+    "usage": [
+      "Inputs: player, message, duration"
+    ]
+  },
+  "ShowBigMessage": {
+    "title": "Show Big Message",
+    "description": "Shows a large message on screen",
+    "usage": [
+      "Inputs: player, title, subtitle, duration"
+    ]
+  },
+  "ShowNotification": {
+    "title": "Show Notification",
+    "description": "Shows a notification toast",
+    "usage": [
+      "Inputs: player, text, icon"
+    ]
+  },
+  "SetHUDVisible": {
+    "title": "Set HUD Visible",
+    "description": "Shows or hides specific HUD elements",
+    "usage": [
+      "Inputs: player, hud_element, visible"
+    ]
+  },
+  "UpdateHUDText": {
+    "title": "Update HUD Text",
+    "description": "Updates text on a custom HUD element",
+    "usage": [
+      "Inputs: player, hud_id, text"
+    ]
+  },
+  "CreateCustomHUD": {
+    "title": "Create Custom HUD",
+    "description": "Creates a custom HUD layout",
+    "usage": [
+      "Inputs: player, hud_config"
+    ]
+  },
+  "CreateWorldMarker": {
+    "title": "Create World Marker",
+    "description": "Creates a 3D marker in the world",
+    "usage": [
+      "Inputs: location, icon, text"
+    ]
+  },
+  "RemoveWorldMarker": {
+    "title": "Remove World Marker",
+    "description": "Removes a world marker",
+    "usage": [
+      "Inputs: marker_id"
+    ]
+  },
+  "SetObjectiveMarker": {
+    "title": "Set Objective Marker",
+    "description": "Sets the objective marker for a player",
+    "usage": [
+      "Inputs: player, location, text"
+    ]
+  },
+  "UpdateScoreboard": {
+    "title": "Update Scoreboard",
+    "description": "Updates the scoreboard data",
+    "usage": [
+      "Inputs: entries"
+    ]
+  },
+  "ShowScoreboard": {
+    "title": "Show Scoreboard",
+    "description": "Forces the scoreboard to show or hide",
+    "usage": [
+      "Inputs: player, visible"
+    ]
+  },
+  "Number": {
+    "title": "Number",
+    "description": "A numeric value",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "String": {
+    "title": "String",
+    "description": "A text value",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "Boolean": {
+    "title": "Boolean",
+    "description": "A true/false value",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "SetVariable": {
+    "title": "Set Variable",
+    "description": "Sets the value of a variable",
+    "usage": [
+      "Inputs: variable, value"
+    ]
+  },
+  "GetVariable": {
+    "title": "Get Variable",
+    "description": "Gets the value of a variable",
+    "usage": [
+      "Inputs: variable_name"
+    ]
+  },
+  "SpawnVehicle": {
+    "title": "Spawn Vehicle",
+    "description": "Spawns a vehicle at a location",
+    "usage": [
+      "Inputs: vehicle_type, location, team"
+    ]
+  },
+  "DespawnVehicle": {
+    "title": "Despawn Vehicle",
+    "description": "Removes a vehicle from the game",
+    "usage": [
+      "Inputs: vehicle"
+    ]
+  },
+  "VehicleTypeTank": {
+    "title": "Tank",
+    "description": "Tank vehicle type",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "VehicleTypeAPC": {
+    "title": "APC",
+    "description": "APC vehicle type",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "VehicleTypeHelicopter": {
+    "title": "Helicopter",
+    "description": "Helicopter vehicle type",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "VehicleTypeJet": {
+    "title": "Jet",
+    "description": "Jet vehicle type",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "VehicleTypeTransport": {
+    "title": "Transport",
+    "description": "Transport vehicle type",
+    "usage": [
+      "No inputs required."
+    ]
+  },
+  "GetVehicleHealth": {
+    "title": "Get Vehicle Health",
+    "description": "Returns the current health of a vehicle",
+    "usage": [
+      "Inputs: vehicle"
+    ]
+  },
+  "SetVehicleHealth": {
+    "title": "Set Vehicle Health",
+    "description": "Sets the health of a vehicle",
+    "usage": [
+      "Inputs: vehicle, health"
+    ]
+  },
+  "GetVehicleDriver": {
+    "title": "Get Vehicle Driver",
+    "description": "Returns the player driving the vehicle",
+    "usage": [
+      "Inputs: vehicle"
+    ]
+  },
+  "EjectFromVehicle": {
+    "title": "Eject from Vehicle",
+    "description": "Forces a player out of a vehicle",
+    "usage": [
+      "Inputs: player, vehicle"
+    ]
+  },
+  "LockVehicle": {
+    "title": "Lock Vehicle",
+    "description": "Locks a vehicle for a specific team",
+    "usage": [
+      "Inputs: vehicle, team"
+    ]
+  },
+  "SetVehicleSpeed": {
+    "title": "Set Vehicle Speed",
+    "description": "Sets the speed of a vehicle",
+    "usage": [
+      "Inputs: vehicle, speed"
+    ]
+  },
+  "DisableVehicle": {
+    "title": "Disable Vehicle",
+    "description": "Disables vehicle movement and weapons",
+    "usage": [
+      "Inputs: vehicle"
+    ]
+  },
+  "EnableVehicle": {
+    "title": "Enable Vehicle",
+    "description": "Enables vehicle movement and weapons",
+    "usage": [
+      "Inputs: vehicle"
     ]
   }
 };

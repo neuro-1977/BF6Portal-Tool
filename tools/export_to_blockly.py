@@ -31,30 +31,39 @@ TYPE_MAPPING = {
     "CONDITIONS": {"type": "value", "check": "Boolean"},
     "EVENTS": {"type": "hat"}, 
     "MOD": {"type": "hat"},
-    "RULES": {"type": "hat"},
+    "RULES": {"type": "statement"}, # Changed to statement to allow stacking
     "SUBROUTINE": {"type": "hat"},
     "C_SHAPED": {"type": "statement", "nested": True}
 }
 
 # Define Category Order and Colors
 CATEGORY_CONFIG = {
-    "RULES": {"order": 1, "color": "#7B1FA2"}, # Purple
-    "ACTIONS": {"order": 2, "color": "#FBC02D"}, # Yellow
-    "CONDITIONS": {"order": 3, "color": "#43A047"}, # Green
-    "SUBROUTINE": {"order": 4, "color": "#795548"}, # Brown
-    "LOGIC": {"order": 5, "color": "#673AB7"}, # Violet (Control Flow)
-    "MATH": {"order": 6, "color": "#1976D2"},
-    "VALUES": {"order": 7, "color": "#0288D1"},
-    "ARRAYS": {"order": 8, "color": "#0097A7"},
-    "PLAYER": {"order": 9, "color": "#C2185B"},
-    "VEHICLES": {"order": 10, "color": "#E64A19"},
-    "GAMEPLAY": {"order": 11, "color": "#5D4037"},
-    "UI": {"order": 12, "color": "#607D8B"},
-    "AUDIO": {"order": 13, "color": "#455A64"},
-    "CAMERA": {"order": 14, "color": "#37474F"},
-    "EFFECTS": {"order": 15, "color": "#263238"},
-    "TRANSFORM": {"order": 16, "color": "#212121"},
-    "OTHER": {"order": 99, "color": "#9E9E9E"}
+    "MOD": {"order": 0, "color": "#4A4A4A", "group": "Core"},
+    "RULES": {"order": 1, "color": "#7B1FA2", "group": "Core"}, # Purple
+    "EVENTS": {"order": 2, "color": "#D32F2F", "group": "Core"},
+    "SUBROUTINE": {"order": 3, "color": "#795548", "group": "Core"}, # Brown
+    
+    "ACTIONS": {"order": 10, "color": "#FBC02D", "group": "Actions"}, # Yellow
+    
+    "CONDITIONS": {"order": 20, "color": "#43A047", "group": "Logic & Data"}, # Green
+    "LOGIC": {"order": 21, "color": "#673AB7", "group": "Logic & Data"}, # Violet (Control Flow)
+    "MATH": {"order": 22, "color": "#1976D2", "group": "Logic & Data"},
+    "VALUES": {"order": 23, "color": "#0288D1", "group": "Logic & Data"},
+    "ARRAYS": {"order": 24, "color": "#0097A7", "group": "Logic & Data"},
+    
+    "PLAYER": {"order": 30, "color": "#C2185B", "group": "World"},
+    "VEHICLES": {"order": 31, "color": "#E64A19", "group": "World"},
+    "GAMEPLAY": {"order": 32, "color": "#5D4037", "group": "World"},
+    "OBJECTIVE": {"order": 33, "color": "#F9A825", "group": "World"},
+    "EMPLACEMENTS": {"order": 34, "color": "#8D6E63", "group": "World"},
+    
+    "UI": {"order": 40, "color": "#607D8B", "group": "Presentation"},
+    "AUDIO": {"order": 41, "color": "#455A64", "group": "Presentation"},
+    "CAMERA": {"order": 42, "color": "#37474F", "group": "Presentation"},
+    "EFFECTS": {"order": 43, "color": "#263238", "group": "Presentation"},
+    "TRANSFORM": {"order": 44, "color": "#212121", "group": "Presentation"},
+    
+    "OTHER": {"order": 99, "color": "#9E9E9E", "group": "Other"}
 }
 
 def create_rule_block_definition(color):
@@ -73,7 +82,9 @@ def create_rule_block_definition(color):
         "args2": [{"type": "input_statement", "name": "ACTIONS"}],
         "colour": color,
         "tooltip": "Defines a game rule",
-        "helpUrl": ""
+        "helpUrl": "",
+        "previousStatement": null,
+        "nextStatement": null
     }
 
 def create_standard_block_definition(block_id, block_def, color):
@@ -198,6 +209,8 @@ def generate_blockly_definitions(workspace_root):
     block_definitions = []
     toolbox_categories = {} # Category -> {Subcategory -> [blocks]}
 
+    help_data = load_help_data(assets_dir)
+    
     print(f"Scanning {assets_dir}...")
 
     for category_dir in assets_dir.iterdir():
@@ -233,10 +246,26 @@ def generate_blockly_definitions(workspace_root):
                             block_definitions.append(b_def)
                             toolbox_categories[cat_name][sub_name].append(block_id)
                             
+                            # Generate Help Data if missing
+                            if block_id not in help_data:
+                                help_entry = {
+                                    "title": block_def.get("label", block_id),
+                                    "description": block_def.get("description", "No description available."),
+                                    "usage": []
+                                }
+                                
+                                # Generate usage from args
+                                args = block_def.get("args", [])
+                                if args:
+                                    help_entry["usage"].append(f"Inputs: {', '.join(args)}")
+                                else:
+                                    help_entry["usage"].append("No inputs required.")
+                                    
+                                help_data[block_id] = help_entry
+                            
             except Exception as e:
                 print(f"Error processing {data_file}: {e}")
 
-    help_data = load_help_data(assets_dir)
     image_map = create_image_map()
 
     return block_definitions, toolbox_categories, help_data, image_map
@@ -264,39 +293,52 @@ def write_output(definitions, toolbox, help_data, image_map, output_dir):
         f.write("  'kind': 'categoryToolbox',\n")
         f.write("  'contents': [\n")
         
-        # Sort categories based on configuration
-        sorted_cats = sorted(toolbox.items(), key=lambda item: CATEGORY_CONFIG.get(item[0], {}).get("order", 99))
+        # Group categories
+        grouped_toolbox = {}
+        for cat, subcats in toolbox.items():
+            group = CATEGORY_CONFIG.get(cat, {}).get("group", "Other")
+            if group not in grouped_toolbox:
+                grouped_toolbox[group] = []
+            grouped_toolbox[group].append((cat, subcats))
 
-        for cat, subcats in sorted_cats:
-            color = CATEGORY_CONFIG.get(cat, {}).get("color", "#333333")
+        group_order = ["Core", "Actions", "Logic & Data", "World", "Presentation", "Other"]
+        
+        for group_name in group_order:
+            if group_name not in grouped_toolbox:
+                continue
+                
+            cats = grouped_toolbox[group_name]
+            cats.sort(key=lambda item: CATEGORY_CONFIG.get(item[0], {}).get("order", 99))
+            
+            # Create Group Category
             f.write(f"    {{\n")
             f.write(f"      'kind': 'category',\n")
-            f.write(f"      'name': '{cat}',\n")
-            f.write(f"      'colour': '{color}',\n")
+            f.write(f"      'name': '{group_name}',\n")
+            f.write(f"      'colour': '#333',\n") 
             f.write(f"      'contents': [\n")
             
-            # Iterate through subcategories
-            for sub_name, blocks in subcats.items():
-                # If there's only one subcategory or it's generic, maybe flatten? 
-                # But user asked for expansion. Let's make subcategories.
-                # However, Blockly categories don't nest visually like a tree in the simple toolbox.
-                # They usually just list blocks.
-                # BUT, we can use labels or nested categories if we want a tree.
-                # User said "yellow, which expands into all yellow actions".
-                # This implies the top level is ACTIONS, and clicking it shows subcategories?
-                # Or clicking it shows all blocks grouped?
-                # Let's try nested categories for now.
-                
+            for cat, subcats in cats:
+                color = CATEGORY_CONFIG.get(cat, {}).get("color", "#333333")
                 f.write(f"        {{\n")
                 f.write(f"          'kind': 'category',\n")
-                f.write(f"          'name': '{sub_name}',\n")
+                f.write(f"          'name': '{cat}',\n")
                 f.write(f"          'colour': '{color}',\n")
                 f.write(f"          'contents': [\n")
-                for b in blocks:
-                    f.write(f"            {{ 'kind': 'block', 'type': '{b}' }},\n")
+                
+                for sub_name, blocks in subcats.items():
+                    f.write(f"            {{\n")
+                    f.write(f"              'kind': 'category',\n")
+                    f.write(f"              'name': '{sub_name}',\n")
+                    f.write(f"              'colour': '{color}',\n")
+                    f.write(f"              'contents': [\n")
+                    for b in blocks:
+                        f.write(f"                {{ 'kind': 'block', 'type': '{b}' }},\n")
+                    f.write(f"              ]\n")
+                    f.write(f"            }},\n")
+                
                 f.write(f"          ]\n")
                 f.write(f"        }},\n")
-                
+            
             f.write(f"      ]\n")
             f.write(f"    }},\n")
             

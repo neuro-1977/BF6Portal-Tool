@@ -230,96 +230,91 @@ def _import_portal_blocks(editor, portal_blocks):
 
     def process_block(block_data, parent_id=None, x=0, y=0, is_value=False):
         portal_type = block_data.get("type")
-        
+
         # Default values
         my_type = "SEQUENCE"
         label = portal_type
-        
+        color = editor.data_manager.palette_color_map.get(my_type, "#555555")
+
         # Lookup definition
         if portal_type in portal_type_map:
             mapping = portal_type_map[portal_type]
             block_def = mapping["def"]
-            # Use the category from our data as the internal type (e.g. ACTIONS, LOGIC)
-            my_type = mapping["category"] 
-            # Use the label from definition if available
+            my_type = mapping["category"]
             label = block_def.get("label", portal_type)
+            color = editor.data_manager.palette_color_map.get(my_type, "#555555")
         else:
             # Heuristic for unknown blocks
             if is_value:
-                my_type = "VALUE" # Generic value shape
-            
-            # Try to guess category/type based on name
-            if "Rule" in portal_type: my_type = "RULES"
-            elif "Event" in portal_type: my_type = "EVENTS"
-            elif "Condition" in portal_type: my_type = "CONDITIONS"
-            elif "Action" in portal_type: my_type = "ACTIONS"
-            
+                my_type = "VALUE"
+            if "Rule" in portal_type:
+                my_type = "RULES"
+            elif "Event" in portal_type:
+                my_type = "EVENTS"
+            elif "Condition" in portal_type:
+                my_type = "CONDITIONS"
+            elif "Action" in portal_type:
+                my_type = "ACTIONS"
+            # If still not found, mark as unknown visually
+            if portal_type not in portal_type_map:
+                my_type = "UNKNOWN"
+                label = f"Unknown Block: {portal_type}"
+                color = "#FF5555"  # Bright red for unmatched blocks
+
         # Special handling for specific Portal blocks
         if portal_type == "ruleBlock":
             fields = block_data.get("fields", {})
             label = fields.get("NAME", "Rule")
             my_type = "RULES"
+            color = editor.data_manager.palette_color_map.get(my_type, "#555555")
         elif portal_type == "modBlock":
             my_type = "MOD"
+            color = editor.data_manager.palette_color_map.get(my_type, "#555555")
         elif portal_type == "subroutineBlock":
             fields = block_data.get("fields", {})
             label = fields.get("SUBROUTINE_NAME", "Subroutine")
             my_type = "SUBROUTINE"
-        
+            color = editor.data_manager.palette_color_map.get(my_type, "#555555")
+
         bid = get_next_id()
-        
+
         # Prepare Args
         args_dict = {}
-        
+
         # 1. Process Fields (Literals)
         fields = block_data.get("fields", {})
         for f_name, f_val in fields.items():
-            # Store field values as StringVars
             args_dict[f_name] = tk.StringVar(value=str(f_val))
 
         # 2. Process Inputs (Nested Blocks)
         inputs = block_data.get("inputs", {})
-        
         for input_name, input_data in inputs.items():
             if "block" in input_data:
                 child_block_data = input_data["block"]
                 child_type = child_block_data.get("type")
-                
-                # Optimization: Flatten variable references to string args
-                # This makes SetVariable(variableReference) look like SetVariable("VarName")
                 if child_type == "variableReferenceBlock":
                     var_name = child_block_data.get("fields", {}).get("NAME", "Var")
                     args_dict[input_name] = tk.StringVar(value=var_name)
                 else:
-                    # Recursively create child block
-                    # Position it slightly offset to the right/down
                     child_id = process_block(child_block_data, parent_id=bid, x=x+20, y=y+20, is_value=True)
-                    
-                    # Add a placeholder in args so the renderer shows a label/socket
-                    # The child block itself is linked via parent_id
-                    args_dict[input_name] = tk.StringVar(value="...") 
-        
+                    args_dict[input_name] = tk.StringVar(value="...")
+
         # Create the block entry
-        # Determine dimensions
         width = editor.CHILD_BLOCK_WIDTH
         height = editor.CHILD_BLOCK_HEIGHT
-        
-        # Scale down value blocks (nested inputs) to fit better
         if is_value:
-            width = 150 # Smaller width for nested values
+            width = 150
             height = 30
-            
-        # Use definition width if available
         if portal_type in portal_type_map:
             def_width = portal_type_map[portal_type]["def"].get("width")
             if def_width:
                 width = def_width
-        
+
         editor.all_blocks[bid] = {
             "id": bid,
             "label": label,
             "type": my_type,
-            "color": editor.data_manager.palette_color_map.get(my_type, "#555555"),
+            "color": color,
             "x": block_data.get("x", x),
             "y": block_data.get("y", y),
             "width": width,
@@ -330,26 +325,17 @@ def _import_portal_blocks(editor, portal_blocks):
             "next_sibling_id": None,
             "args": args_dict,
         }
-        
+
         # Process Next (Sequence)
         next_block_data = block_data.get("next", {}).get("block")
         if next_block_data:
-            # Determine layout direction based on current block type
-            # Default to vertical stacking
             next_x = x
-            next_y = y + height + 5 # Use actual height + gap
-            
-            # Horizontal layout for specific types
+            next_y = y + height + 5
             if my_type in ["CONDITIONS", "ACTIONS"]:
-                 next_x = x + width - 10 # Overlap slightly for snapping visual? Or just gap?
-                 # Portal blocks snap tight. Let's use width.
-                 next_x = x + width
-                 next_y = y
-            
-            # Next block is a sibling
+                next_x = x + width
+                next_y = y
             next_id = process_block(next_block_data, parent_id=None, x=next_x, y=next_y, is_value=False)
             editor.all_blocks[bid]["next_sibling_id"] = next_id
-            
         return bid
 
     # Process all root blocks
