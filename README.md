@@ -2,9 +2,19 @@
 
 ![UI Mockup](docs/ui_mockup.svg)
 
-Visual block editor for building Battlefield Portal scripts with drag-and-drop functionality, block chaining, and code export.
+Visual block editor for building Battlefield Portal scripts.
 
-## Quick Start
+> **NOTICE (Nov 2025)**: This project is transitioning from a Python/Tkinter desktop app to a **Web-based Google Blockly interface**. The Python app (`source/Block_Editor.py`) is now considered legacy.
+
+## Quick Start (New Web Editor)
+
+1. **Run the Launcher**:
+   ```powershell
+   python tools/launch_blockly.py
+   ```
+2. **Browser**: The editor will open automatically at `http://localhost:8000`.
+
+## Legacy Quick Start (Python/Tkinter)
 
 **PowerShell:**
 
@@ -16,31 +26,33 @@ python -m venv .venv
 # Install requirements
 pip install -r requirements.txt
 
-# Run the editor
+# Run the legacy editor
 python .\source\Block_Editor.py
 ```
 
 **Note:** `tkinter` is part of the Python standard library (Windows users: install the official CPython build).
 
-## Features
+## Features (Web Editor)
 
-- **Visual Block Editor**: Drag and drop programming blocks onto a scalable canvas
-- **Battlefield Portal Style**: Blocks mimic the visual style of the official Battlefield Portal editor (Horizontal chains for Actions/Conditions)
-- **Smart Snapping**: Blocks automatically snap together when brought close to valid connection points
-- **Strict Hierarchy**: Enforces correct logical structure (MOD → RULES → CONDITIONS/ACTIONS)
-- **Dynamic Resizing**: Container blocks (MOD, RULES) automatically expand to fit their contents
-- **Contextual Help System**: Right-click any block for usage instructions and visual examples
-- **Bidirectional Code Sync**: Edit code to generate blocks, or edit blocks to generate code
-- **Zoom Controls**: Scale the workspace from 25% to 300% (Ctrl+Mouse Wheel, Ctrl+/-/0)
-- **Grid System**: Visual grid that scales with zoom for precise block placement
-- **Code Output**: Live editable code preview pane with bidirectional sync
-- **Import/Export**: Save and load workspaces as JSON files
+- **Google Blockly Engine**: Industry-standard visual programming interface.
+- **Clean Palette**: Modern, dark-themed UI with "puzzle piece" connectors.
+- **Auto-Generated Blocks**: Block definitions are automatically generated from the existing `assets/` JSON library.
+- **Smart Snapping**: Robust connection logic handled by the Blockly engine.
 
 ## Codebase Architecture
 
-The project is organized into modular components for maintainability:
+The project is organized into modular components:
 
-- **`source/`**: Core application code
+- **`web_ui/`**: **(NEW)** The new Web/Blockly frontend.
+  - `index.html`: Main editor entry point.
+  - `definitions.js`: Generated block definitions.
+  - `toolbox.js`: Generated sidebar configuration.
+
+- **`tools/`**: Utility scripts.
+  - `export_to_blockly.py`: Converts `assets/` JSON data into Blockly definitions.
+  - `launch_blockly.py`: Local server for the web editor.
+
+- **`source/`**: **(LEGACY)** Original Python/Tkinter application code.
   - **`Block_Editor.py`**: Main application entry point and controller.
   - **`Block_Renderer.py`**: Handles all visual drawing on the canvas (blocks, grid, connections).
   - **`Input_Handler.py`**: Manages user input (mouse clicks, drags, keyboard shortcuts).

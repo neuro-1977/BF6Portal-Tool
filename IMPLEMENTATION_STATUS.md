@@ -80,6 +80,26 @@ Significantly expanded the block definitions to match the expected Portal catalo
   - `vehicles_data.json`: Added vehicle spawning and control blocks.
 - **Coverage**: Increased implemented block count from 197 to 228 (110% coverage relative to initial baseline).
 
+### 6. UI Polish & Snapping Improvements (November 27, 2025)
+
+**Status:** IMPLEMENTED ✓
+
+Refined the visual experience based on user feedback.
+
+#### Visual Updates:
+- **Menu Colors**: Corrected `ACTIONS` to Yellow (`#FBC02D`) and updated `ARRAYS` to Orange (`#EF6C00`) to match Portal standards.
+- **Sidebar Layout**: Reordered categories to match the standard Portal editor flow (Rules -> Mod -> Logic -> Math...).
+- **Block Alignment**:
+  - Reduced `MOD` block header height to 22px to match the visual bar thickness.
+  - Adjusted `RULES` block indentation to align flush with the `MOD` block's left spine.
+  - Fixed "Gap above Rule" issue by aligning snap points with visual geometry.
+
+#### Functional Updates:
+- **Snap Feedback**: Implemented dynamic visual feedback during dragging.
+  - **Valid Snap**: Green indicator line/border.
+  - **Invalid Snap**: Red indicator to show "close but not compatible".
+- **Horizontal Snapping**: Verified and refined horizontal snapping logic for Conditions and Actions.
+
 ---
 
 ## 🚧 In Progress / Next Steps

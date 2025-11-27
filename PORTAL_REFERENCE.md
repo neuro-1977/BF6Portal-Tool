@@ -1,5 +1,7 @@
 # Battlefield Portal Editor Reference
 
+> **Note**: The project is transitioning to a Blockly-based web interface. See [CONCEPT_ART.md](CONCEPT_ART.md) for the new visual style guide.
+
 Based on provided screenshots.
 
 ## UI Layout

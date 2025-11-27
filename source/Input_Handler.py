@@ -132,10 +132,25 @@ class InputHandler:
         self.editor.drag_data["x"] = event.x_root
         self.editor.drag_data["y"] = event.y_root
 
+        # Show snap feedback
+        if self.editor.block_mover:
+            snap_target = self.editor.block_mover.get_snap_target(dragged_id)
+            if snap_target:
+                target_id, snap_type, is_valid = snap_target
+                if self.editor.block_renderer:
+                    self.editor.block_renderer.show_snap_feedback(target_id, snap_type, is_valid)
+            else:
+                if self.editor.block_renderer:
+                    self.editor.block_renderer.clear_snap_feedback()
+
     def on_block_release(self, event, block_id=None):
         """Handles mouse button release (snap logic)."""
         if self.editor.drag_data["block_id"] is None:
             return
+
+        # Clear feedback
+        if self.editor.block_renderer:
+            self.editor.block_renderer.clear_snap_feedback()
 
         dragged_id = self.editor.drag_data["block_id"]
         dragged_block = self.editor.all_blocks.get(dragged_id)

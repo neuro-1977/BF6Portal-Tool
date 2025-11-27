@@ -1,3 +1,9 @@
+"""
+LEGACY RENDERER (Tkinter)
+-------------------------
+Part of the legacy Python/Tkinter editor.
+"""
+
 import tkinter as tk
 from block_shapes import BlockShapes
 from tkinter import ttk
@@ -150,6 +156,62 @@ class BlockRenderer:
         for tag in self.canvas.find_withtag(f"ghost_{block_id}"):
             self.canvas.tag_raise(tag)
         self.canvas.tag_raise(f"{block_id} && widget_window")
+
+    def clear_snap_feedback(self):
+        """Clears any active snap feedback indicators."""
+        self.canvas.delete("snap_feedback")
+
+    def show_snap_feedback(self, target_id, snap_type, is_valid=True):
+        """Draws a visual indicator for a potential snap target.
+        
+        Args:
+            target_id: The ID of the block being snapped to.
+            snap_type: The type of connection ('previous', 'next', 'input', 'horizontal').
+            is_valid: Whether the snap is allowed (affects color).
+        """
+        self.clear_snap_feedback()
+        
+        if target_id not in self.editor.all_blocks:
+            return
+            
+        target = self.editor.all_blocks[target_id]
+        x, y = target["x"], target["y"]
+        width = target.get("width", self.CHILD_BLOCK_WIDTH)
+        height = target.get("height", self.CHILD_BLOCK_HEIGHT)
+        
+        color = "#4CAF50" if is_valid else "#F44336" # Green vs Red
+        width_px = 2 if is_valid else 3
+        
+        if snap_type == "next":
+            # Line at bottom
+            self.canvas.create_line(
+                x, y + height, x + width, y + height,
+                fill=color, width=width_px, tags="snap_feedback"
+            )
+        elif snap_type == "previous" or snap_type == "statement_input":
+            # Line at top (or inside container)
+            # For statement input, we might need more specific coords
+            # But usually it snaps to the "bottom" of the header or previous block
+            # If it's a container input, it's inside.
+            # We'll just highlight the bottom of the header for now if we can infer it
+            header_height = 22 if target.get("type") == "MOD" else 35
+            self.canvas.create_line(
+                x + 20, y + header_height, x + width - 20, y + header_height,
+                fill=color, width=width_px, tags="snap_feedback"
+            )
+        elif snap_type == "horizontal":
+            # Line at right edge
+            self.canvas.create_line(
+                x + width, y, x + width, y + height,
+                fill=color, width=width_px, tags="snap_feedback"
+            )
+        elif snap_type == "value_input":
+            # Highlight the parameter slot?
+            # We'll just highlight the whole block border for now
+            self.canvas.create_rectangle(
+                x - 2, y - 2, x + width + 2, y + height + 2,
+                outline=color, width=width_px, tags="snap_feedback"
+            )
 
     def _draw_block_header(self, block_id):
         """Draws a visual header separator for container blocks."""

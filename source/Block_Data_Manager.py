@@ -31,28 +31,29 @@ class BlockDataManager:
         # MAPPING: Menu name to placeholder color (Fallback if load fails)
         if not self.IMAGE_DATA:
             self.IMAGE_DATA = {
+                # Standard Portal Order
                 "RULES": "#7E3F96",          # Purple
                 "MOD": "#4A4A4A",            # Dark Grey (Wrapper)
-                "SUBROUTINE": "#FBC02D",     # Yellow (User Request)
-                "LOGIC": "#4CAF50",          # Green (User Request)
-                "MATH": "#795548",           # Brown (User Request - inferred)
-                "ARRAYS": "#9C27B0",         # Purple (User Request - inferred)
-                "AI": "#D32F2F",             # Red
-                "AUDIO": "#AB47BC",          # Purple/Pink
-                "CAMERA": "#00ACC1",         # Cyan
-                "EFFECTS": "#FBC02D",        # Yellow
-                "EMPLACEMENTS": "#2E7D32",   # Green
-                "GAMEPLAY": "#8D6E63",       # Brown
-                "OBJECTIVE": "#F9A825",      # Gold
-                "OTHER": "#757575",          # Grey
+                "LOGIC": "#4CAF50",          # Green
+                "MATH": "#795548",           # Brown
+                "ARRAYS": "#EF6C00",         # Orange (Updated from #9C27B0)
+                "SUBROUTINE": "#FBC02D",     # Yellow
                 "PLAYER": "#00695C",         # Teal
-                "TRANSFORM": "#1565C0",      # Dark Blue
-                "USER INTERFACE": "#039BE5", # Light Blue
                 "VEHICLES": "#558B2F",       # Light Green
-                # Legacy/Internal categories (kept for compatibility if needed)
+                "GAMEPLAY": "#8D6E63",       # Brown
+                "USER INTERFACE": "#039BE5", # Light Blue
+                "AUDIO": "#AB47BC",          # Purple/Pink
+                "EFFECTS": "#FBC02D",        # Yellow
+                "CAMERA": "#00ACC1",         # Cyan
+                "OBJECTIVE": "#F9A825",      # Gold
+                "AI": "#D32F2F",             # Red
+                "TRANSFORM": "#1565C0",      # Dark Blue
+                "OTHER": "#757575",          # Grey
+                
+                # Legacy/Internal categories
                 "EVENTS": "#2E7D32",
                 "CONDITIONS": "#0277BD",
-                "ACTIONS": "#FFC107",
+                "ACTIONS": "#FBC02D",        # Yellow (Fixed from #FFC107 to match Effects/Subroutine style)
                 "VALUES": "#0277BD",
             }
 

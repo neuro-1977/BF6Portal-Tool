@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>BF6 Portal Editor (Blockly)</title>
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+  <script src="definitions.js"></script>
+  <script src="toolbox.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background-color: #1e1e1e; /* VS Code Dark */
+      color: #fff;
+      font-family: sans-serif;
+    }
+    #blocklyDiv {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="blocklyDiv"></div>
+
+  <script>
+    // Initialize Blockly
+    var workspace = Blockly.inject('blocklyDiv', {
+      toolbox: TOOLBOX_CONFIG,
+      theme: Blockly.Themes.Dark,
+      renderer: 'geras', // Standard puzzle-piece style
+      zoom: {
+        controls: true,
+        wheel: true,
+        startScale: 0.75, // Smaller blocks as requested
+        maxScale: 3,
+        minScale: 0.3,
+        scaleSpeed: 1.2
+      },
+      grid: {
+        spacing: 20,
+        length: 3,
+        colour: '#ccc',
+        snap: true
+      },
+      trashcan: true
+    });
+  </script>
+</body>
+</html>

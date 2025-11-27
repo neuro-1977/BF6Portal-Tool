@@ -360,9 +360,9 @@ class BlockMover:
         # Define connections based on type
         if btype == "MOD":
             # MOD only accepts RULES and SUBROUTINES
-            header_height = 45
+            header_height = 22 # Reduced from 45 to match visual bar thickness (22px)
             block["statement_inputs"] = [{
-                "x": x + 30, 
+                "x": x + 22, # Aligned with left bar width (22px)
                 "y": y + header_height, 
                 "type": "statement", 
                 "accepts": ["RULES", "C_OUTER", "SUBROUTINE"] 
@@ -374,14 +374,14 @@ class BlockMover:
             block["statement_inputs"] = [
                 # Conditions Slot
                 {
-                    "x": x + 100, # Aligns block to x+90 (ix-10)
+                    "x": x + 40, # Reduced from 100 to align closer to left edge
                     "y": y + header_height + 5, 
                     "type": "statement", 
                     "accepts": ["CONDITIONS"]
                 },
                 # Actions Slot
                 {
-                    "x": x + 100, # Aligns block to x+90 (ix-10)
+                    "x": x + 40, # Reduced from 100
                     "y": y + header_height + 45, 
                     "type": "statement", 
                     "accepts": ["ACTIONS"]
@@ -652,3 +652,74 @@ class BlockMover:
                             return True
         
         return False
+
+    def get_snap_target(self, new_bid):
+        """Returns the potential snap target for visual feedback.
+        
+        Returns:
+            tuple: (target_id, snap_type, is_valid) or None
+        """
+        self.update_connection_points(new_bid)
+        new_block = self.editor.all_blocks.get(new_bid)
+        if not new_block:
+            return None
+
+        new_type = new_block.get("type")
+        SNAP_THRESHOLD = 50
+        
+        # Check all potential targets
+        for bid, target in self.editor.all_blocks.items():
+            if bid == new_bid:
+                continue
+            
+            # 1. Statement Snapping (Next)
+            if new_block.get("connection_previous") and target.get("connection_next"):
+                prev_conn = new_block["connection_previous"]
+                next_conn = target["connection_next"]
+                px, py = prev_conn.get("x", 0), prev_conn.get("y", 0)
+                nx, ny = next_conn.get("x", 0), next_conn.get("y", 0)
+                
+                if math.hypot(px - nx, py - ny) < SNAP_THRESHOLD:
+                    accepted = next_conn.get("accepts", [])
+                    is_valid = new_type in accepted or "SEQUENCE" in accepted
+                    return (bid, "next", is_valid)
+
+            # 2. Statement Snapping (Container Input)
+            if new_block.get("connection_previous"):
+                prev_conn = new_block["connection_previous"]
+                for stmt_input in target.get("statement_inputs", []):
+                    px, py = prev_conn.get("x", 0), prev_conn.get("y", 0)
+                    ix, iy = stmt_input.get("x", 0), stmt_input.get("y", 0)
+                    
+                    if math.hypot(px - ix, py - iy) < SNAP_THRESHOLD:
+                        accepted = stmt_input.get("accepts", [])
+                        is_valid = new_type in accepted or "SEQUENCE" in accepted
+                        return (bid, "statement_input", is_valid)
+
+            # 3. Horizontal Snapping
+            if "connection_left" in new_block and "connection_right" in target:
+                left_conn = new_block["connection_left"]
+                right_conn = target["connection_right"]
+                lx, ly = left_conn.get("x", 0), left_conn.get("y", 0)
+                rx, ry = right_conn.get("x", 0), right_conn.get("y", 0)
+                
+                if math.hypot(lx - rx, ly - ry) < SNAP_THRESHOLD:
+                    accepted = right_conn.get("accepts", [])
+                    is_valid = new_type in accepted
+                    return (bid, "horizontal", is_valid)
+
+            # 4. Value Snapping
+            if new_block.get("connection_output"):
+                output_conn = new_block["connection_output"]
+                # Simplified check for value inputs
+                # We assume if we are close to the block body, we might be trying to snap
+                # This is a bit loose but works for feedback
+                ox, oy = output_conn.get("x", 0), output_conn.get("y", 0)
+                tx, ty = target["x"] + 100, target["y"] + 20 # Approx slot
+                
+                if math.hypot(ox - tx, oy - ty) < SNAP_THRESHOLD:
+                    # Check if target has inputs
+                    if target.get("inputs"):
+                        return (bid, "value_input", True) # Assume valid for now if inputs exist
+        
+        return None
