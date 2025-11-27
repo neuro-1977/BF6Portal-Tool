@@ -315,11 +315,11 @@ Ongoing effort to modularize the codebase and reduce the size of `Block_Editor.p
 
 - **Sidebar Manager**: Extracted sidebar UI and logic to `source/Sidebar_Manager.py`.
 - **Top Bar Manager**: Extracted top bar UI (Import/Export, Analyze, Zoom) to `source/TopBar_Manager.py`.
+- **Input Handler**: Moved all input event handling (press, drag, release) to `source/Input_Handler.py`.
 - **Block Editor Cleanup**: Removed legacy code and delegated responsibilities to managers.
 
 ### Planned Refactors
 
-- **Input Handler**: Move input event handling to `source/Input_Handler.py` (partially done).
 - **Block Renderer**: Ensure all rendering logic is in `source/Block_Renderer.py`.
 
 ---

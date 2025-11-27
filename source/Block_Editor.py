@@ -48,6 +48,34 @@ class BlockEditor:
         
         # Set a sane default geometry, then try to maximize on Windows
         master.geometry("1200x800")
+        
+        # Try to set window icon
+        try:
+            icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icon.ico")
+            if os.path.exists(icon_path):
+                master.iconbitmap(icon_path)
+            else:
+                # Try png if ico not found
+                png_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icon.png")
+                if os.path.exists(png_path):
+                    icon_img = tk.PhotoImage(file=png_path)
+                    master.iconphoto(True, icon_img)
+        except Exception:
+            pass
+
+        # Try to enable dark title bar on Windows
+        try:
+            import ctypes
+            # DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+            ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                ctypes.windll.user32.GetParent(master.winfo_id()), 
+                20, 
+                ctypes.byref(ctypes.c_int(2)), 
+                4
+            )
+        except Exception:
+            pass
+
         try:
             # update idle tasks first so window manager is initialized
             master.update_idletasks()
@@ -207,13 +235,6 @@ class BlockEditor:
         except Exception:
             pass
 
-        # Bind events
-        self.canvas.bind("<ButtonPress-1>", self.on_block_press)
-        self.canvas.bind("<ButtonRelease-1>", self.on_block_release)
-        self.canvas.bind("<B1-Motion>", self.on_block_drag)
-        # Bind right-click for canvas context menu
-        self.canvas.bind("<Button-3>", self.show_canvas_context_menu)
-
         # Initialize BlockMover (handles spawning and simple snapping)
         try:
             self.block_mover = BlockMover(self)
@@ -231,6 +252,15 @@ class BlockEditor:
             self.input_handler = InputHandler(self)
         except Exception:
             self.input_handler = None
+
+        # Bind events - Delegate directly to InputHandler
+        if self.input_handler:
+            self.canvas.bind("<ButtonPress-1>", self.input_handler.on_block_press)
+            self.canvas.bind("<ButtonRelease-1>", self.input_handler.on_block_release)
+            self.canvas.bind("<B1-Motion>", self.input_handler.on_block_drag)
+        
+        # Bind right-click for canvas context menu
+        self.canvas.bind("<Button-3>", self.show_canvas_context_menu)
         
         # Initialize ZoomManager (handles all zoom operations)
         try:
@@ -476,6 +506,9 @@ class BlockEditor:
                     self.zoom_label.config(text=f"{int(self.zoom_scale * 100)}%")
             except Exception:
                 pass
+            
+            # Redraw grid to match new zoom
+            self.draw_grid()
         except Exception:
             pass
 
@@ -867,42 +900,6 @@ class BlockEditor:
         """Updates the position of a block and its associated canvas objects/widgets."""
         if self.block_renderer:
             self.block_renderer.update_block_position(block_id)
-
-    def on_block_press(self, event, block_id=None):
-        """Handles mouse button press on a block."""
-        if self.input_handler:
-            self.input_handler.on_block_press(event, block_id)
-
-    def on_block_release(self, event, block_id=None):
-        """Handles mouse button release (snap logic)."""
-        if self.input_handler:
-            self.input_handler.on_block_release(event, block_id)
-
-    def _try_nest_in_parameter_slot(self, value_block_id, event):
-        """Try to nest a VALUE block into a nearby parameter slot (Portal-style)."""
-        if self.input_handler:
-            return self.input_handler._try_nest_in_parameter_slot(value_block_id, event)
-        return False
-
-    def on_block_drag(self, event, block_id=None):
-        """Handles block movement with nested children and attached blocks."""
-        if self.input_handler:
-            self.input_handler.on_block_drag(event, block_id)
-
-    def move_chain(self, block_id, dx, dy):
-        """Move a block and all its connected children by (dx, dy)."""
-        children = self.get_snapped_children(block_id)
-        for child_id in children:
-            if child_id in self.all_blocks:
-                block = self.all_blocks[child_id]
-                block["x"] += dx
-                block["y"] += dy
-                self.update_block_position(child_id)
-
-    def show_block_context_menu(self, event, block_id):
-        """Show context menu for a block with navigation options."""
-        if self.input_handler:
-            self.input_handler.show_block_context_menu(event, block_id)
 
     def show_block_help(self, block_id):
         """Show help popup for a block.

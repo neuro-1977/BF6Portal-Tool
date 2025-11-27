@@ -37,6 +37,13 @@ This document summarizes the latest enhancements to the BF6 Portal Block Editor,
 - **Reduced Complexity**: Significantly reduced the size of `Block_Editor.py` by delegating UI logic.
 - **Improved Maintainability**: Easier to update specific UI components without affecting the core editor logic.
 
+### 6. **UI Polish & Fixes (November 27, 2025)**
+
+- **Window Icon**: Added support for loading `assets/icon.ico` or `assets/icon.png` as the application icon.
+- **Dark Title Bar**: Enabled immersive dark mode for the window title bar on Windows 10/11.
+- **Grid Redraw Fix**: Fixed an issue where the grid was not redrawing correctly when zooming.
+- **Input Handling**: Refactored input logic to `Input_Handler.py` for better separation of concerns.
+
 ---
 
 ## Previous Improvements

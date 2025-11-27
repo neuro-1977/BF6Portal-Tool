@@ -334,10 +334,11 @@ class BlockRenderer:
 
     def _bind_drag_events(self, widget, block_id):
         """Helper to bind drag events to a widget."""
-        widget.bind("<ButtonPress-1>", lambda e, bid=block_id: self.editor.on_block_press(e, bid))
-        widget.bind("<ButtonRelease-1>", lambda e, bid=block_id: self.editor.on_block_release(e, bid))
-        widget.bind("<B1-Motion>", lambda e, bid=block_id: self.editor.on_block_drag(e, bid))
-        widget.bind("<Button-3>", lambda e, bid=block_id: self.editor.show_block_context_menu(e, bid))
+        if hasattr(self.editor, 'input_handler') and self.editor.input_handler:
+            widget.bind("<ButtonPress-1>", lambda e, bid=block_id: self.editor.input_handler.on_block_press(e, bid))
+            widget.bind("<ButtonRelease-1>", lambda e, bid=block_id: self.editor.input_handler.on_block_release(e, bid))
+            widget.bind("<B1-Motion>", lambda e, bid=block_id: self.editor.input_handler.on_block_drag(e, bid))
+            widget.bind("<Button-3>", lambda e, bid=block_id: self.editor.input_handler.show_block_context_menu(e, bid))
 
     def update_block_position(self, block_id):
         """Updates the position of a block and its associated canvas objects/widgets."""
