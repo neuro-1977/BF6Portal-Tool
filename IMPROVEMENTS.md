@@ -29,6 +29,14 @@ This document summarizes the latest enhancements to the BF6 Portal Block Editor,
 - **Missing Categories**: Restored visibility of "MOD", "RULES", "CONDITIONS", "ACTIONS", and "EVENTS" in the sidebar.
 - **Import Layout**: Fixed import logic to correctly position horizontal blocks.
 
+### 5. **Codebase Refactoring (November 27, 2025)**
+
+- **Modular Architecture**: Split the monolithic `Block_Editor.py` into specialized managers:
+  - `Sidebar_Manager.py`: Handles category lists, search, and block spawning menu.
+  - `TopBar_Manager.py`: Manages top toolbar (Import/Export, Analyze) and floating zoom controls.
+- **Reduced Complexity**: Significantly reduced the size of `Block_Editor.py` by delegating UI logic.
+- **Improved Maintainability**: Easier to update specific UI components without affecting the core editor logic.
+
 ---
 
 ## Previous Improvements

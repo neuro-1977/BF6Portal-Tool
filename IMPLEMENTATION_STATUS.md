@@ -305,21 +305,43 @@ draw_block() renders value input fields
 
 ---
 
+## 🏗️ Refactoring & Architecture
+
+**Status:** IN PROGRESS
+
+Ongoing effort to modularize the codebase and reduce the size of `Block_Editor.py`.
+
+### Completed Refactors
+
+- **Sidebar Manager**: Extracted sidebar UI and logic to `source/Sidebar_Manager.py`.
+- **Top Bar Manager**: Extracted top bar UI (Import/Export, Analyze, Zoom) to `source/TopBar_Manager.py`.
+- **Block Editor Cleanup**: Removed legacy code and delegated responsibilities to managers.
+
+### Planned Refactors
+
+- **Input Handler**: Move input event handling to `source/Input_Handler.py` (partially done).
+- **Block Renderer**: Ensure all rendering logic is in `source/Block_Renderer.py`.
+
+---
+
 ## ✅ Verification Commands
 
 ### Run Tests
+
 ```bash
 cd "d:\=Code=\BF6-Portal-Block-Editor\bf6-portal-block-editor"
 python -m unittest tests.test_editor_helpers -v
 ```
 
 ### Run Editor
+
 ```powershell
 cd "d:\=Code=\BF6-Portal-Block-Editor\bf6-portal-block-editor"
 .\run_editor.ps1
 ```
 
 ### Check for Issues
+
 ```powershell
 # Check Python syntax
 python -m py_compile source/Block_Editor.py

@@ -10,6 +10,7 @@ from pathlib import Path
 
 from Block_Data_Manager import BlockDataManager
 from Sidebar_Manager import SidebarManager
+from TopBar_Manager import TopBarManager
 from editor_helpers import get_dropdown_items, update_code_output
 from io_handlers import show_exported_json, show_import_dialog
 from workspace_loader import load_blocks_from_json as workspace_load
@@ -75,6 +76,13 @@ class BlockEditor:
             self.logger.log_error("Initialization", "Failed to load SidebarManager", e)
             raise
 
+        # Initialize TopBarManager
+        try:
+            self.top_bar_manager = TopBarManager(self)
+        except Exception as e:
+            self.logger.log_error("Initialization", "Failed to load TopBarManager", e)
+            raise
+
         # --- Constants ---
         # No image icons for the top toolbar anymore — use plain colored panels.
         self.SNAP_DISTANCE = 25
@@ -132,10 +140,13 @@ class BlockEditor:
             "first_condition_id": None,
             "first_action_id": None,
         }
+        
+        self.zoom_slider = None
+        self.zoom_label = None
 
         # --- UI Setup ---
         # Setup top bar FIRST so it packs at the top (minimal controls only)
-        self.setup_top_bar()
+        self.top_bar_manager.setup_top_bar(self.master)
         
         # Create main container for sidebar + canvas
         main_container = tk.Frame(master, bg="#0a0a0a")
@@ -245,7 +256,7 @@ class BlockEditor:
         
         # Setup floating zoom controls
         try:
-            self.setup_zoom_controls()
+            self.top_bar_manager.setup_zoom_controls()
         except Exception:
             pass
         
@@ -459,9 +470,9 @@ class BlockEditor:
                 pass
             # keep slider/label in sync
             try:
-                if hasattr(self, "zoom_slider"):
+                if self.zoom_slider:
                     self.zoom_slider.set(self.zoom_scale)
-                if hasattr(self, "zoom_label"):
+                if self.zoom_label:
                     self.zoom_label.config(text=f"{int(self.zoom_scale * 100)}%")
             except Exception:
                 pass
@@ -522,134 +533,7 @@ class BlockEditor:
         """Sets up the left sidebar with collapsible category menus (Portal-style)."""
         self.sidebar_manager.setup_sidebar(parent)
 
-    def setup_top_bar(self):
-        """Sets up the minimal top bar for import/export and zoom controls."""
-        self.top_bar_frame = tk.Frame(
-            self.master, bg="#0a0a0a", height=self.TOP_BAR_HEIGHT
-        )
-        self.top_bar_frame.pack(fill="x", side="top")
 
-        initial_color = self.data_manager.palette_color_map.get(
-            self.data_manager.current_tab_name
-        )
-        # Compute heading font height and make icon panels match that height
-        try:
-            heading_font = tkfont.Font(family="Arial", size=11, weight="bold")
-            heading_height = heading_font.metrics("linespace")
-            # ensure a reasonable minimum height
-            self.ICON_HEIGHT = max(heading_height, 20)
-        except Exception:
-            # fallback to previous default
-            pass
-
-        # Initialize dropdown tracking early so global click handler can use it
-        self.dropdown_states = {
-            "ACTIONS": False, 
-            "RULES": False, 
-            "EVENTS": False,
-            "CONDITIONS": False,
-            "VALUES": False,
-            "LOGIC": False,
-            "MATH": False,
-            "ARRAYS": False,
-            "PLAYER": False,
-            "GAMEPLAY": False,
-            "TRANSFORM": False,
-        }
-        self.active_dropdowns = {}
-
-        # Global click binding removed (legacy dropdowns)
-        # Create references for compatibility with BlockDataManager
-        self.palette_content_frame = tk.Frame(self.top_bar_frame, bg=initial_color)
-        self.active_tab_label = tk.Label(
-            self.palette_content_frame,
-            text=f"Active Tab: {self.data_manager.current_tab_name}",
-            bg=initial_color,
-            fg="white",
-            font=("Arial", 9, "bold"),
-        )
-        self.active_tab_label.pack(side="left", padx=10)
-        self.palette_content_frame.pack(side="left", fill="y")
-
-        # right-side controls: Import, Export, and Zoom (consistent size)
-        # Place Import / Export controls inside fixed-size frames
-        btn_pixel_width = max(80, int(self.ICON_WIDTH * 0.6))
-
-        import_frame = tk.Frame(
-            self.top_bar_frame, width=btn_pixel_width, height=self.ICON_HEIGHT, bg="#0a0a0a"
-        )
-        import_frame.pack_propagate(False)
-        import_btn = tk.Button(
-            import_frame,
-            text="Import JSON",
-            command=self.import_code,
-            bg="#4CAF50",
-            fg="white",
-            font=("Arial", 10, "bold"),
-            activebackground="#388E3C",
-            activeforeground="white",
-            bd=0,
-        )
-        import_btn.pack(expand=True, fill="both")
-        import_frame.pack(side="right", padx=(6, 4), pady=6)
-
-        export_frame = tk.Frame(
-            self.top_bar_frame, width=btn_pixel_width, height=self.ICON_HEIGHT, bg="#0a0a0a"
-        )
-        export_frame.pack_propagate(False)
-        export_btn = tk.Button(
-            export_frame,
-            text="Export JSON",
-            command=self.export_code,
-            bg="#f44336",
-            fg="white",
-            font=("Arial", 10, "bold"),
-            activebackground="#d32f2f",
-            activeforeground="white",
-            bd=0,
-        )
-        export_btn.pack(expand=True, fill="both")
-        export_frame.pack(side="right", padx=(4, 6), pady=6)
-
-        # Analyze Button
-        analyze_frame = tk.Frame(
-            self.top_bar_frame, width=btn_pixel_width, height=self.ICON_HEIGHT, bg="#0a0a0a"
-        )
-        analyze_frame.pack_propagate(False)
-        analyze_btn = tk.Button(
-            analyze_frame,
-            text="Analyze",
-            command=self.analyze_workspace,
-            bg="#2196F3",
-            fg="white",
-            font=("Arial", 10, "bold"),
-            activebackground="#1976D2",
-            activeforeground="white",
-            bd=0,
-        )
-        analyze_btn.pack(expand=True, fill="both")
-        analyze_frame.pack(side="right", padx=(4, 6), pady=6)
-
-        # Zoom controls moved to floating panel (setup_zoom_controls)
-
-        # Store dropdown visibility state. Dropdown panels will be created
-        # as overlays (using `place`) so they don't reserve layout space.
-        self.dropdown_states = {
-            "ACTIONS": False, 
-            "RULES": False, 
-            "EVENTS": False,
-            "CONDITIONS": False,
-            "VALUES": False,
-            "LOGIC": False,
-            "MATH": False,
-            "ARRAYS": False,
-            "PLAYER": False,
-            "GAMEPLAY": False,
-            "TRANSFORM": False,
-        }
-        self.active_dropdowns = {}  # Stores currently visible dropdown panels
-        # Tracks panels that have been placed on the workspace (for snapping)
-        self.placed_panels = []
         # Index used to assign menu definitions to panels per tab
         self.menu_assign_index = {}
 
@@ -818,76 +702,7 @@ class BlockEditor:
             self.is_code_pane_visible = True
             self.master.update_idletasks()
 
-    def setup_zoom_controls(self):
-        """Creates a floating zoom control panel in the bottom-right of the canvas."""
-        zoom_frame = tk.Frame(self.canvas_frame, bg="#1a1a1a", relief="raised", bd=1)
-        # Place in bottom-right corner with some padding
-        zoom_frame.place(relx=1.0, rely=1.0, anchor="se", x=-20, y=-20)
 
-        try:
-            minus_btn = tk.Button(
-                zoom_frame,
-                text="-",
-                command=self.zoom_out,
-                bg="#2d2d2d",
-                fg="white",
-                bd=0,
-                width=2,
-                cursor="hand2"
-            )
-            minus_btn.pack(side="left", padx=(4, 2), pady=4)
-
-            # Slider uses float range 0.25..3.0
-            def on_zoom_change(v):
-                try:
-                    self.set_zoom(float(v))
-                except Exception:
-                    pass
-
-            self.zoom_slider = ttk.Scale(
-                zoom_frame,
-                orient="horizontal",
-                from_=0.25,
-                to=3.0,
-                value=self.zoom_scale,
-                command=on_zoom_change,
-                length=100,
-            )
-            self.zoom_slider.pack(side="left", padx=2, pady=4)
-            
-            # Store reference in ZoomManager
-            if self.zoom_manager:
-                self.zoom_manager.zoom_slider = self.zoom_slider
-
-            # percentage label
-            self.zoom_label = tk.Label(
-                zoom_frame,
-                text=f"{int(self.zoom_scale * 100)}%",
-                bg="#1a1a1a",
-                fg="white",
-                font=("Arial", 9),
-                width=4
-            )
-            self.zoom_label.pack(side="left", padx=(2, 4), pady=4)
-            
-            # Store reference in ZoomManager
-            if self.zoom_manager:
-                self.zoom_manager.zoom_label = self.zoom_label
-
-            plus_btn = tk.Button(
-                zoom_frame,
-                text="+",
-                command=self.zoom_in,
-                bg="#2d2d2d",
-                fg="white",
-                bd=0,
-                width=2,
-                cursor="hand2"
-            )
-            plus_btn.pack(side="left", padx=(2, 4), pady=4)
-
-        except Exception:
-            pass
 
     # Sidebar logic moved to Sidebar_Manager.py
     # on_tab_click, show_dropdown, hide_dropdown, render_sidebar_list removed.
@@ -1300,16 +1115,16 @@ class BlockEditor:
             self.logger.log_info("Code", "Applied code changes from editor")
         except json.JSONDecodeError as e:
             self.logger.log_error("Code", f"Invalid JSON: {e}")
-            tk.messagebox.showerror("Error", f"Invalid JSON: {e}")
+            messagebox.showerror("Error", f"Invalid JSON: {e}")
         except Exception as e:
             self.logger.log_error("Code", f"Failed to apply changes: {e}")
-            tk.messagebox.showerror("Error", f"Failed to apply changes: {e}")
+            messagebox.showerror("Error", f"Failed to apply changes: {e}")
 
 
 
     def reset_workspace(self):
         """Resets the workspace to the default state."""
-        if tk.messagebox.askyesno("Reset UI", "Are you sure you want to reset the workspace? Unsaved changes will be lost."):
+        if messagebox.askyesno("Reset UI", "Are you sure you want to reset the workspace? Unsaved changes will be lost."):
             self.canvas.delete("all")
             self.draw_grid()
             self.all_blocks.clear()
@@ -1495,11 +1310,11 @@ class BlockEditor:
         issues = analyzer.analyze()
         
         if not issues:
-            tk.messagebox.showinfo("Analyze Workspace", "Analysis complete.\n\nNo issues found! Great job.")
+            messagebox.showinfo("Analyze Workspace", "Analysis complete.\n\nNo issues found! Great job.")
             return
 
         # Create a results window
-        result_window = tk.Toplevel(self.root)
+        result_window = tk.Toplevel(self.master)
         result_window.title("Analysis Results")
         result_window.geometry("600x400")
         result_window.configure(bg="#1e1e1e")
