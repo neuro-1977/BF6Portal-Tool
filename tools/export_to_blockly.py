@@ -57,6 +57,25 @@ CATEGORY_CONFIG = {
     "OTHER": {"order": 99, "color": "#9E9E9E"}
 }
 
+def create_rule_block_definition(color):
+    """Creates the special definition for the Rule block."""
+    return {
+        "type": "Rule",
+        "message0": "RULE %1 Event %2 %3",
+        "args0": [
+            {"type": "field_input", "name": "NAME", "text": "New Rule"},
+            {"type": "field_dropdown", "name": "ONGOING", "options": [["Ongoing", "ONGOING"], ["One-off", "ONEOFF"]]},
+            {"type": "field_dropdown", "name": "SCOPE", "options": [["Global", "GLOBAL"], ["Team", "TEAM"], ["Player", "PLAYER"]]}
+        ],
+        "message1": "Conditions %1",
+        "args1": [{"type": "input_statement", "name": "CONDITIONS"}],
+        "message2": "Actions %1",
+        "args2": [{"type": "input_statement", "name": "ACTIONS"}],
+        "colour": color,
+        "tooltip": "Defines a game rule",
+        "helpUrl": ""
+    }
+
 def generate_blockly_definitions(workspace_root):
     root = Path(workspace_root)
     assets_dir = root / "assets"
@@ -92,22 +111,7 @@ def generate_blockly_definitions(workspace_root):
                             
                             # SPECIAL HANDLING: RULE BLOCK
                             if block_id == "Rule":
-                                b_def = {
-                                    "type": "Rule",
-                                    "message0": "RULE %1 Event %2 %3",
-                                    "args0": [
-                                        {"type": "field_input", "name": "NAME", "text": "New Rule"},
-                                        {"type": "field_dropdown", "name": "ONGOING", "options": [["Ongoing", "ONGOING"], ["One-off", "ONEOFF"]]},
-                                        {"type": "field_dropdown", "name": "SCOPE", "options": [["Global", "GLOBAL"], ["Team", "TEAM"], ["Player", "PLAYER"]]}
-                                    ],
-                                    "message1": "Conditions %1",
-                                    "args1": [{"type": "input_statement", "name": "CONDITIONS"}],
-                                    "message2": "Actions %1",
-                                    "args2": [{"type": "input_statement", "name": "ACTIONS"}],
-                                    "colour": color,
-                                    "tooltip": "Defines a game rule",
-                                    "helpUrl": ""
-                                }
+                                b_def = create_rule_block_definition(color)
                                 block_definitions.append(b_def)
                                 toolbox_categories[cat_name][sub_name].append(block_id)
                                 continue
