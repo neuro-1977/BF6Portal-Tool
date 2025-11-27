@@ -47,3 +47,5 @@ assets/downloaded/*.ts
 
 # Keep only essential assets for the project
 !assets/img/icons/.gitkeep
+
+*.zip
