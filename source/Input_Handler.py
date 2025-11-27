@@ -284,6 +284,15 @@ class InputHandler:
             event: The mouse event
             block_id: The ID of the block that was right-clicked
         """
+        # If block_id is None, try to find it from the event
+        if block_id is None:
+            try:
+                item = self.canvas.find_closest(event.x, event.y)[0]
+                tags = self.canvas.gettags(item)
+                block_id = next((tag for tag in tags if tag.startswith("block_")), None)
+            except IndexError:
+                pass
+
         if block_id not in self.editor.all_blocks:
             return
         
@@ -292,6 +301,7 @@ class InputHandler:
         
         # Create context menu
         menu = tk.Menu(self.editor.master, tearoff=0, bg="#2d2d2d", fg="white")
+
         
         # Add navigation options if block has subroutines
         if block_type in ['RULES', 'MOD']:

@@ -298,6 +298,57 @@ class BlockRenderer:
                 for arg in arg_keys:
                     # Get label and icon
                     label_text = block.get("param_labels", {}).get(arg, arg)
+        else:
+            # Render Custom Widgets (e.g. for RULES)
+            for key, widget_info in widgets_def.items():
+                w_type = widget_info.get("type")
+                
+                if w_type == "text_input":
+                    # Label for input?
+                    # lbl = tk.Label(frame, text=key, bg=block.get("color"), fg="#ccc", font=("Arial", 8))
+                    # lbl.pack(side="left", padx=2)
+                    
+                    default_val = widget_info.get("default", "")
+                    var = tk.StringVar(value=default_val)
+                    
+                    if "widget_vars" not in block:
+                        block["widget_vars"] = {}
+                    block["widget_vars"][key] = var
+                    
+                    entry = tk.Entry(
+                        frame,
+                        textvariable=var,
+                        bg="#222222", # Dark input background
+                        fg="white",
+                        insertbackground="white", # White cursor
+                        font=("Arial", 9),
+                        relief="flat",
+                        width=15
+                    )
+                    entry.pack(side="left", padx=2, ipady=2) # ipady for height
+                    # Don't bind drag events to entry so user can select text
+                    
+                elif w_type == "dropdown":
+                    # Combobox
+                    options = widget_info.get("options", [])
+                    default_val = widget_info.get("default", options[0] if options else "")
+                    var = tk.StringVar(value=default_val)
+                    
+                    if "widget_vars" not in block:
+                        block["widget_vars"] = {}
+                    block["widget_vars"][key] = var
+                    
+                    combo = ttk.Combobox(
+                        frame,
+                        textvariable=var,
+                        values=options,
+                        state="readonly",
+                        width=10,
+                        font=("Arial", 8)
+                    )
+                    combo.pack(side="left", padx=5)
+                    # Bind combo selection to prevent drag start?
+
                     icon = block.get("param_icons", {}).get(arg, "")
                     
                     display_text = f"{icon} {label_text}" if icon else label_text

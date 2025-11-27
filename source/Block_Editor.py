@@ -6,6 +6,7 @@ import json
 import os
 import traceback
 
+from resource_helper import get_asset_path
 from Block_Data_Manager import BlockDataManager
 from Sidebar_Manager import SidebarManager
 from TopBar_Manager import TopBarManager
@@ -46,15 +47,16 @@ class BlockEditor:
         master.geometry("1200x800")
         
         # Try to set window icon
+        # Set icon
         try:
-            icon_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icon.ico")
-            if os.path.exists(icon_path):
-                master.iconbitmap(icon_path)
+            icon_path = get_asset_path("assets/icon.ico")
+            if icon_path.exists():
+                master.iconbitmap(str(icon_path))
             else:
                 # Try png if ico not found
-                png_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "icon.png")
-                if os.path.exists(png_path):
-                    icon_img = tk.PhotoImage(file=png_path)
+                png_path = get_asset_path("assets/icon.png")
+                if png_path.exists():
+                    icon_img = tk.PhotoImage(file=str(png_path))
                     master.iconphoto(True, icon_img)
         except Exception:
             pass

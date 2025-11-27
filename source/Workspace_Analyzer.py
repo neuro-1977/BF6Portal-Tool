@@ -40,8 +40,8 @@ class WorkspaceAnalyzer:
         block_type = block.get("type")
         parent_id = block.get("parent_id")
         
-        # MOD blocks and Comments are allowed to be roots
-        if block_type in ["MOD", "COMMENT"]:
+        # MOD blocks, Comments, RULES, and SUBROUTINES are allowed to be roots
+        if block_type in ["MOD", "COMMENT", "RULES", "SUBROUTINE"]:
             return
             
         # If no parent, it's an orphan
@@ -66,14 +66,10 @@ class WorkspaceAnalyzer:
 
         parent_type = parent.get("type")
 
-        # RULES must be in MOD
+        # RULES must be in MOD or Root
         if block_type == "RULES":
-            if parent_type != "MOD":
-                self.issues.append({
-                    "type": "error",
-                    "message": "RULES block must be placed directly inside a MOD block.",
-                    "block_id": block["id"]
-                })
+            # Rules can be top-level now
+            pass
         
         # CONDITIONS/ACTIONS/EVENTS should generally be inside RULES or other containers
         # This is a loose check, strict checking might be too annoying during editing

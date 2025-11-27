@@ -1,6 +1,7 @@
 import json
 import tkinter as tk  # Imported for type hints on the UI instance
 from pathlib import Path
+from resource_helper import get_asset_path
 
 
 class BlockDataManager:
@@ -20,7 +21,7 @@ class BlockDataManager:
         """
         # Store a reference to the main UI class
         self.ui = ui_instance
-        self.BLOCK_DATA_PATH = Path(__file__).parent.parent / "assets"
+        self.BLOCK_DATA_PATH = get_asset_path("assets")
 
         # --- Load Theme Data ---
         self.IMAGE_DATA = {}

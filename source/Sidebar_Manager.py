@@ -17,6 +17,7 @@ class SidebarManager:
         self.tab_buttons = {}
         self.dropdown_visible = False
         self.current_dropdown_tab = None
+        self.icon_cache = {} # Cache for loaded PhotoImages
         
         # Use editor's constants if available, else defaults
         self.SIDEBAR_WIDTH = getattr(editor, 'SIDEBAR_WIDTH', 120)
@@ -319,6 +320,9 @@ class SidebarManager:
                      # Standard statement shape
                      shape_coords = BlockShapes.get_blockly_statement_shape(shape_x_offset, 0, item_width, item_height, top_notch=True, bottom_notch=True)
 
+                # Bind clicks to spawn a block
+                callback = lambda e, name=tab_name, k=block_id: self.editor.spawn_block_from_sidebar(name, k)
+
                 # Draw the block shape
                 item_canvas.create_polygon(
                     shape_coords,
@@ -328,9 +332,45 @@ class SidebarManager:
                     tags=("block", block_id)
                 )
                 
+                # --- Icon Rendering ---
+                text_x_offset = shape_x_offset + 10
+                
+                # Check for icon in theme data
+                icon_path_rel = self.editor.data_manager.ICON_PATHS.get(tab_name)
+                if icon_path_rel:
+                    try:
+                        # Construct absolute path: root_dir / relative_path
+                        # BLOCK_DATA_PATH is .../assets. Parent is root.
+                        full_icon_path = self.editor.data_manager.BLOCK_DATA_PATH.parent / icon_path_rel
+                        
+                        if full_icon_path.exists():
+                            if tab_name not in self.icon_cache:
+                                # Load image
+                                img = tk.PhotoImage(file=str(full_icon_path))
+                                # Resize if too large (simple subsample)
+                                if img.width() > 24:
+                                    scale = img.width() // 24
+                                    if scale > 1:
+                                        img = img.subsample(scale)
+                                self.icon_cache[tab_name] = img
+                            
+                            if tab_name in self.icon_cache:
+                                icon_img = self.icon_cache[tab_name]
+                                item_canvas.create_image(
+                                    shape_x_offset + 12, 
+                                    item_height/2, 
+                                    image=icon_img, 
+                                    anchor="center",
+                                    tags=("icon", block_id)
+                                )
+                                text_x_offset += 24 # Shift text over
+                                # item_canvas.tag_bind("icon", "<Button-1>", callback) # Removed to prevent double firing
+                    except Exception:
+                        pass # Fail silently for icons
+
                 # Draw text
                 item_canvas.create_text(
-                    shape_x_offset + 20, item_height/2,
+                    text_x_offset, item_height/2,
                     text=label_text,
                     fill=text_fg,
                     font=("Arial", 9, "bold"),
@@ -338,11 +378,11 @@ class SidebarManager:
                     tags=("text", block_id)
                 )
                 
-                # Bind clicks to spawn a block
-                callback = lambda e, name=tab_name, k=block_id: self.editor.spawn_block_from_sidebar(name, k)
                 item_canvas.bind("<Button-1>", callback)
-                item_canvas.tag_bind("block", "<Button-1>", callback)
-                item_canvas.tag_bind("text", "<Button-1>", callback)
+                # Removed tag_binds to prevent double-firing events
+                # item_canvas.tag_bind("block", "<Button-1>", callback)
+                # item_canvas.tag_bind("text", "<Button-1>", callback)
+                # item_canvas.tag_bind("icon", "<Button-1>", callback)
 
         if not any_items_shown:
              tk.Label(self.sidebar_list_container, text="No items found", bg="#1a1a1a", fg="#888888").pack(pady=10)

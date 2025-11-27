@@ -2,13 +2,46 @@
 
 ## Summary of Recent Work
 
-This document tracks the implementation status of the Portal Block Editor, including the recent "Portal Style" visual overhaul.
+This document tracks the implementation status of the Portal Block Editor, including the recent "Portal Style" visual overhaul and architectural refactoring.
 
 ---
 
 ## ✅ Completed Features
 
-### 1. Portal Style Visual Overhaul (November 27, 2025)
+### 1. Architectural Refactoring (November 27, 2025)
+
+**Status:** IMPLEMENTED ✓
+
+A major cleanup of the codebase to improve maintainability and separation of concerns.
+
+#### Changes:
+- **Modularization**: Split the monolithic `Block_Editor.py` into specialized managers:
+  - `Sidebar_Manager.py`: Handles the left sidebar, search, and block palette.
+  - `TopBar_Manager.py`: Handles the top menu bar (Import/Export/Analyze).
+  - `Input_Handler.py`: Manages mouse events, dragging, and clicking.
+  - `Block_Renderer.py`: Handles all canvas drawing operations, including the grid.
+- **Grid Logic**: Moved grid drawing from Editor to Renderer.
+- **Cleanup**: Removed unused imports and dead code.
+
+### 2. Asset Management & UI Polish (November 27, 2025)
+
+**Status:** IMPLEMENTED ✓
+
+Improvements to the project structure and visual assets.
+
+#### Features:
+- **Asset Database**: Created `assets/ui_theme.json` to centralize UI colors and icon paths.
+- **Icon System**:
+  - Implemented icon rendering in `Sidebar_Manager.py`.
+  - Created `tools/generate_icons.py` to generate placeholder assets.
+  - Populated `assets/img/icons/` with color-coded placeholders.
+- **Mockup Generator**: Added `tools/generate_mockup.py` to programmatically create high-quality SVG previews.
+- **Project Structure**:
+  - Updated `.gitignore` for distribution (excluding build artifacts).
+  - Created `assets/img/icons/` for future icon storage.
+- **Documentation**: Updated `README.md` with the new UI mockup.
+
+### 3. Portal Style Visual Overhaul (November 27, 2025)
 
 **Status:** IMPLEMENTED ✓
 
