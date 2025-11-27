@@ -12,7 +12,17 @@ import os
 import sys
 
 PORT = 8000
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Determine paths dynamically to support both Dev (tools/) and Release (root/) execution
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+if os.path.exists(os.path.join(SCRIPT_DIR, "web_ui")):
+    # Release mode: Script is in root, web_ui is next to it
+    ROOT_DIR = SCRIPT_DIR
+else:
+    # Dev mode: Script is in tools/, web_ui is in parent
+    ROOT_DIR = os.path.dirname(SCRIPT_DIR)
+
 WEB_DIR = os.path.join(ROOT_DIR, "web_ui")
 ASSETS_DIR = os.path.join(ROOT_DIR, "assets")
 
