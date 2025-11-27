@@ -735,6 +735,25 @@ class BlockEditor:
         export_btn.pack(expand=True, fill="both")
         export_frame.pack(side="right", padx=(4, 6), pady=6)
 
+        # Analyze Button
+        analyze_frame = tk.Frame(
+            self.top_bar_frame, width=btn_pixel_width, height=self.ICON_HEIGHT, bg="#0a0a0a"
+        )
+        analyze_frame.pack_propagate(False)
+        analyze_btn = tk.Button(
+            analyze_frame,
+            text="Analyze",
+            command=self.analyze_workspace,
+            bg="#2196F3",
+            fg="white",
+            font=("Arial", 10, "bold"),
+            activebackground="#1976D2",
+            activeforeground="white",
+            bd=0,
+        )
+        analyze_btn.pack(expand=True, fill="both")
+        analyze_frame.pack(side="right", padx=(4, 6), pady=6)
+
         # Zoom controls moved to floating panel (setup_zoom_controls)
 
         # Store dropdown visibility state. Dropdown panels will be created
@@ -1000,8 +1019,15 @@ class BlockEditor:
         self.current_dropdown_tab = tab_name
         self.dropdown_visible = True
         
-        # Pack the dropdown panel to make it visible (after sidebar, before canvas)
-        self.dropdown_panel.pack(side="left", fill="y", after=self.sidebar_frame)
+        # Use place to overlay the dropdown panel next to the sidebar
+        # This avoids layout shifts and ensures it appears "on top" or adjacent
+        self.dropdown_panel.place(
+            x=self.SIDEBAR_WIDTH, 
+            y=0, 
+            relheight=1.0, 
+            width=250
+        )
+        self.dropdown_panel.lift() # Ensure it's above the canvas
         
         # Render items
         try:
@@ -1015,7 +1041,7 @@ class BlockEditor:
         """Hide the dropdown panel."""
         self.dropdown_visible = False
         self.current_dropdown_tab = None
-        self.dropdown_panel.pack_forget()
+        self.dropdown_panel.place_forget()
 
     def render_sidebar_list(self, tab_name, filter_text=None):
         """Render the block items for a category inside the sidebar list container."""
@@ -2004,6 +2030,8 @@ Height: {panel_info.get('h', 0)}"""
             self.logger.log_error("Code", f"Failed to apply changes: {e}")
             tk.messagebox.showerror("Error", f"Failed to apply changes: {e}")
 
+
+
     def refresh_ui(self):
         """Refresh the UI and code preview."""
         self.update_code_preview()
@@ -2218,6 +2246,13 @@ Height: {panel_info.get('h', 0)}"""
         finally:
             menu.grab_release()
 
+    def analyze_workspace(self):
+        """Analyze the workspace for errors and suggestions."""
+        # Placeholder for analysis logic
+        # In the future, this will check for missing inputs, disconnected blocks, etc.
+        # For now, just show a message
+        tk.messagebox.showinfo("Analyze Workspace", "Analysis complete.\n\nNo errors found (Placeholder).")
+        
 if __name__ == "__main__":
     try:
         # Setup exception handling

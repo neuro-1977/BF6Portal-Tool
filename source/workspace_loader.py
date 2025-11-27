@@ -300,6 +300,21 @@ def _import_portal_blocks(editor, portal_blocks):
                     args_dict[input_name] = tk.StringVar(value="...") 
         
         # Create the block entry
+        # Determine dimensions
+        width = editor.CHILD_BLOCK_WIDTH
+        height = editor.CHILD_BLOCK_HEIGHT
+        
+        # Scale down value blocks (nested inputs) to fit better
+        if is_value:
+            width = 150 # Smaller width for nested values
+            height = 30
+            
+        # Use definition width if available
+        if portal_type in portal_type_map:
+            def_width = portal_type_map[portal_type]["def"].get("width")
+            if def_width:
+                width = def_width
+        
         editor.all_blocks[bid] = {
             "id": bid,
             "label": label,
@@ -307,8 +322,8 @@ def _import_portal_blocks(editor, portal_blocks):
             "color": editor.data_manager.palette_color_map.get(my_type, "#555555"),
             "x": block_data.get("x", x),
             "y": block_data.get("y", y),
-            "width": editor.CHILD_BLOCK_WIDTH,
-            "height": editor.CHILD_BLOCK_HEIGHT,
+            "width": width,
+            "height": height,
             "canvas_obj": None,
             "widgets": [],
             "parent_id": parent_id,

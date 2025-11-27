@@ -12,6 +12,7 @@ build/
 venv/
 env/
 ENV/
+.venv/
 
 # IDE
 .vscode/
@@ -19,6 +20,8 @@ ENV/
 *.swp
 *.swo
 *~
+*.code-workspace
+.history/
 
 # OS
 .DS_Store

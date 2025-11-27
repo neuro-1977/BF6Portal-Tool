@@ -3,7 +3,7 @@
     "sub_categories": {
         "GENERAL": {
             "SetVariableAtIndex": {
-                "label": "SetVariableAtIndex",
+                "label": "Set Array Element",
                 "type": "ACTIONS",
                 "args": ["variable", "index", "value"],
                 "description": "Sets a value at a specific index in an array variable"
@@ -11,7 +11,7 @@
         },
         "Creation": {
             "EmptyArray": {
-                "label": "Empty Array",
+                "label": "Create Empty Array",
                 "type": "VALUE",
                 "args": [],
                 "param_labels": {},
@@ -57,7 +57,7 @@
         },
         "Manipulation": {
             "AppendToArray": {
-                "label": "Append To Array",
+                "label": "Add to Array",
                 "type": "VALUE",
                 "args": ["array", "value"],
                 "param_labels": {
@@ -71,7 +71,7 @@
                 "description": "Adds a value to the end of an array"
             },
             "RemoveFromArray": {
-                "label": "Remove From Array",
+                "label": "Remove from Array",
                 "type": "VALUE",
                 "args": ["array", "value"],
                 "param_labels": {
@@ -85,7 +85,7 @@
                 "description": "Removes a value from an array"
             },
             "RemoveFromArrayByIndex": {
-                "label": "Remove From Array By Index",
+                "label": "Remove from Array by Index",
                 "type": "VALUE",
                 "args": ["array", "index"],
                 "param_labels": {
@@ -99,7 +99,7 @@
                 "description": "Removes an element at a specific index"
             },
             "ArraySlice": {
-                "label": "Array Slice",
+                "label": "Slice Array",
                 "type": "VALUE",
                 "args": ["array", "start_index", "count"],
                 "param_labels": {
@@ -129,7 +129,7 @@
         },
         "Access": {
             "ValueInArray": {
-                "label": "Value In Array",
+                "label": "Get Array Element",
                 "type": "VALUE",
                 "args": ["array", "index"],
                 "param_labels": {
@@ -167,7 +167,7 @@
                 "description": "Returns the last element in the array"
             },
             "IndexOfArrayValue": {
-                "label": "Index Of Array Value",
+                "label": "Index Of",
                 "type": "VALUE",
                 "args": ["array", "value"],
                 "param_labels": {
@@ -183,7 +183,7 @@
         },
         "Query": {
             "CountOf": {
-                "label": "Count Of",
+                "label": "Array Length",
                 "type": "VALUE",
                 "args": ["array"],
                 "param_labels": {
@@ -195,7 +195,7 @@
                 "description": "Returns the number of elements in the array"
             },
             "ArrayContains": {
-                "label": "Array Contains",
+                "label": "Contains",
                 "type": "CONDITION",
                 "args": ["array", "value"],
                 "param_labels": {
@@ -211,7 +211,7 @@
         },
         "Filtering": {
             "FilteredArray": {
-                "label": "Filtered Array",
+                "label": "Filter Array",
                 "type": "VALUE",
                 "args": ["array", "condition"],
                 "param_labels": {
@@ -225,7 +225,7 @@
                 "description": "Returns array with elements matching condition"
             },
             "SortedArray": {
-                "label": "Sorted Array",
+                "label": "Sort Array",
                 "type": "VALUE",
                 "args": ["array", "value_rank"],
                 "param_labels": {
