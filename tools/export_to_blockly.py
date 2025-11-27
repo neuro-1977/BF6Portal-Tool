@@ -76,6 +76,121 @@ def create_rule_block_definition(color):
         "helpUrl": ""
     }
 
+def create_standard_block_definition(block_id, block_def, color):
+    """Creates a standard Blockly block definition from our JSON format."""
+    b_def = {
+        "type": block_id,
+        "message0": f"{block_def.get('label', block_id)}",
+        "args0": [],
+        "colour": color,
+        "tooltip": block_def.get("description", ""),
+        "helpUrl": ""
+    }
+    
+    b_type = block_def.get("type", "SEQUENCE")
+    mapping = TYPE_MAPPING.get(b_type, {"type": "statement"})
+    
+    # Inputs/Args
+    args = block_def.get("args", [])
+    msg_counter = 1
+    
+    # Handle Fields (Internal content like text boxes, dropdowns)
+    if block_def.get("has_input_field"):
+        b_def["message0"] += " %" + str(msg_counter)
+        input_type = block_def.get("input_type", "text")
+        field_type = "field_number" if input_type == "number" else "field_input"
+        
+        field_def = {
+            "type": field_type,
+            "name": "FIELD_VALUE",
+            "text": str(block_def.get("default_value", ""))
+        }
+        b_def["args0"].append(field_def)
+        msg_counter += 1
+        
+    elif block_def.get("has_dropdown"):
+        b_def["message0"] += " %" + str(msg_counter)
+        options = []
+        for val in block_def.get("dropdown_values", []):
+            options.append([str(val), str(val)])
+            
+        field_def = {
+            "type": "field_dropdown",
+            "name": "FIELD_DROPDOWN",
+            "options": options
+        }
+        b_def["args0"].append(field_def)
+        msg_counter += 1
+
+    if args:
+        b_def["message0"] += " "
+        for arg in args:
+            b_def["message0"] += f"%{msg_counter} "
+            
+            # Determine arg type (simple for now)
+            arg_def = {
+                "type": "input_value",
+                "name": arg
+            }
+            b_def["args0"].append(arg_def)
+            msg_counter += 1
+
+    # Shape Logic
+    if mapping["type"] == "statement":
+        b_def["previousStatement"] = None
+        b_def["nextStatement"] = None
+        
+        if mapping.get("nested"):
+            # Add the nested statement input
+            b_def["message0"] += " %" + str(msg_counter)
+            b_def["args0"].append({
+                "type": "input_statement",
+                "name": "DO"
+            })
+            
+    elif mapping["type"] == "value":
+        b_def["output"] = mapping.get("check", None)
+        
+    elif mapping["type"] == "hat":
+        b_def["nextStatement"] = None
+        # Hats usually don't have previous statement
+        
+    return b_def
+
+def load_help_data(assets_dir):
+    """Loads help data from JSON."""
+    help_data = {}
+    help_file = assets_dir / "block_help.json"
+    if help_file.exists():
+        try:
+            with open(help_file, 'r', encoding='utf-8') as f:
+                help_data = json.load(f)
+        except Exception as e:
+            print(f"Error loading help data: {e}")
+    return help_data
+
+def create_image_map():
+    """Creates the mapping of block types to help images."""
+    return {
+        "MOD": "assets/img/BF6Portal/mod help.jpg",
+        "RULES": "assets/img/BF6Portal/ruleshelp.jpg",
+        "CONDITIONS": "assets/img/BF6Portal/condition help.jpg",
+        "ACTIONS": "assets/img/BF6Portal/control actions.jpg", # Fallback
+        "EVENTS": "assets/img/BF6Portal/event payloads1.jpg",
+        "MATH": "assets/img/BF6Portal/math1.jpg",
+        "LOGIC": "assets/img/BF6Portal/logic1.jpg",
+        "ARRAYS": "assets/img/BF6Portal/arrays.jpg",
+        "AUDIO": "assets/img/BF6Portal/audio.jpg",
+        "CAMERA": "assets/img/BF6Portal/camera.jpg",
+        "EFFECTS": "assets/img/BF6Portal/effects.jpg",
+        "GAMEPLAY": "assets/img/BF6Portal/gameplay1.jpg",
+        "OBJECTIVE": "assets/img/BF6Portal/objective1.jpg",
+        "PLAYER": "assets/img/BF6Portal/player 1.jpg",
+        "TRANSFORM": "assets/img/BF6Portal/transform.jpg",
+        "VEHICLE": "assets/img/BF6Portal/vehicle 1.jpg",
+        "UI": "assets/img/BF6Portal/user interface1.jpg"
+    }
+
 def generate_blockly_definitions(workspace_root):
     root = Path(workspace_root)
     assets_dir = root / "assets"
@@ -112,87 +227,8 @@ def generate_blockly_definitions(workspace_root):
                             # SPECIAL HANDLING: RULE BLOCK
                             if block_id == "Rule":
                                 b_def = create_rule_block_definition(color)
-                                block_definitions.append(b_def)
-                                toolbox_categories[cat_name][sub_name].append(block_id)
-                                continue
-
-                            # Create Blockly Definition
-                            b_def = {
-                                "type": block_id,
-                                "message0": f"{block_def.get('label', block_id)}",
-                                "args0": [],
-                                "colour": color,
-                                "tooltip": block_def.get("description", ""),
-                                "helpUrl": ""
-                            }
-                            
-                            b_type = block_def.get("type", "SEQUENCE")
-                            mapping = TYPE_MAPPING.get(b_type, {"type": "statement"})
-                            
-                            # Inputs/Args
-                            args = block_def.get("args", [])
-                            msg_counter = 1
-                            
-                            # Handle Fields (Internal content like text boxes, dropdowns)
-                            if block_def.get("has_input_field"):
-                                b_def["message0"] += " %" + str(msg_counter)
-                                input_type = block_def.get("input_type", "text")
-                                field_type = "field_number" if input_type == "number" else "field_input"
-                                
-                                field_def = {
-                                    "type": field_type,
-                                    "name": "FIELD_VALUE",
-                                    "text": str(block_def.get("default_value", ""))
-                                }
-                                b_def["args0"].append(field_def)
-                                msg_counter += 1
-                                
-                            elif block_def.get("has_dropdown"):
-                                b_def["message0"] += " %" + str(msg_counter)
-                                options = []
-                                for val in block_def.get("dropdown_values", []):
-                                    options.append([str(val), str(val)])
-                                    
-                                field_def = {
-                                    "type": "field_dropdown",
-                                    "name": "FIELD_DROPDOWN",
-                                    "options": options
-                                }
-                                b_def["args0"].append(field_def)
-                                msg_counter += 1
-
-                            if args:
-                                b_def["message0"] += " "
-                                for arg in args:
-                                    b_def["message0"] += f"%{msg_counter} "
-                                    
-                                    # Determine arg type (simple for now)
-                                    arg_def = {
-                                        "type": "input_value",
-                                        "name": arg
-                                    }
-                                    b_def["args0"].append(arg_def)
-                                    msg_counter += 1
-
-                            # Shape Logic
-                            if mapping["type"] == "statement":
-                                b_def["previousStatement"] = None
-                                b_def["nextStatement"] = None
-                                
-                                if mapping.get("nested"):
-                                    # Add the nested statement input
-                                    b_def["message0"] += " %" + str(msg_counter)
-                                    b_def["args0"].append({
-                                        "type": "input_statement",
-                                        "name": "DO"
-                                    })
-                                    
-                            elif mapping["type"] == "value":
-                                b_def["output"] = mapping.get("check", None)
-                                
-                            elif mapping["type"] == "hat":
-                                b_def["nextStatement"] = None
-                                # Hats usually don't have previous statement
+                            else:
+                                b_def = create_standard_block_definition(block_id, block_def, color)
                             
                             block_definitions.append(b_def)
                             toolbox_categories[cat_name][sub_name].append(block_id)
@@ -200,37 +236,8 @@ def generate_blockly_definitions(workspace_root):
             except Exception as e:
                 print(f"Error processing {data_file}: {e}")
 
-    # Load Help Data
-    help_data = {}
-    help_file = assets_dir / "block_help.json"
-    if help_file.exists():
-        try:
-            with open(help_file, 'r', encoding='utf-8') as f:
-                help_data = json.load(f)
-        except Exception as e:
-            print(f"Error loading help data: {e}")
-
-    # Image Mapping (Simple heuristic for now)
-    # Map generic types to specific images if available
-    image_map = {
-        "MOD": "assets/img/BF6Portal/mod help.jpg",
-        "RULES": "assets/img/BF6Portal/ruleshelp.jpg",
-        "CONDITIONS": "assets/img/BF6Portal/condition help.jpg",
-        "ACTIONS": "assets/img/BF6Portal/control actions.jpg", # Fallback
-        "EVENTS": "assets/img/BF6Portal/event payloads1.jpg",
-        "MATH": "assets/img/BF6Portal/math1.jpg",
-        "LOGIC": "assets/img/BF6Portal/logic1.jpg",
-        "ARRAYS": "assets/img/BF6Portal/arrays.jpg",
-        "AUDIO": "assets/img/BF6Portal/audio.jpg",
-        "CAMERA": "assets/img/BF6Portal/camera.jpg",
-        "EFFECTS": "assets/img/BF6Portal/effects.jpg",
-        "GAMEPLAY": "assets/img/BF6Portal/gameplay1.jpg",
-        "OBJECTIVE": "assets/img/BF6Portal/objective1.jpg",
-        "PLAYER": "assets/img/BF6Portal/player 1.jpg",
-        "TRANSFORM": "assets/img/BF6Portal/transform.jpg",
-        "VEHICLE": "assets/img/BF6Portal/vehicle 1.jpg",
-        "UI": "assets/img/BF6Portal/user interface1.jpg"
-    }
+    help_data = load_help_data(assets_dir)
+    image_map = create_image_map()
 
     return block_definitions, toolbox_categories, help_data, image_map
 
