@@ -10,8 +10,8 @@ class TopBarManager:
         self.active_tab_label = None
         self.TOP_BAR_HEIGHT = 50
 
-    def setup_top_bar(self, parent):
-        """Sets up the minimal top bar for import/export and zoom controls."""
+    def setup_top_bar(self, parent, workspace_name="BF6 Workspace"):
+        """Sets up the minimal top bar for import/export and zoom controls, with workspace name and red reset button."""
         self.top_bar_frame = tk.Frame(
             parent, bg="#0a0a0a", height=self.TOP_BAR_HEIGHT
         )
@@ -44,11 +44,21 @@ class TopBarManager:
             font=("Arial", 9, "bold"),
         )
         self.editor.active_tab_label = self.active_tab_label
-        
         self.active_tab_label.pack(side="left", padx=10)
         self.palette_content_frame.pack(side="left", fill="y")
 
-        # right-side controls: Import, Export
+        # Workspace name/title label
+        title_label = tk.Label(
+            self.top_bar_frame,
+            text=workspace_name,
+            font=("Arial", 16, "bold"),
+            bg="#232323",
+            fg="#FFD700",
+            padx=16,
+        )
+        title_label.pack(side="left", padx=8)
+
+        # right-side controls: Import, Export, Reset
         btn_pixel_width = max(80, int(self.editor.ICON_WIDTH * 0.6))
 
         import_frame = tk.Frame(
@@ -105,6 +115,25 @@ class TopBarManager:
         )
         analyze_btn.pack(expand=True, fill="both")
         analyze_frame.pack(side="right", padx=(4, 6), pady=6)
+
+        # Reset Button (red, rightmost)
+        reset_frame = tk.Frame(
+            self.top_bar_frame, width=btn_pixel_width, height=self.editor.ICON_HEIGHT, bg="#0a0a0a"
+        )
+        reset_frame.pack_propagate(False)
+        reset_btn = tk.Button(
+            reset_frame,
+            text="Reset",
+            command=self.editor.reset_workspace,
+            bg="#D32F2F",
+            fg="white",
+            font=("Arial", 10, "bold"),
+            activebackground="#B71C1C",
+            activeforeground="white",
+            bd=0,
+        )
+        reset_btn.pack(expand=True, fill="both")
+        reset_frame.pack(side="right", padx=8, pady=6)
 
     def setup_zoom_controls(self):
         """Creates a floating zoom control panel in the bottom-right of the canvas."""

@@ -6,6 +6,35 @@ Visual block editor for building Battlefield Portal scripts.
 
 > **NOTICE (Nov 2025)**: This project is transitioning from a Python/Tkinter desktop app to a **Web-based Google Blockly interface**. The Python app (`source/Block_Editor.py`) is now considered legacy.
 
+## Testing & Refresh Instructions
+
+**When to restart or refresh:**
+
+- **If you change Python source code** (in `source/`):
+  - **Restart the Python application** (close and re-run the editor) to ensure all code changes are loaded.
+- **If you only change assets or block data** (in `assets/`):
+  - You can usually just re-import your workspace or refresh the UI.
+- **If you are using the web/Blockly version**:
+  - **Refresh your browser** to load the latest frontend code.
+  - If you change backend code, restart the backend server as well.
+
+**To avoid errors with old files:**
+- Always re-import your workspace after making code changes.
+- If you see unexpected behavior, try resetting the workspace and re-importing your file.
+- If you get errors, check the console/log for details and ensure you are not using an outdated or incompatible file format.
+
+**Summary Table:**
+
+| Change Type         | Action Required                |
+|---------------------|-------------------------------|
+| Python code change  | Restart the app/editor        |
+| Asset/data change   | Re-import or refresh UI       |
+| Web UI/frontend     | Refresh browser               |
+| Backend/server      | Restart backend, refresh page |
+| Import old file     | Re-import after restart       |
+
+If in doubt, restart the app and re-import your workspace for a clean test.
+
 ## Quick Start (New Web Editor)
 
 1. **Run the Launcher**:
@@ -34,6 +63,8 @@ python .\source\Block_Editor.py
 
 ## Features (Web Editor)
 
+- **Import/Export Parity with Official Portal**: Import and export workspaces in JSON format, preserving block layout, snapping, and TypeScript code. Imported workspaces match the official Battlefield Portal editor layout and logic.
+- **TypeScript Generation**: Each block generates TypeScript code that matches the official Portal scripting system, ensuring functional parity.
 - **Google Blockly Engine**: Industry-standard visual programming interface.
 - **Clean Palette**: Modern, dark-themed UI with "puzzle piece" connectors.
 - **Auto-Generated Blocks**: Block definitions are automatically generated from the existing `assets/` JSON library.
@@ -161,13 +192,14 @@ assets/
   events/                 # Event block definitions
 ```
 
-## Notes
 
-- Top toolbar uses colored panels instead of image icons
-- Grid snapping is always enabled for precise block alignment
-- Canvas workspace is 5000x5000 pixels (expands dynamically with content)
-- Blocks and workspace state can be saved/loaded as JSON files
+## Beta Status
 
+**Version: 1.02-beta**
+
+This project is in active beta. Import/export, snapping, and TypeScript generation are under continuous improvement to match the official Battlefield Portal experience. Please report issues or feature requests on GitHub.
+
+---
 Files added by this scaffolding:
 - `pyproject.toml` - project metadata
 - `requirements.txt` - runtime deps

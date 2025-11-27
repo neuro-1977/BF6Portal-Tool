@@ -1,3 +1,16 @@
+# November 2025: Import/Export Parity & TypeScript Beta 1.02
+
+## Major Feature: Official Portal Import/Export Parity
+- Import and export workspaces in JSON format, preserving block layout, snapping, and TypeScript code.
+- Imported workspaces match the official Battlefield Portal editor layout and logic, including block snapping and grouping.
+- TypeScript code is generated for each block, matching the official scripting system.
+- All snapping, block placement, and export logic now mirrors the official Portal editor.
+
+## Beta Version 1.02
+- Version bumped to 1.02-beta.
+- Project status: **Active Beta**. Please report issues and feature requests on GitHub.
+
+---
 # Recent Improvements to Portal Block Editor
 
 ## Overview

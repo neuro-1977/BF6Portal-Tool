@@ -35,77 +35,79 @@ from Error_Logger import get_logger, setup_exception_handler, log_tkinter_errors
 
 
 class BlockEditor:
-    """
-    A block-based visual programming editor using Tkinter.
-    This version implements drag-and-drop chaining for Action and Control blocks.
+    # A block-based visual programming editor using Tkinter.
+    # This version implements drag-and-drop chaining for Action and Control blocks.
     Blocks move as a connected chain, automatically decouple on drag, and snap
-    to sequence points.
-
-    The block data structure, colors, and order reflect the requested scheme
-    (MOD, RULES, EVENTS, CONDITIONS, ACTIONS).
-    """
-
-    def __init__(self, master):
-        self.master = master
-        master.title("Portal Block Editor (Chaining Enabled)")
-        
-        # Get error logger instance
-        self.logger = get_logger()
-        self.logger.log_info("Init", "Starting BlockEditor initialization")
-        
-        # Set a sane default geometry, then try to maximize on Windows
-        master.geometry("1200x800")
-        
-        # Try to set window icon
-        # Set icon
-        try:
-            icon_path = get_asset_path("assets/icon.ico")
-            if icon_path.exists():
-                master.iconbitmap(str(icon_path))
-            else:
-                # Try png if ico not found
-                png_path = get_asset_path("assets/icon.png")
-                if png_path.exists():
-                    icon_img = tk.PhotoImage(file=str(png_path))
-                    master.iconphoto(True, icon_img)
-        except Exception:
-            pass
-
-        # Try to enable dark title bar on Windows
-        try:
-            import ctypes
-            # DWMWA_USE_IMMERSIVE_DARK_MODE = 20
-            ctypes.windll.dwmapi.DwmSetWindowAttribute(
-                ctypes.windll.user32.GetParent(master.winfo_id()), 
-                20, 
-                ctypes.byref(ctypes.c_int(2)), 
-                4
-            )
-        except Exception:
-            pass
-
-        try:
-            # update idle tasks first so window manager is initialized
-            master.update_idletasks()
-            # Preferred on Windows
-            master.state("zoomed")
-        except Exception:
-            try:
-                # Fallback for other windowing systems
-                master.attributes("-zoomed", True)
-            except Exception:
-                # If both fail, keep the default geometry
-                pass
-        master.configure(bg="#1e1e1e")
-
-        try:
-            self.logger.log_info("Init", "Loading BlockDataManager")
-            self.data_manager = BlockDataManager(self)
-        except Exception as e:
-            self.logger.log_error("Initialization", "Failed to load BlockDataManager", e)
-            raise
-
-        # Initialize SidebarManager
+        def spawn_default_scene():
+            print("[DEBUG] Spawning default scene (horizontal chain)...")
+            # MOD block
+            mod_def = {
+                "label": "MOD",
+                "type": "MOD",
+                "color": self.data_manager.palette_color_map.get("MOD", "#4A4A4A"),
+                "args": {}
+            }
+            mod_id = self.get_new_block_id()
+            self.all_blocks[mod_id] = {
+                **mod_def,
+                "id": mod_id,
+                "x": 30,
+                "y": 100,
+                "width": 120,
+                "height": 50,
+                "canvas_obj": None,
+                "widgets": [],
+                "next_block": None,
+            }
+            print(f"[DEBUG] Created MOD block: {mod_id}")
+            # RULE block, snapped to right of MOD
+            rule_def = {
+                "label": "set gamemode",
+                "type": "RULES",
+                "color": self.data_manager.palette_color_map.get("RULES", "#7E3F96"),
+                "args": {"rule_name": "set gamemode", "event_type": "OnPlayerInteract", "scope": "Global"}
+            }
+            rule_id = self.get_new_block_id()
+            self.all_blocks[rule_id] = {
+                **rule_def,
+                "id": rule_id,
+                "x": 170,
+                "y": 100,
+                "width": 180,
+                "height": 50,
+                "canvas_obj": None,
+                "widgets": [],
+                "next_block": None,
+            }
+            self.all_blocks[mod_id]["next_block"] = rule_id
+            print(f"[DEBUG] Created RULE block: {rule_id}, snapped to right of MOD {mod_id}")
+            # CONDITION block, snapped to right of RULE
+            cond_def = {
+                "label": "Equal",
+                "type": "CONDITIONS",
+                "color": self.data_manager.palette_color_map.get("CONDITIONS", "#0277BD"),
+                "args": {"function": "Equal"}
+            }
+            cond_id = self.get_new_block_id()
+            self.all_blocks[cond_id] = {
+                **cond_def,
+                "id": cond_id,
+                "x": 370,
+                "y": 100,
+                "width": 120,
+                "height": 50,
+                "canvas_obj": None,
+                "widgets": [],
+                "next_block": None,
+            }
+            self.all_blocks[rule_id]["next_block"] = cond_id
+            print(f"[DEBUG] Created CONDITION block: {cond_id}, snapped to right of RULE {rule_id}")
+            # Draw all blocks in chain
+            for bid in [mod_id, rule_id, cond_id]:
+                print(f"[DEBUG] Drawing block: {bid}, type: {self.all_blocks[bid]['type']}, next: {self.all_blocks[bid].get('next_block')}")
+                self.draw_block(bid)
+                self.update_block_position(bid)
+            print(f"[DEBUG] All blocks after spawn: {list(self.all_blocks.keys())}")
         try:
             self.sidebar_manager = SidebarManager(self)
         except Exception as e:
@@ -182,7 +184,8 @@ class BlockEditor:
 
         # --- UI Setup ---
         # Setup top bar FIRST so it packs at the top (minimal controls only)
-        self.top_bar_manager.setup_top_bar(self.master)
+        self.workspace_name = workspace_name
+        self.top_bar_manager.setup_top_bar(self.master, workspace_name=self.workspace_name)
         
         # Create main container for sidebar + canvas
         main_container = tk.Frame(master, bg="#0a0a0a")
@@ -324,19 +327,19 @@ class BlockEditor:
     # import UI is delegated to io_handlers.show_import_dialog
 
     def load_blocks_from_json(self, imported_data):
-        """Light wrapper delegating load to workspace_loader for separation of concerns."""
+        # Light wrapper delegating load to workspace_loader for separation of concerns.
         try:
             workspace_load(self, imported_data)
         except Exception:
             pass
 
     def get_new_block_id(self):
-        """Generates a new unique ID."""
+        # Generates a new unique ID.
         self.current_id += 1
         return f"block_{self.current_id}"
 
     def on_canvas_scroll(self, event):
-        """Handle mousewheel scrolling on canvas."""
+        # Handle mousewheel scrolling on canvas.
         try:
             if event.num == 5 or event.delta < 0:
                 self.canvas.yview_scroll(3, "units")
@@ -351,7 +354,7 @@ class BlockEditor:
             pass
 
     def on_ctrl_mousewheel(self, event):
-        """Zoom in/out when Ctrl + MouseWheel is used."""
+        # Zoom in/out when Ctrl + MouseWheel is used.
         try:
             if event.delta > 0:
                 self.zoom_in()
@@ -361,15 +364,13 @@ class BlockEditor:
             pass
 
     def draw_grid(self):
-        """Draw a background grid on the canvas based on current zoom.
-
-        Grid lines are tagged with 'grid' so they can be cleared/redrawn.
-        """
+        # Draw a background grid on the canvas based on current zoom.
+        # Grid lines are tagged with 'grid' so they can be cleared/redrawn.
         if self.block_renderer:
             self.block_renderer.draw_grid()
 
     def center_canvas_view(self):
-        """Scroll the canvas so the center of the workspace is visible."""
+        # Scroll the canvas so the center of the workspace is visible.
         try:
             bbox = self.canvas.bbox("all")
             if not bbox:
@@ -399,7 +400,7 @@ class BlockEditor:
             pass
 
     def set_zoom(self, new_scale):
-        """Set zoom to new_scale (relative to current) and scale canvas contents."""
+        # Set zoom to new_scale (relative to current) and scale canvas contents.
         try:
             if new_scale <= 0:
                 return
@@ -467,21 +468,21 @@ class BlockEditor:
             pass
 
     def zoom_in(self):
-        """Zoom in - delegates to ZoomManager."""
+        # Zoom in - delegates to ZoomManager.
         if self.zoom_manager:
             self.zoom_manager.zoom_in()
         else:
             self.set_zoom(min(3.0, self.zoom_scale * 1.15))
 
     def zoom_out(self):
-        """Zoom out - delegates to ZoomManager."""
+        # Zoom out - delegates to ZoomManager.
         if self.zoom_manager:
             self.zoom_manager.zoom_out()
         else:
             self.set_zoom(max(0.25, self.zoom_scale / 1.15))
 
     def reset_zoom(self):
-        """Reset zoom to 100% - delegates to ZoomManager."""
+        # Reset zoom to 100% - delegates to ZoomManager.
         if self.zoom_manager:
             self.zoom_manager.reset_zoom()
         else:
@@ -491,7 +492,7 @@ class BlockEditor:
                 pass
 
     def update_scrollbars(self):
-        """Show/hide scrollbars based on canvas content."""
+        # Show/hide scrollbars based on canvas content.
         try:
             bbox = self.canvas.bbox("all")
             if bbox:
@@ -517,7 +518,7 @@ class BlockEditor:
             pass
 
     def setup_sidebar(self, parent):
-        """Sets up the left sidebar with collapsible category menus (Portal-style)."""
+        # Sets up the left sidebar with collapsible category menus (Portal-style).
         self.sidebar_manager.setup_sidebar(parent)
 
 
@@ -634,11 +635,11 @@ class BlockEditor:
             self.is_code_pane_visible = True
 
     def on_splitter_press(self, event):
-        """Handle splitter press event."""
+        # Handle splitter press event.
         self.splitter_drag_data["x"] = event.x_root
 
     def on_splitter_drag(self, event):
-        """Handle splitter drag to resize right pane."""
+        # Handle splitter drag to resize right pane.
         dx = event.x_root - self.splitter_drag_data["x"]
         new_width = max(200, self.right_pane_width - dx)  # Min width 200px
         self.right_code_frame.config(width=new_width)
@@ -646,7 +647,7 @@ class BlockEditor:
         self.splitter_drag_data["x"] = event.x_root
 
     def toggle_code_pane(self):
-        """Toggles the visibility of the right-hand code output pane."""
+        # Toggles the visibility of the right-hand code output pane.
         if self.is_code_pane_visible:
             # Hide the pane - keep only the toggle button visible
             self.right_code_frame.pack_forget()
@@ -695,17 +696,17 @@ class BlockEditor:
     # on_tab_click, show_dropdown, hide_dropdown, render_sidebar_list removed.
 
     def draw_block(self, block_id):
-        """Draws or updates the visual representation of a block."""
+        # Draws or updates the visual representation of a block.
         if self.block_renderer:
             self.block_renderer.draw_block(block_id)
 
     def _create_block_widgets(self, block_id):
-        """Creates the Tkinter widgets (Label, Entry) for a block."""
+        # Creates the Tkinter widgets (Label, Entry) for a block.
         if self.block_renderer:
             self.block_renderer._create_block_widgets(block_id)
 
     def spawn_block_from_sidebar(self, tab_name, action_key):
-        """Spawn a block based on the selected sidebar item."""
+        # Spawn a block based on the selected sidebar item.
         try:
             # Delegate spawn to BlockMover using current tab and optional action key
             if hasattr(self, 'block_mover') and self.block_mover:
@@ -731,7 +732,7 @@ class BlockEditor:
             pass
 
     def create_new_subroutine(self):
-        """Show dialog to create a new SUBROUTINE container block."""
+        # Show dialog to create a new SUBROUTINE container block.
         import tkinter.simpledialog as simpledialog
         
         name = simpledialog.askstring(
@@ -758,10 +759,8 @@ class BlockEditor:
                     self.sidebar_manager.render_sidebar_list("SUBROUTINE")
 
     def spawn_subroutine_pill(self, subroutine_id):
-        """Spawn a pill-shaped connector version of an existing SUBROUTINE.
-        
-        The pill can be dragged into RULES blocks to reference the subroutine.
-        """
+        # Spawn a pill-shaped connector version of an existing SUBROUTINE.
+        # The pill can be dragged into RULES blocks to reference the subroutine.
         if subroutine_id not in self.all_blocks:
             return
         
@@ -790,11 +789,9 @@ class BlockEditor:
             pass
 
     def get_snapped_children(self, block_id):
-        """
-        Returns a list of all block IDs connected to the given block_id,
-        including the block itself, any blocks connected to 'next',
-        any nested blocks, and any docked blocks (horizontal) (recursively).
-        """
+        # Returns a list of all block IDs connected to the given block_id,
+        # including the block itself, any blocks connected to 'next',
+        # any nested blocks, and any docked blocks (horizontal) (recursively).
         if block_id not in self.all_blocks:
             return []
 
@@ -826,7 +823,7 @@ class BlockEditor:
         return list(dict.fromkeys(children))
 
     def get_chain_ids(self, start_block_id):
-        """Returns a list of block IDs in the chain starting from start_block_id."""
+        # Returns a list of block IDs in the chain starting from start_block_id.
         chain = []
         current_id = start_block_id
         while current_id and current_id in self.all_blocks:
@@ -835,7 +832,7 @@ class BlockEditor:
         return chain
 
     def update_code_preview(self):
-        """Updates the code preview window."""
+        # Updates the code preview window.
         if not hasattr(self, "code_output_text"):
             return
             
@@ -851,16 +848,13 @@ class BlockEditor:
                 print(f"Error updating code preview: {e}")
 
     def update_block_position(self, block_id):
-        """Updates the position of a block and its associated canvas objects/widgets."""
+        # Updates the position of a block and its associated canvas objects/widgets.
         if self.block_renderer:
             self.block_renderer.update_block_position(block_id)
 
     def show_block_help(self, block_id):
-        """Show help popup for a block.
-        
-        Args:
-            block_id: The ID of the block to show help for
-        """
+        # Show help popup for a block.
+        # block_id: The ID of the block to show help for
         if self.help_system:
             try:
                 self.help_system.show_help(block_id)
@@ -868,11 +862,8 @@ class BlockEditor:
                 print(f"Error showing help: {e}")
 
     def add_subroutine_to_block(self, parent_id):
-        """Add a new subroutine block nested within a parent block.
-        
-        Args:
-            parent_id: The ID of the parent RULES block
-        """
+        # Add a new subroutine block nested within a parent block.
+        # parent_id: The ID of the parent RULES block
         if parent_id not in self.all_blocks:
             return
         
@@ -924,7 +915,7 @@ class BlockEditor:
             pass
 
     def delete_block(self, block_id):
-        """Delete a single block and reconnect its neighbors if possible."""
+        # Delete a single block and reconnect its neighbors if possible.
         if block_id not in self.all_blocks:
             return
             
@@ -959,14 +950,14 @@ class BlockEditor:
         self.update_code_preview()
 
     def delete_chain(self, block_id):
-        """Delete a block and everything connected to it."""
+        # Delete a block and everything connected to it.
         children = self.get_snapped_children(block_id)
         for child_id in children:
             if child_id in self.all_blocks:
                 self.delete_block(child_id)
 
     def _remove_from_parent(self, block):
-        """Helper to remove block from its parent's lists."""
+        # Helper to remove block from its parent's lists.
         # Check nested_in
         parent_id = block.get("nested_in")
         if parent_id and parent_id in self.all_blocks:
@@ -991,7 +982,7 @@ class BlockEditor:
                     parent["inputs"][param_name]["block"] = None
 
     def show_block_properties(self, block_id):
-        """Show a dialog with block properties."""
+        # Show a dialog with block properties.
         if block_id not in self.all_blocks:
             return
             
@@ -1050,15 +1041,15 @@ class BlockEditor:
         top.protocol("WM_DELETE_WINDOW", on_close)
 
     def import_code(self):
-        """Import JSON code into the editor."""
+        # Import JSON code into the editor.
         show_import_dialog(self)
 
     def export_code(self):
-        """Export the current workspace to JSON."""
+        # Export the current workspace to JSON.
         show_exported_json(self)
 
     def apply_code_changes(self):
-        """Apply changes from the code editor to the workspace."""
+        # Apply changes from the code editor to the workspace.
         try:
             json_text = self.code_output_text.get("1.0", tk.END)
             data = json.loads(json_text)
@@ -1074,7 +1065,7 @@ class BlockEditor:
 
 
     def reset_workspace(self):
-        """Resets the workspace to the default state."""
+        # Resets the workspace to the default state.
         if messagebox.askyesno("Reset UI", "Are you sure you want to reset the workspace? Unsaved changes will be lost."):
             self.canvas.delete("all")
             self.draw_grid()
@@ -1085,7 +1076,7 @@ class BlockEditor:
             self.logger.log_info("Workspace", "Workspace reset to default")
 
     def redraw_all_blocks(self):
-        """Forces a complete redraw of all blocks to fix visual glitches."""
+        # Forces a complete redraw of all blocks to fix visual glitches.
         self.canvas.delete("all")
         # Re-draw grid
         self.draw_grid()
@@ -1100,19 +1091,67 @@ class BlockEditor:
         self.logger.log_info("Workspace", "Forced redraw of all blocks")
 
     def refresh_ui(self):
-        """Refresh the UI and code preview."""
+        # Refresh the UI and code preview.
         self.update_code_preview()
 
     def place_initial_blocks(self):
-        """Place the initial MOD block."""
-        # Defer to allow canvas to size
-        self.master.after(100, self.block_mover._create_mod_at_center)
+        # Place the initial MOD, RULE, and CONDITION blocks as default scene, matching the provided screenshot.
+        def spawn_default_scene():
+            print("[DEBUG] Spawning default scene...")
+            # MOD block
+            mod_def = {
+                "label": "MOD",
+                "type": "MOD",
+                "color": self.data_manager.palette_color_map.get("MOD", "#4A4A4A"),
+                "args": {}
+            }
+            mod_id = self.get_new_block_id()
+            self.all_blocks[mod_id] = {
+                **mod_def,
+                "id": mod_id,
+                "x": 30,
+                "y": 30,
+                "width": 220,
+                "height": 180,
+                "canvas_obj": None,
+                "widgets": [],
+                "nested_blocks": [],
+            }
+            print(f"[DEBUG] Created MOD block: {mod_id}")
+            # RULE block (named 'ammo', event 'OnPlayerInteract')
+            rule_def = {
+                "label": "ammo",
+                "type": "RULES",
+                "color": self.data_manager.palette_color_map.get("RULES", "#7E3F96"),
+                "args": {"rule_name": "ammo", "event_type": "OnPlayerInteract", "scope": "Global"}
+            }
+            rule_id = self.get_new_block_id()
+            self.all_blocks[rule_id] = {
+                **rule_def,
+                "id": rule_id,
+                "x": 80,
+                "y": 60,
+                "width": 600,
+                "height": 120,
+                "canvas_obj": None,
+                "widgets": [],
+                "parent_id": mod_id,
+                "nested_blocks": [],
+            }
+            self.all_blocks[mod_id]["nested_blocks"].append(rule_id)
+            print(f"[DEBUG] Created RULE block: {rule_id}, parent: {mod_id}")
+            # (CONDITIONS block is now optional and not created by default)
+            # Draw all blocks
+            for bid in [mod_id, rule_id]:
+                print(f"[DEBUG] Drawing block: {bid}, type: {self.all_blocks[bid]['type']}, parent: {self.all_blocks[bid].get('parent_id')}, children: {self.all_blocks[bid].get('nested_blocks')}")
+                self.draw_block(bid)
+                self.update_block_position(bid)
+            print(f"[DEBUG] All blocks after spawn: {list(self.all_blocks.keys())}")
+        self.master.after(100, spawn_default_scene)
 
     def _resize_c_block_for_contents(self, block_id):
-        """
-        Recalculates the height AND WIDTH of a container block (MOD, RULES, SUBROUTINE)
-        based on the blocks nested inside it.
-        """
+        # Recalculates the height AND WIDTH of a container block (MOD, RULES, SUBROUTINE)
+        # based on the blocks nested inside it.
         if block_id not in self.all_blocks:
             return
 
@@ -1227,7 +1266,7 @@ class BlockEditor:
     # on_search_change moved to Sidebar_Manager.py
 
     def show_canvas_context_menu(self, event):
-        """Show context menu for the canvas background."""
+        # Show context menu for the canvas background.
         # Create context menu
         menu = tk.Menu(self.master, tearoff=0, bg="#2d2d2d", fg="white")
         
@@ -1256,7 +1295,7 @@ class BlockEditor:
             menu.grab_release()
 
     def analyze_workspace(self):
-        """Analyze the workspace for errors and suggestions."""
+        # Analyze the workspace for errors and suggestions.
         analyzer = WorkspaceAnalyzer(self)
         issues = analyzer.analyze()
         

@@ -127,47 +127,62 @@ class SidebarManager:
     def create_category_buttons(self):
         """Creates the category buttons in the sidebar."""
         self.tab_buttons = {}
-        image_data = self.editor.data_manager.get_image_data()
-        
-        def create_category_btn(cat_name, cat_color, label_text=None, is_sub=False):
+        # Official Portal category order and exact color mapping (from screenshots)
+        official_categories = [
+            ("RULES", "#a259e6", "white"),
+            ("AI", "#f7c843", "#222"),
+            ("ARRAYS", "#f7c843", "#222"),
+            ("AUDIO", "#f7c843", "#222"),
+            ("CAMERA", "#f7c843", "#222"),
+            ("EFFECTS", "#f7c843", "#222"),
+            ("EMPLACEMENTS", "#f7c843", "#222"),
+            ("GAMEPLAY", "#f7c843", "#222"),
+            ("LOGIC", "#f7c843", "#222"),
+            ("OBJECTIVE", "#f7c843", "#222"),
+            ("OTHER", "#f7c843", "#222"),
+            ("PLAYER", "#f7c843", "#222"),
+            ("TRANSFORM", "#f7c843", "#222"),
+            ("USER INTERFACE", "#f7c843", "#222"),
+            ("VEHICLES", "#f7c843", "#222"),
+            ("EVENT PAYLOADS", "#3bb273", "white"),
+            ("MATH", "#3bb273", "white"),
+            ("SELECTION LISTS", "#3bb273", "white"),
+            ("LITERALS", "#3bb273", "white"),
+            ("VARIABLES", "#e67e22", "#222"),
+            ("SUBROUTINES", "#e67e22", "#222"),
+            ("CONTROL ACTIONS", "#e67e22", "#222")
+        ]
+
+        def create_category_btn(cat_name, cat_color, text_fg, label_text=None, is_sub=False):
             if label_text is None:
                 label_text = cat_name
-                
-            # Indent sub-items
             pad_left = 20 if is_sub else 6
-            
             btn_frame = tk.Frame(
                 self.sidebar_content,
                 bg=cat_color,
                 height=30,
                 cursor="hand2",
-                relief="raised",
-                bd=1
+                relief="flat",
+                bd=0
             )
             btn_frame.pack(fill="x", padx=(pad_left, 6), pady=1)
             btn_frame.pack_propagate(False)
-            
-            text_fg = "#000000" if cat_name == "ACTIONS" else "white"
-            
             lbl = tk.Label(
                 btn_frame,
                 text=label_text,
                 bg=cat_color,
                 fg=text_fg,
-                font=("Arial", 8, "bold"),
+                font=("Arial", 9, "bold"),
                 anchor="w" if is_sub else "center",
                 padx=6 if is_sub else 0
             )
             lbl.pack(fill="both", expand=True)
-            
-            # Bind click events
             btn_frame.bind("<Button-1>", lambda e, n=cat_name: self.on_tab_click(n))
             lbl.bind("<Button-1>", lambda e, n=cat_name: self.on_tab_click(n))
-            
             self.tab_buttons[cat_name] = btn_frame
-        
-        for name, color in image_data.items():
-            create_category_btn(name, color)
+
+        for name, color, text_fg in official_categories:
+            create_category_btn(name, color, text_fg)
 
     def on_tab_click(self, tab_name):
         """Handle tab click - show/hide dropdown panel with items."""
@@ -232,9 +247,11 @@ class SidebarManager:
             except Exception:
                 pass
         
-        # Fetch category data
+        # Fetch only official category data (no dynamic/legacy blocks)
         cat_data = self.editor.data_manager.block_data.get(tab_name, {})
         sub_cats = cat_data.get("sub_categories", {})
+        # Remove any sub-categories or blocks not present in the loaded data
+        # (No dynamic/legacy blocks allowed)
         
         color = self.editor.data_manager.palette_color_map.get(tab_name, "#2d2d2d")
         

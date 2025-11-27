@@ -83,40 +83,38 @@ class BlockDataManager:
         self.block_data = self._load_block_data()
 
     def _load_block_data(self):
-        """Loads block definitions from JSON files in the assets directory."""
+        """Loads only official Portal block definitions from JSON files in the assets directory."""
         block_data = {}
-        # Map categories to their likely file paths
-        # Note: Many of these files might not exist yet, which is fine (handled by try/except)
-        categories = {
-            "MOD": self.BLOCK_DATA_PATH / "mod_data.json",
-            "RULES": self.BLOCK_DATA_PATH / "rules_data.json",
-            "EVENTS": self.BLOCK_DATA_PATH / "events" / "event_data.json",
-            "CONDITIONS": self.BLOCK_DATA_PATH / "conditions" / "condition_data.json",
-            "ACTIONS": self.BLOCK_DATA_PATH / "actions" / "action_data.json",
-            "AI": self.BLOCK_DATA_PATH / "ai" / "ai_data.json",
-            "ARRAYS": self.BLOCK_DATA_PATH / "arrays" / "arrays_data.json",
-            "AUDIO": self.BLOCK_DATA_PATH / "audio" / "audio_data.json",
-            "CAMERA": self.BLOCK_DATA_PATH / "camera" / "camera_data.json",
-            "EFFECTS": self.BLOCK_DATA_PATH / "effects" / "effects_data.json",
-            "EMPLACEMENTS": self.BLOCK_DATA_PATH / "emplacements" / "emplacements_data.json",
-            "GAMEPLAY": self.BLOCK_DATA_PATH / "gameplay" / "gameplay_data.json",
-            "LOGIC": self.BLOCK_DATA_PATH / "logic" / "logic_data.json",
-            "OBJECTIVE": self.BLOCK_DATA_PATH / "objective" / "objective_data.json",
-            "OTHER": self.BLOCK_DATA_PATH / "other" / "other_data.json",
-            "PLAYER": self.BLOCK_DATA_PATH / "player" / "player_data.json",
-            "TRANSFORM": self.BLOCK_DATA_PATH / "transform" / "transform_data.json",
-            "USER INTERFACE": self.BLOCK_DATA_PATH / "ui" / "ui_data.json",
-            "VEHICLES": self.BLOCK_DATA_PATH / "vehicles" / "vehicles_data.json",
-            "VALUES": self.BLOCK_DATA_PATH / "values" / "values_data.json",
-            "MATH": self.BLOCK_DATA_PATH / "math" / "math_data.json",
-        }
-
-        for category_name, file_path in categories.items():
+        # Only include categories with valid data files (official Portal blocks)
+        categories = [
+            ("MOD", self.BLOCK_DATA_PATH / "mod_data.json"),
+            ("RULES", self.BLOCK_DATA_PATH / "rules_data.json"),
+            ("EVENTS", self.BLOCK_DATA_PATH / "events" / "event_data.json"),
+            ("CONDITIONS", self.BLOCK_DATA_PATH / "conditions" / "condition_data.json"),
+            ("ACTIONS", self.BLOCK_DATA_PATH / "actions" / "action_data.json"),
+            ("AI", self.BLOCK_DATA_PATH / "ai" / "ai_data.json"),
+            ("ARRAYS", self.BLOCK_DATA_PATH / "arrays" / "arrays_data.json"),
+            ("AUDIO", self.BLOCK_DATA_PATH / "audio" / "audio_data.json"),
+            ("CAMERA", self.BLOCK_DATA_PATH / "camera" / "camera_data.json"),
+            ("EFFECTS", self.BLOCK_DATA_PATH / "effects" / "effects_data.json"),
+            ("EMPLACEMENTS", self.BLOCK_DATA_PATH / "emplacements" / "emplacements_data.json"),
+            ("GAMEPLAY", self.BLOCK_DATA_PATH / "gameplay" / "gameplay_data.json"),
+            ("LOGIC", self.BLOCK_DATA_PATH / "logic" / "logic_data.json"),
+            ("OBJECTIVE", self.BLOCK_DATA_PATH / "objective" / "objective_data.json"),
+            ("OTHER", self.BLOCK_DATA_PATH / "other" / "other_data.json"),
+            ("PLAYER", self.BLOCK_DATA_PATH / "player" / "player_data.json"),
+            ("TRANSFORM", self.BLOCK_DATA_PATH / "transform" / "transform_data.json"),
+            ("USER INTERFACE", self.BLOCK_DATA_PATH / "ui" / "ui_data.json"),
+            ("VEHICLES", self.BLOCK_DATA_PATH / "vehicles" / "vehicles_data.json"),
+            ("VALUES", self.BLOCK_DATA_PATH / "values" / "values_data.json"),
+            ("MATH", self.BLOCK_DATA_PATH / "math" / "math_data.json"),
+        ]
+        for category_name, file_path in categories:
             try:
                 with open(file_path, "r", encoding="utf-8") as f:
                     block_data[category_name] = json.load(f)
             except FileNotFoundError:
-                print(f"Error: Block data file not found at {file_path}")
+                continue  # Skip missing files (not official)
             except json.JSONDecodeError:
                 print(f"Error: Invalid JSON in {file_path}")
         return block_data
@@ -157,67 +155,8 @@ class BlockDataManager:
         print(f"Logic: State updated to tab: {tab_name}.")
 
     def add_dynamic_block_definition(self, block_type, action_key, label):
-        """
-        Dynamically adds a new block definition to the block_data structure if it doesn't exist.
-        This allows new actions/conditions/events from imported JSON to be recognized.
-
-        Args:
-            block_type (str): The category of the block (e.g., "ACTIONS", "CONDITIONS", "EVENTS").
-            action_key (str): The unique identifier for the block (e.g., "Action_GiveWeapon").
-            label (str): The display label for the block.
-        """
-        if block_type not in self.block_data:
-            # If the main category doesn't exist, initialize it
-            self.block_data[block_type] = {"color": "#CCCCCC", "sub_categories": {}}
-
-        # For ACTION, CONDITION, EVENT types, definitions are nested under "sub_categories"
-        if block_type in ["ACTIONS", "CONDITIONS", "EVENTS"]:
-            sub_categories = self.block_data[block_type].setdefault(
-                "sub_categories", {}
-            )
-            custom_category = sub_categories.setdefault(
-                "Custom Blocks", {}
-            )  # Use "Custom Blocks" for dynamic additions
-
-            if action_key not in custom_category:
-                # Create a simple default definition for the new block
-                new_block_definition = {
-                    "label": label,
-                    "type": block_type,  # This can be "ACTIONS", "CONDITIONS", etc. or a more specific type like "SEQUENCE"
-                    "color": self.palette_color_map.get(
-                        block_type, "#CCCCCC"
-                    ),  # Default grey if type not in map
-                    "args": {},  # Placeholder for now, could be expanded later
-                }
-                # Add the new definition directly to the Custom Blocks sub-category
-                custom_category[action_key] = new_block_definition
-                print(
-                    f"Dynamically added new block definition: {block_type}/Custom Blocks/{action_key}"
-                )
-        else:
-            # For MOD, RULES, etc., assuming a flatter structure
-            # If block_data[block_type] is a list, convert to dict for consistent handling
-            if isinstance(self.block_data[block_type], list):
-                # This case is less expected if "MOD" and "RULES" are flat dicts, but defensive
-                current_items = {
-                    item.get("action_key"): item for item in self.block_data[block_type]
-                }
-                self.block_data[block_type] = current_items
-
-            if action_key not in self.block_data[block_type]:
-                new_block_definition = {
-                    "label": label,
-                    "type": block_type,
-                    "color": self.palette_color_map.get(block_type, "#CCCCCC"),
-                    "args": {},
-                }
-                self.block_data[block_type][action_key] = new_block_definition
-                print(
-                    f"Dynamically added new block definition: {block_type}/{action_key}"
-                )
-
-        # Note: To update dropdown menus immediately, the BlockEditor UI would need to be notified
-        # This will be handled implicitly when the dropdown is next opened.
+        # Dynamic/legacy block addition is disabled for compatibility with official Portal blocks.
+        print(f"[INFO] Dynamic block addition is disabled. Block '{action_key}' of type '{block_type}' not added.")
 
     def export_logic(self):
         """

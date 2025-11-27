@@ -1,99 +1,50 @@
 {
-  "MOD": {
-    "title": "Basic MOD Structure",
-    "description": "A simple mod with one rule that triggers when a player spawns",
-    "layout": [
-      "MOD: 'MyGameMode'",
-      "  └─ RULES: 'OnPlayerSpawn'",
-      "       ├─ CONDITIONS: [Player Spawned]",
-      "       │    └─ EVENTS: OnSpawn",
-      "       └─ ACTIONS: [Give Initial Loadout]",
-      "            ├─ EVENTS: GiveWeapon('AssaultRifle')",
-      "            └─ EVENTS: SetHealth(100)"
-    ]
-  },
-  "RULES": {
-    "title": "Rule with Multiple Actions",
-    "description": "A rule that sets up a player when they spawn",
-    "layout": [
-      "RULES: 'PlayerSetup'",
-      "  ├─ CONDITIONS: [Check Player Spawned]",
-      "  │    └─ EVENTS: OnSpawn",
-      "  └─ ACTIONS: [Setup Sequence]",
-      "       ├─ EVENTS: GiveWeapon('Rifle')",
-      "       ├─ EVENTS: SetHealth(100)",
-      "       └─ EVENTS: DisplayMessage('Welcome!')"
-    ]
-  },
-  "CONDITIONS": {
-    "title": "Multiple Conditions (AND Logic)",
-    "description": "All conditions must be true for the rule to execute",
-    "layout": [
-      "CONDITIONS: [Player and Team Check]",
-      "  ├─ EVENTS: IsPlayer(true)",
-      "  ├─ EVENTS: TeamEquals(1)",
-      "  └─ EVENTS: HealthAbove(50)",
-      "",
-      "Result: Rule executes ONLY if:",
-      "  - Target is a player (not AI)",
-      "  - Player is on Team 1",
-      "  - Player has more than 50 health"
-    ]
-  },
-  "ACTIONS": {
-    "title": "Sequential Actions Example",
-    "description": "Actions execute left to right in order",
-    "layout": [
-      "ACTIONS: [Player Respawn Sequence]",
-      "  ├─ EVENTS: TeleportTo('SpawnPoint1')  ← Executes FIRST",
-      "  ├─ EVENTS: SetHealth(100)             ← Then this",
-      "  └─ EVENTS: GiveWeapon('Rifle')        ← Finally this",
-      "",
-      "Timing:",
-      "  1. Player teleports to spawn",
-      "  2. Health is set to 100",
-      "  3. Rifle is given"
-    ]
-  },
-  "EVENTS": {
-    "title": "Event with Parameters",
-    "description": "Events can be configured with parameters",
-    "layout": [
-      "EVENTS: GiveWeapon",
-      "  Parameters:",
-      "    - WeaponType: 'AssaultRifle'",
-      "    - Ammo: 300",
-      "    - Attachments: ['Scope', 'Grip', 'Suppressor']",
-      "",
-      "Different Events have different parameters:",
-      "  - SetHealth(amount: number)",
-      "  - TeleportTo(location: string)",
-      "  - DisplayMessage(text: string, duration: number)",
-      "  - ModifyScore(amount: number, team: number)"
-    ]
-  },
-  "SUBROUTINE": {
-    "title": "Reusable Subroutine",
-    "description": "Common logic used in multiple places",
-    "layout": [
-      "SUBROUTINE: 'ResetPlayer'",
-      "  └─ ACTIONS: [Reset Logic]",
-      "       ├─ EVENTS: SetHealth(100)",
-      "       ├─ EVENTS: ClearInventory",
-      "       └─ EVENTS: TeleportToSpawn",
-      "",
-      "Can be called from multiple RULES:",
-      "",
-      "RULES: 'OnRoundStart'",
-      "  └─ Call: ResetPlayer",
-      "",
-      "RULES: 'OnPlayerDeath'",
-      "  └─ Call: ResetPlayer",
-      "",
-      "Benefits:",
-      "  - Write once, use many times",
-      "  - Update in one place, affects all calls",
-      "  - Keeps code organized"
-    ]
+  "examples": {
+    "basic_mod": {
+      "blocks": {
+        "languageVersion": 0,
+        "blocks": [
+          {
+            "type": "MOD",
+            "id": "mod_1",
+            "fields": {"NAME": "MyGameMode"},
+            "inputs": {},
+            "x": 50,
+            "y": 50,
+            "next": {
+              "block": {
+                "type": "RULES",
+                "id": "rule_1",
+                "fields": {"NAME": "On Game Start", "EVENT": "GameStarted", "SCOPE": "Global"},
+                "inputs": {
+                  "CONDITIONS": {
+                    "block": {
+                      "type": "CONDITIONS",
+                      "id": "cond_1",
+                      "fields": {"CONDITION": "AlwaysTrue"},
+                      "inputs": {},
+                      "x": 180,
+                      "y": 130
+                    }
+                  },
+                  "ACTIONS": {
+                    "block": {
+                      "type": "ACTIONS",
+                      "id": "act_1",
+                      "fields": {"ACTION": "DisplayMessage", "TEXT": "Game Started!"},
+                      "inputs": {},
+                      "x": 180,
+                      "y": 180
+                    }
+                  }
+                },
+                "x": 100,
+                "y": 80
+              }
+            }
+          }
+        ]
+      }
+    }
   }
 }

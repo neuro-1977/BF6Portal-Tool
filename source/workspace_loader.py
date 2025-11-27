@@ -9,13 +9,24 @@ def load_blocks_from_json(editor, imported_data):
     heavy logic lives outside the UI class and can be unit‑tested more
     easily.
     """
+    import time
     try:
+        # -----------------------------------------------------------------
+        # Show loading feedback to user
+        # -----------------------------------------------------------------
+        loading_label = None
+        if hasattr(editor, 'canvas'):
+            loading_label = editor.canvas.create_text(
+                300, 40, text="Loading workspace...", fill="#FFD700", font=("Arial", 20, "bold"), tag="loading_feedback"
+            )
+            editor.canvas.update()
         # -----------------------------------------------------------------
         # 1️⃣  Reset the canvas and internal structures
         # -----------------------------------------------------------------
         editor.canvas.delete("all")
         editor.all_blocks.clear()
-        editor.placed_panels.clear()
+        if hasattr(editor, 'placed_panels'):
+            editor.placed_panels.clear()
 
         # -----------------------------------------------------------------
         # 2️⃣  Restore rule‑state variables (StringVars and plain values)
@@ -67,10 +78,21 @@ def load_blocks_from_json(editor, imported_data):
 
         if not imported_blocks_raw:
             print("Warning: No blocks found in imported JSON.")
+            print(f"Imported data keys: {list(imported_data.keys())}")
+            print(f"Imported data: {imported_data}")
+            if hasattr(editor, 'canvas'):
+                editor.canvas.create_text(
+                    400, 80, text="No blocks found in imported file!", fill="#FF5555", font=("Arial", 16, "bold"), tag="import_error"
+                )
+                editor.canvas.update()
+            if loading_label:
+                editor.canvas.delete(loading_label)
             return
 
         if is_portal_json:
+            print(f"Detected Portal JSON. Block count: {len(imported_blocks_raw)}")
             _import_portal_blocks(editor, imported_blocks_raw)
+            print(f"After import, all_blocks: {list(editor.all_blocks.keys())}")
             # Skip the standard loading loop below
         else:
             # Determine the highest numeric block id so we can continue generating new ones
@@ -144,13 +166,32 @@ def load_blocks_from_json(editor, imported_data):
         print(f"Drawing {total_blocks} blocks...")
         
         count = 0
-        for block_id in editor.all_blocks:
+        min_x, min_y, max_x, max_y = 99999, 99999, -99999, -99999
+        print(f"Block keys to import: {list(editor.all_blocks.keys())}")
+        for block_id, block in editor.all_blocks.items():
+            print(f"Drawing block: {block_id} at ({block.get('x')},{block.get('y')}) type={block.get('type')} label={block.get('label')}")
             editor.draw_block(block_id)
             editor.update_block_position(block_id)
+            # Track min/max positions for canvas sizing
+            bx, by = block.get("x", 0), block.get("y", 0)
+            bw, bh = block.get("width", 0), block.get("height", 0)
+            min_x = min(min_x, bx)
+            min_y = min(min_y, by)
+            max_x = max(max_x, bx + bw)
+            max_y = max(max_y, by + bh)
             count += 1
             if count % 50 == 0:
                 # Yield to UI loop every 50 blocks to prevent "Not Responding"
                 editor.master.update()
+        print(f"Imported block positions: min=({min_x},{min_y}) max=({max_x},{max_y})")
+        print(f"Total blocks drawn: {count}")
+        if count == 0:
+            print("WARNING: No blocks were loaded or drawn from the imported file.")
+            if hasattr(editor, 'canvas'):
+                editor.canvas.create_text(
+                    400, 120, text="No blocks were loaded or drawn!", fill="#FF5555", font=("Arial", 16, "bold"), tag="import_error2"
+                )
+                editor.canvas.update()
 
         # -----------------------------------------------------------------
         # 6️⃣  Re‑assemble the hierarchy (roots → chains) and redraw each chain
@@ -173,16 +214,21 @@ def load_blocks_from_json(editor, imported_data):
         # 7️⃣  Adjust scroll region & scrollbars
         # -----------------------------------------------------------------
         # Get bbox of all blocks, but ensure minimum scrollregion for grid visibility
+        # Ensure canvas fits all blocks
         bbox = editor.canvas.bbox("all")
-        if bbox:
-            # Expand scrollregion to be at least 5000x5000 or encompass all blocks
-            min_width = 5000
-            min_height = 5000
+        min_width = 5000
+        min_height = 5000
+        # Use calculated min/max if blocks exist
+        if count > 0:
+            actual_width = max(max_x + 100, min_width)
+            actual_height = max(max_y + 100, min_height)
+            editor.canvas.configure(scrollregion=(0, 0, actual_width, actual_height))
+        elif bbox:
             actual_width = max(bbox[2], min_width)
             actual_height = max(bbox[3], min_height)
             editor.canvas.configure(scrollregion=(0, 0, actual_width, actual_height))
         else:
-            editor.canvas.configure(scrollregion=(0, 0, 5000, 5000))
+            editor.canvas.configure(scrollregion=(0, 0, min_width, min_height))
         editor.update_scrollbars()
 
         # -----------------------------------------------------------------
@@ -199,6 +245,9 @@ def load_blocks_from_json(editor, imported_data):
             editor.draw_grid()
         except Exception:
             pass
+        # Remove loading feedback
+        if loading_label:
+            editor.canvas.delete(loading_label)
 
     except (KeyError, AttributeError, tk.TclError) as e:
         # Log the problem but keep the UI responsive; malformed files shouldn't
@@ -228,19 +277,28 @@ def _import_portal_blocks(editor, portal_blocks):
     def get_next_id():
         return editor.get_new_block_id()
 
+
+    # Map Portal type names to internal types
+    portal_type_map_override = {
+        "modBlock": "MOD",
+        "ruleBlock": "RULES",
+        "conditionBlock": "CONDITIONS",
+        "actionBlock": "ACTIONS",
+        "subroutineBlock": "SUBROUTINE",
+    }
+
     def process_block(block_data, parent_id=None, x=0, y=0, is_value=False):
         portal_type = block_data.get("type")
 
-        # Default values
-        my_type = "SEQUENCE"
+        # Map Portal type to internal type
+        my_type = portal_type_map_override.get(portal_type, portal_type)
         label = portal_type
         color = editor.data_manager.palette_color_map.get(my_type, "#555555")
 
         # Lookup definition
-        if portal_type in portal_type_map:
-            mapping = portal_type_map[portal_type]
+        if my_type in portal_type_map:
+            mapping = portal_type_map[my_type]
             block_def = mapping["def"]
-            my_type = mapping["category"]
             label = block_def.get("label", portal_type)
             color = editor.data_manager.palette_color_map.get(my_type, "#555555")
         else:
@@ -264,7 +322,7 @@ def _import_portal_blocks(editor, portal_blocks):
         # Special handling for specific Portal blocks
         if portal_type == "ruleBlock":
             fields = block_data.get("fields", {})
-            label = fields.get("NAME", "Rule")
+            label = fields.get("NAME", "New Rule")
             my_type = "RULES"
             color = editor.data_manager.palette_color_map.get(my_type, "#555555")
         elif portal_type == "modBlock":

@@ -11,15 +11,12 @@ class BlockHierarchy:
     
     # Define which block types can connect to which
     CONNECTION_RULES = {
-        'MOD': ['RULES'],  # MOD can only contain RULES
-        'RULES': ['CONDITIONS', 'ACTIONS', 'SUBROUTINE', 'EVENTS'],  # RULES can contain conditions/actions/subroutines inside
-        'SUBROUTINE': ['ACTIONS', 'CONDITIONS'],  # Subroutines can contain actions
-        'ACTIONS': [],  # Regular action blocks don't contain others (but can chain)
-        'CONDITIONS': ['ACTIONS'], # Conditions can be followed by actions
+        'MOD': ['RULES', 'SUBROUTINE'],  # MOD can only contain RULES and SUBROUTINE
+        'RULES': ['CONDITIONS', 'ACTIONS', 'SUBROUTINE', 'EVENTS'],  # RULES can contain conditions (optional), actions, subroutines, events
+        'SUBROUTINE': ['ACTIONS', 'CONDITIONS'],  # Subroutines can contain actions and conditions
+        'ACTIONS': [],  # ACTIONS do not contain other blocks
+        'CONDITIONS': [], # CONDITIONS do not contain other blocks (but can be empty)
         'EVENTS': [],
-        'IF': ['ACTIONS', 'LOGIC'],  # If blocks can contain actions inside
-        'WHILE': ['ACTIONS', 'LOGIC'],  # While blocks can contain actions inside
-        'FOR': ['ACTIONS', 'LOGIC'],  # For blocks can contain actions inside
     }
     
     # Define which blocks can attach to the top of other blocks
@@ -32,15 +29,35 @@ class BlockHierarchy:
     
     # Shape type mapping - allows each block type to have unique shape
     BLOCK_SHAPES = {
-        'SUBROUTINE': 'subroutine_shape',  # Left-open container with scalloped notches
-        'RULES': 'rules_shape',  # Will have its own unique shape
-        'IF': 'if_shape',  # Logic block shape
-        'WHILE': 'while_shape',  # Logic block shape
-        'FOR': 'for_shape',  # Logic block shape
-        'ACTION': 'action_shape',  # Regular sequence blocks
-        'CONDITION': 'condition_shape',  # Hexagonal/diamond shape
-        'EVENT': 'event_shape',  # Hat/rounded top shape
-        'VALUE': 'value_shape',  # Rounded rectangle for values
+        'MOD': 'mod_shape',  # Main container block
+        'RULES': 'rules_shape',  # Unique rules block shape
+        'CONDITIONS': 'condition_shape',  # Hexagonal/diamond shape
+        'ACTIONS': 'action_shape',  # Sequence/action block shape
+        'EVENTS': 'event_shape',  # Hat/rounded top shape (for On Game Start, etc.)
+        'SUBROUTINE': 'subroutine_shape',  # Left-open container
+        'IF': 'if_shape',
+        'WHILE': 'while_shape',
+        'FOR': 'for_shape',
+        'VALUE': 'value_shape',
+        'VARIABLES': 'variable_shape',
+        'LITERALS': 'literal_shape',
+        'SELECTION LISTS': 'selection_list_shape',
+        'OBJECTIVE': 'objective_shape',
+        'LOGIC': 'logic_shape',
+        'GAMEPLAY': 'gameplay_shape',
+        'AI': 'ai_shape',
+        'ARRAYS': 'array_shape',
+        'AUDIO': 'audio_shape',
+        'CAMERA': 'camera_shape',
+        'EFFECTS': 'effects_shape',
+        'EMPLACEMENTS': 'emplacement_shape',
+        'PLAYER': 'player_shape',
+        'TRANSFORM': 'transform_shape',
+        'USER INTERFACE': 'ui_shape',
+        'VEHICLES': 'vehicle_shape',
+        'EVENT PAYLOADS': 'event_payload_shape',
+        'CONTROL ACTIONS': 'control_action_shape',
+        'OTHER': 'other_shape',
     }
     
     @staticmethod
