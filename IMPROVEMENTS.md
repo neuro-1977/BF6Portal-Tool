@@ -18,7 +18,25 @@ This document summarizes the latest enhancements to the BF6 Portal Block Editor,
 
 ---
 
-## New Features (November 2025)
+## New Features (November 28, 2025)
+
+### 1. **Core Editor Experience Upgrade**
+
+#### Full Undo/Redo System
+A robust undo/redo service is now fully integrated into the editor, providing a critical safety net and improving workflow efficiency.
+- **UI Controls**: "Undo" and "Redo" buttons are now available on the top toolbar for easy mouse access.
+- **Keyboard Shortcuts**: Standard `Ctrl+Z` (Undo) and `Ctrl+Y` (Redo) shortcuts are supported.
+- **Reliable State**: The system correctly handles block creation, deletion, and movement, ensuring that all connections and block properties are properly restored.
+
+#### Typed Value Block Snapping
+The editor now supports one of the most critical features for building logic: snapping value blocks into the inputs of other blocks.
+- **Drag-and-Drop Values**: Users can now drag blocks from the "VALUES", "LOGIC", or "MATH" categories and snap them directly into the parameter slots of other blocks.
+- **Type-Safe Connections**: Parameter slots are now typed. For example, a slot requiring a `Number` will only accept a `Number` block.
+- **Visual Feedback**: The UI provides clear feedback during dragging.
+    - A **green highlight** appears over a parameter slot when a compatible block is dragged over it.
+    - A **red highlight** appears if the block is not compatible with the slot.
+- **Live Input Validation**: "Number" blocks now validate input as you type. The field will turn red if a non-numeric value is entered, preventing errors.
+
 
 ### 1. **Visual & Layout Refinements**
 - **Horizontal Layout for Logic Chains**: CONDITIONS and ACTIONS now stack horizontally (side-by-side) instead of vertically, matching the Portal editor style.

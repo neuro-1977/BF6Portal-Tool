@@ -81,7 +81,7 @@ class BlockRenderer:
         except Exception:
             pass
 
-    def draw_block(self, block_id):
+    def draw_block(self, block_id, highlight=False):
         """Draws or updates the visual representation of a block."""
         if block_id not in self.editor.all_blocks:
             return
@@ -92,6 +92,7 @@ class BlockRenderer:
         height = block.get("height", self.CHILD_BLOCK_HEIGHT)
         block_type = block.get("type", "SEQUENCE")
         color = block.get("color", "#555555")
+        outline_color = "yellow" if highlight else "#333333"
 
         # 1. Calculate Polygon Coordinates
         coords = []
@@ -116,12 +117,12 @@ class BlockRenderer:
         # 2. Create or Update Canvas Polygon
         if block["canvas_obj"]:
             self.canvas.coords(block["canvas_obj"], *coords)
-            self.canvas.itemconfig(block["canvas_obj"], fill=color)
+            self.canvas.itemconfig(block["canvas_obj"], fill=color, outline=outline_color)
         else:
             block["canvas_obj"] = self.canvas.create_polygon(
                 coords,
                 fill=color,
-                outline="#333333",
+                outline=outline_color,
                 width=1,
                 tags=(block_id, "block")
             )
@@ -161,13 +162,14 @@ class BlockRenderer:
         """Clears any active snap feedback indicators."""
         self.canvas.delete("snap_feedback")
 
-    def show_snap_feedback(self, target_id, snap_type, is_valid=True):
+    def show_snap_feedback(self, target_id, snap_type, is_valid=True, param_name=None):
         """Draws a visual indicator for a potential snap target.
         
         Args:
             target_id: The ID of the block being snapped to.
             snap_type: The type of connection ('previous', 'next', 'input', 'horizontal').
             is_valid: Whether the snap is allowed (affects color).
+            param_name: The name of the parameter slot to highlight.
         """
         self.clear_snap_feedback()
         
@@ -205,13 +207,38 @@ class BlockRenderer:
                 x + width, y, x + width, y + height,
                 fill=color, width=width_px, tags="snap_feedback"
             )
+        elif snap_type == "value_input" and param_name:
+            # Highlight the parameter slot
+            inputs = target.get("inputs", {})
+            for i, (p_name, slot) in enumerate(inputs.items()):
+                if p_name == param_name:
+                    slot_x, slot_y = self.get_parameter_slot_position(target_id, i)
+                    self.canvas.create_rectangle(
+                        slot_x - 30, slot_y - 10, slot_x + 30, slot_y + 10,
+                        outline=color, width=width_px, tags="snap_feedback"
+                    )
+                    break
         elif snap_type == "value_input":
-            # Highlight the parameter slot?
-            # We'll just highlight the whole block border for now
+            # Highlight the whole block border for now
             self.canvas.create_rectangle(
                 x - 2, y - 2, x + width + 2, y + height + 2,
                 outline=color, width=width_px, tags="snap_feedback"
             )
+
+    def get_parameter_slot_position(self, block_id, slot_index):
+        """Calculates the canvas coordinates of a parameter slot."""
+        if block_id not in self.editor.all_blocks:
+            return 0, 0
+
+        block = self.editor.all_blocks[block_id]
+        x, y = block["x"], block["y"]
+        
+        # This is an approximation. A more robust solution would be to
+        # store the widget positions when they are created.
+        slot_x = x + 100 + (slot_index * 60)
+        slot_y = y + 20
+        
+        return slot_x, slot_y
 
     def _draw_block_header(self, block_id):
         """Draws a visual header separator for container blocks."""
@@ -316,6 +343,17 @@ class BlockRenderer:
         """
         pass
 
+    def _validate_numeric_input(self, action, index, value_if_allowed,
+                               prior_value, text, validation_type, trigger_type, widget_name):
+        # action: 1 for insert, 0 for delete, -1 for other
+        if action == '1':  # insert
+            try:
+                float(value_if_allowed)
+                return True
+            except ValueError:
+                return False
+        return True
+
     def _create_block_widgets(self, block_id):
         """Creates the Tkinter widgets (Label, Entry, Dropdowns) for a block."""
         block = self.editor.all_blocks[block_id]
@@ -325,7 +363,15 @@ class BlockRenderer:
         
         # Check for custom widget definitions (from JSON)
         widgets_def = block.get("widgets", {})
-        
+        # Dynamically create a widget definition for simple value blocks
+        if not widgets_def and block.get('has_input_field'):
+            widgets_def = {
+                "value_input": {
+                    "type": "text_input",
+                    "default": block.get("default_value", "")
+                }
+            }
+
         # Determine argument keys (Portal style 'inputs' or legacy 'args')
         arg_keys = []
         if "inputs" in block and block["inputs"]:
@@ -358,6 +404,10 @@ class BlockRenderer:
                 self._bind_drag_events(args_frame, block_id)
                 
                 for arg in arg_keys:
+                    # If a block is already snapped to this input, don't create a widget
+                    if block.get('inputs', {}).get(arg, {}).get('block'):
+                        continue
+                        
                     # Get label and icon
                     label_text = block.get("param_labels", {}).get(arg, arg)
         else:
@@ -398,6 +448,21 @@ class BlockRenderer:
                         relief="flat",
                         width=15
                     )
+                    
+                    # Apply validation only if input_type is 'number'
+                    if block.get("input_type") == "number":
+                        vcmd = (entry.register(self._validate_numeric_input),
+                                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+                        entry.config(validate="key", validatecommand=vcmd)
+
+                        def on_write(*args):
+                            try:
+                                float(var.get())
+                                entry.config(bg="#222222") # Valid number, default background
+                            except (ValueError, tk.TclError):
+                                entry.config(bg="#8B0000") # Invalid, red background
+                        var.trace_add("write", on_write)
+
                     entry.pack(side="left", padx=2, ipady=2) # ipady for height
                     # Don't bind drag events to entry so user can select text
                     
@@ -481,3 +546,14 @@ class BlockRenderer:
             self.canvas.coords(widget_window_ids[0], x + offset, y + offset)
             self.canvas.tag_raise(widget_window_ids[0])
 
+    def redraw_all_blocks(self):
+        """Forces a complete redraw of all blocks to fix visual glitches."""
+        self.canvas.delete("all")
+        # Re-draw grid
+        self.draw_grid()
+        
+        # Re-draw all blocks
+        for block_id in self.editor.all_blocks:
+            self.draw_block(block_id)
+            
+        self.editor.logger.log_info("Workspace", "Forced redraw of all blocks")

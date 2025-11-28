@@ -23,6 +23,14 @@ class InputHandler:
                 pass
 
         if block_id and block_id in self.editor.all_blocks:
+            # Deselect previously selected block
+            if self.editor.selected_block and self.editor.selected_block in self.editor.all_blocks:
+                self.editor.block_renderer.draw_block(self.editor.selected_block)
+            
+            self.editor.selected_block = block_id
+            # Highlight the selected block
+            self.editor.block_renderer.draw_block(block_id, highlight=True)
+
             block = self.editor.all_blocks[block_id]
             # Allow all block types to be dragged
             self.editor.drag_data["block_id"] = block_id
@@ -136,9 +144,14 @@ class InputHandler:
         if self.editor.block_mover:
             snap_target = self.editor.block_mover.get_snap_target(dragged_id)
             if snap_target:
-                target_id, snap_type, is_valid = snap_target
-                if self.editor.block_renderer:
-                    self.editor.block_renderer.show_snap_feedback(target_id, snap_type, is_valid)
+                if len(snap_target) == 4:
+                    target_id, snap_type, is_valid, param_name = snap_target
+                    if self.editor.block_renderer:
+                        self.editor.block_renderer.show_snap_feedback(target_id, snap_type, is_valid, param_name)
+                else:
+                    target_id, snap_type, is_valid = snap_target
+                    if self.editor.block_renderer:
+                        self.editor.block_renderer.show_snap_feedback(target_id, snap_type, is_valid)
             else:
                 if self.editor.block_renderer:
                     self.editor.block_renderer.clear_snap_feedback()
@@ -155,17 +168,18 @@ class InputHandler:
         dragged_id = self.editor.drag_data["block_id"]
         dragged_block = self.editor.all_blocks.get(dragged_id)
 
+        # Record action for undo
+        self.editor.undo_manager.record_action({
+            "type": "move",
+            "block_id": dragged_id,
+            "original_pos": (self.editor.drag_data["start_x"], self.editor.drag_data["start_y"]),
+            "new_pos": (dragged_block["x"], dragged_block["y"])
+        })
+
         # Reset drag state
         self.editor.drag_data["block_id"] = None
         self.editor.drag_data["x"] = 0
         self.editor.drag_data["y"] = 0
-
-        # Portal-style: Try to nest VALUE blocks into parameter slots
-        if dragged_block and dragged_block.get("type") in ["VALUE", "CONDITIONS"]:
-            if self._try_nest_in_parameter_slot(dragged_id, event):
-                # Successfully nested - update display and return
-                self.editor.update_code_preview()
-                return
 
         # Try connector/receptor snapping
         snapped = False
@@ -209,88 +223,6 @@ class InputHandler:
                 b["x"] += dx
                 b["y"] += dy
                 self.editor.update_block_position(_id)
-
-    def _try_nest_in_parameter_slot(self, value_block_id, event):
-        """Try to nest a VALUE block into a nearby parameter slot (Portal-style).
-        
-        Returns True if nesting succeeded, False otherwise.
-        """
-        value_block = self.editor.all_blocks.get(value_block_id)
-        if not value_block:
-            return False
-        
-        # Get mouse position on canvas
-        canvas_x = self.canvas.canvasx(event.x)
-        canvas_y = self.canvas.canvasy(event.y)
-        
-        # Find nearest block with parameter slots
-        nearest_distance = 100  # Max distance to consider
-        nearest_block = None
-        nearest_param = None
-        
-        for block_id, block in self.editor.all_blocks.items():
-            if block_id == value_block_id:
-                continue
-            
-            # Check if block has parameter slots
-            param_slots = block.get('param_slots', {})
-            if not param_slots:
-                continue
-            
-            # Check each parameter slot
-            for param_name, slot_widget in param_slots.items():
-                if not slot_widget or not slot_widget.winfo_exists():
-                    continue
-                
-                # Get slot position on canvas
-                try:
-                    slot_x = slot_widget.winfo_rootx()
-                    slot_y = slot_widget.winfo_rooty()
-                    canvas_slot_x = self.canvas.canvasx(slot_x - self.canvas.winfo_rootx())
-                    canvas_slot_y = self.canvas.canvasy(slot_y - self.canvas.winfo_rooty())
-                    
-                    # Calculate distance
-                    distance = math.hypot(canvas_x - canvas_slot_x, canvas_y - canvas_slot_y)
-                    
-                    if distance < nearest_distance:
-                        nearest_distance = distance
-                        nearest_block = block
-                        nearest_param = param_name
-                except Exception:
-                    continue
-        
-        # If found a nearby slot, nest the block
-        if nearest_block and nearest_param:
-            # Store the VALUE block in the parent's inputs
-            if 'inputs' not in nearest_block:
-                nearest_block['inputs'] = {}
-            if nearest_param not in nearest_block['inputs']:
-                nearest_block['inputs'][nearest_param] = {}
-            
-            nearest_block['inputs'][nearest_param]['block'] = value_block
-            
-            # Mark the VALUE block as nested
-            value_block['nested_in_param'] = nearest_block['id']
-            value_block['nested_param_name'] = nearest_param
-            
-            # Hide the VALUE block's visual representation (it will be shown inline)
-            if value_block.get('canvas_obj'):
-                self.canvas.itemconfig(value_block['canvas_obj'], state='hidden')
-            for widget in value_block.get('widgets', []):
-                try:
-                    if hasattr(widget, 'destroy'):
-                        widget.destroy()
-                    else:
-                        self.canvas.itemconfig(widget, state='hidden')
-                except:
-                    pass
-            
-            # Redraw parent block to show nested block inline
-            self.editor.draw_block(nearest_block['id'])
-            
-            return True
-        
-        return False
 
     def show_block_context_menu(self, event, block_id):
         """Show context menu for a block with navigation options.

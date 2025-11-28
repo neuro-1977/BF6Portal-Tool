@@ -116,6 +116,44 @@ class TopBarManager:
         analyze_btn.pack(expand=True, fill="both")
         analyze_frame.pack(side="right", padx=(4, 6), pady=6)
 
+        # Redo Button
+        redo_frame = tk.Frame(
+            self.top_bar_frame, width=btn_pixel_width, height=self.editor.ICON_HEIGHT, bg="#0a0a0a"
+        )
+        redo_frame.pack_propagate(False)
+        redo_btn = tk.Button(
+            redo_frame,
+            text="Redo",
+            command=self.editor.undo_manager.redo,
+            bg="#03A9F4",
+            fg="white",
+            font=("Arial", 10, "bold"),
+            activebackground="#0288D1",
+            activeforeground="white",
+            bd=0,
+        )
+        redo_btn.pack(expand=True, fill="both")
+        redo_frame.pack(side="right", padx=4, pady=6)
+
+        # Undo Button
+        undo_frame = tk.Frame(
+            self.top_bar_frame, width=btn_pixel_width, height=self.editor.ICON_HEIGHT, bg="#0a0a0a"
+        )
+        undo_frame.pack_propagate(False)
+        undo_btn = tk.Button(
+            undo_frame,
+            text="Undo",
+            command=self.editor.undo_manager.undo,
+            bg="#03A9F4",
+            fg="white",
+            font=("Arial", 10, "bold"),
+            activebackground="#0288D1",
+            activeforeground="white",
+            bd=0,
+        )
+        undo_btn.pack(expand=True, fill="both")
+        undo_frame.pack(side="right", padx=4, pady=6)
+
         # Reset Button (red, rightmost)
         reset_frame = tk.Frame(
             self.top_bar_frame, width=btn_pixel_width, height=self.editor.ICON_HEIGHT, bg="#0a0a0a"

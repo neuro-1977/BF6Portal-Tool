@@ -229,16 +229,21 @@ class BlockMover:
         # Create inputs slots for parameters (Portal-style)
         inputs = {}
         if isinstance(args_from_defn, list):
-            # args is a list of parameter names like ["player", "location"]
+            # Legacy format: args is a list of parameter names
             for param_name in args_from_defn:
-                # Each parameter gets an input slot that can hold a nested block
-                inputs[param_name] = {'block': None}
+                inputs[param_name] = {'block': None, 'type': 'any'} # Default to 'any' type
         elif isinstance(args_from_defn, dict):
-            # args is already a dict with values
-            try:
-                args = {k: tk.StringVar(value=v) for k, v in args_from_defn.items()}
-            except Exception:
-                args = {}
+            # New format: args is a dict with type info
+            for param_name, param_info in args_from_defn.items():
+                if isinstance(param_info, dict):
+                    inputs[param_name] = {
+                        'block': None,
+                        'type': param_info.get('type', 'any'), # Store the type
+                        'default': param_info.get('default') # Store default value
+                    }
+                else:
+                    # Could be a legacy dict format, handle gracefully
+                    inputs[param_name] = {'block': None, 'type': 'any'}
         
         print(f"Block '{label}' has {len(inputs)} input slots: {list(inputs.keys())}")
 
@@ -314,6 +319,13 @@ class BlockMover:
             block_data['inner_height'] = inner_height
 
         editor.all_blocks[bid] = block_data
+
+        # Record action for undo
+        self.editor.undo_manager.record_action({
+            "type": "create",
+            "block_id": bid,
+            "block_data": block_data
+        })
 
         # Draw & position
         try:
@@ -588,33 +600,38 @@ class BlockMover:
                 
                 # Check target's value inputs (parameter slots)
                 inputs = target.get("inputs", {})
-                for param_name, input_slot in inputs.items():
+                for i, (param_name, input_slot) in enumerate(inputs.items()):
                     # Skip if slot already filled
                     if input_slot.get('block'):
                         continue
                     
-                    # Calculate approximate slot position
-                    # We need the widget position for accuracy
-                    target_x = target['x'] + 100 # Fallback
-                    target_y = target['y'] + 20
-                    
-                    # Try to get actual widget position if available
-                    if 'widgets' in target and target['widgets']:
-                        # This is hard to get without widget reference map
-                        pass
+                    # Get accurate slot position from the renderer
+                    slot_x, slot_y = self.editor.block_renderer.get_parameter_slot_position(bid, i)
 
                     ox, oy = output_conn.get("x", 0), output_conn.get("y", 0)
-                    distance = math.hypot(ox - target_x, oy - target_y)
+                    distance = math.hypot(ox - slot_x, oy - slot_y)
                     
                     if distance < SNAP_THRESHOLD:
-                        # Snap into parameter slot
-                        input_slot['block'] = new_bid
-                        new_block['nested_in_param'] = (bid, param_name)
+                        # TYPE CHECK
+                        dragged_type = new_block.get('label')
+                        slot_type = input_slot.get('type')
                         
-                        # Redraw parent
-                        self.editor.draw_block(bid)
-                        self.editor.update_block_position(bid)
-                        return True
+                        if slot_type == 'any' or dragged_type == slot_type:
+                            # Snap into parameter slot
+                            input_slot['block'] = new_bid
+                            new_block['nested_in_param'] = (bid, param_name)
+                            
+                            # Redraw parent to hide the widget and show the block
+                            self.editor.draw_block(bid)
+                            self.editor.update_block_position(bid)
+                            
+                            # Also move the value block to the correct position
+                            new_block['x'] = slot_x - 5 # Small offset to align output notch
+                            new_block['y'] = slot_y - (new_block['height'] / 2)
+                            self.editor.draw_block(new_bid)
+                            self.editor.update_block_position(new_bid)
+                            
+                            return True
 
         # Try HORIZONTAL snapping (Events docking into Actions/Conditions)
         if "connection_left" in new_block:
@@ -709,17 +726,31 @@ class BlockMover:
                     return (bid, "horizontal", is_valid)
 
             # 4. Value Snapping
-            if new_block.get("connection_output"):
-                output_conn = new_block["connection_output"]
-                # Simplified check for value inputs
-                # We assume if we are close to the block body, we might be trying to snap
-                # This is a bit loose but works for feedback
-                ox, oy = output_conn.get("x", 0), output_conn.get("y", 0)
-                tx, ty = target["x"] + 100, target["y"] + 20 # Approx slot
-                
-                if math.hypot(ox - tx, oy - ty) < SNAP_THRESHOLD:
-                    # Check if target has inputs
-                    if target.get("inputs"):
-                        return (bid, "value_input", True) # Assume valid for now if inputs exist
+        if new_block.get("connection_output"):
+            output_conn = new_block["connection_output"]
+            ox, oy = output_conn.get("x", 0), output_conn.get("y", 0)
+
+            for bid, target in self.editor.all_blocks.items():
+                if bid == new_bid:
+                    continue
+
+                inputs = target.get("inputs", {})
+                if not inputs:
+                    continue
+
+                for i, (param_name, slot) in enumerate(inputs.items()):
+                    if slot.get('block'):
+                        continue
+
+                    slot_x, slot_y = self.editor.block_renderer.get_parameter_slot_position(bid, i)
+                    
+                    distance = math.hypot(ox - slot_x, oy - slot_y)
+
+                    if distance < SNAP_THRESHOLD:
+                        # TYPE CHECK
+                        dragged_type = new_block.get('label')
+                        slot_type = slot.get('type')
+                        is_valid = (slot_type == 'any' or dragged_type == slot_type)
+                        return (bid, "value_input", is_valid, param_name)
         
         return None

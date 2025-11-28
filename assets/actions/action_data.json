@@ -12,7 +12,10 @@
             "AIWaypointIdleBehaviour": {"label": "AIWaypointIdleBehaviour", "type": "ACTIONS", "args": ["player"]}
         },
         "Player": {
-            "SetPlayerHealth": {"label": "SetPlayerHealth", "type": "ACTIONS", "args": ["player", "amount"]},
+            "SetPlayerHealth": {"label": "SetPlayerHealth", "type": "ACTIONS", "args": {
+                "player": {"type": "Player"},
+                "amount": {"type": "Number", "default": 100}
+            }},
             "SetPlayerLoadout": {"label": "SetPlayerLoadout", "type": "ACTIONS", "args": ["player", "loadout"]},
             "Teleport": {"label": "Teleport", "type": "ACTIONS", "args": ["player", "location"]}
         },
