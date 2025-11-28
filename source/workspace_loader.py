@@ -109,46 +109,31 @@ def load_blocks_from_json(editor, imported_data):
             editor.current_id = max_id_num
 
             # -----------------------------------------------------------------
-            # 4️⃣  First pass – build the internal block dictionaries and restore
-            #      any dynamic block definitions
+            # 4️⃣  First pass – build the internal block dictionaries
             # -----------------------------------------------------------------
-            for block_id, block_data in imported_blocks_raw.items():
-                block_type = block_data.get("type")
-                label = block_data.get("label")
-                action_key = block_data.get("action_key")
+            for block_id, block_data_from_json in imported_blocks_raw.items():
+                # Start with a direct copy of all serializable data from the JSON
+                new_block_data = block_data_from_json.copy()
 
-                # Re‑register dynamic blocks that were created at runtime in the original
-                # workspace (needed for proper rendering of custom actions)
-                if action_key and block_type:
-                    editor.data_manager.add_dynamic_block_definition(
-                        block_type, action_key, label
-                    )
+                # Re-constitute Tkinter variables from their stored raw values
+                if 'value' in new_block_data and isinstance(new_block_data['value'], str):
+                    new_block_data['value'] = tk.StringVar(value=new_block_data['value'])
+                
+                # Handle legacy 'args' dictionary if it exists
+                if 'args' in new_block_data and isinstance(new_block_data['args'], dict):
+                    new_block_data['args'] = {
+                        k: tk.StringVar(value=v) for k, v in new_block_data['args'].items()
+                    }
 
-                # Convert plain argument values into tk.StringVar instances so the UI
-                # can bind to them directly.
-                args_with_tkvars = {
-                    k: tk.StringVar(value=v) for k, v in block_data.get("args", {}).items()
-                }
+                # Ensure UI-specific keys that cannot be serialized are reset
+                new_block_data['canvas_obj'] = None
+                new_block_data['widgets'] = []
+                new_block_data['widget_frame'] = None
+                new_block_data['widget_vars'] = {} # Re-initialize for safety
 
-                # Populate the master block dictionary used by the editor
-                editor.all_blocks[block_id] = {
-                    "id": block_id,
-                    "label": label,
-                    "type": block_type,
-                    "color": block_data.get(
-                        "color",
-                        editor.data_manager.palette_color_map.get(block_type, "#CCCCCC"),
-                    ),
-                    "x": block_data.get("x", 10),
-                    "y": block_data.get("y", 10),
-                    "width": block_data.get("width", editor.CHILD_BLOCK_WIDTH),
-                    "height": block_data.get("height", editor.CHILD_BLOCK_HEIGHT),
-                    "canvas_obj": None,
-                    "widgets": [],
-                    "parent_id": block_data.get("parent_id"),
-                    "next_sibling_id": block_data.get("next_sibling_id"),
-                    "args": args_with_tkvars,
-                }
+                # Add the complete block data to the editor's state
+                editor.all_blocks[block_id] = new_block_data
+
 
         # -----------------------------------------------------------------
         # 5️⃣  Second pass – draw every block on the canvas and update its
@@ -194,24 +179,7 @@ def load_blocks_from_json(editor, imported_data):
                 editor.canvas.update()
 
         # -----------------------------------------------------------------
-        # 6️⃣  Re‑assemble the hierarchy (roots → chains) and redraw each chain
-        # -----------------------------------------------------------------
-        child_blocks_ids = {
-            block.get("next_sibling_id")
-            for block in editor.all_blocks.values()
-            if block.get("next_sibling_id")
-        }
-        root_blocks_ids = [
-            bid
-            for bid, block in editor.all_blocks.items()
-            if block.get("parent_id") is None and bid not in child_blocks_ids
-        ]
-
-        for root_id in root_blocks_ids:
-            editor.redraw_chain(root_id)
-
-        # -----------------------------------------------------------------
-        # 7️⃣  Adjust scroll region & scrollbars
+        # 6️⃣  Adjust scroll region & scrollbars
         # -----------------------------------------------------------------
         # Get bbox of all blocks, but ensure minimum scrollregion for grid visibility
         # Ensure canvas fits all blocks
@@ -232,9 +200,9 @@ def load_blocks_from_json(editor, imported_data):
         editor.update_scrollbars()
 
         # -----------------------------------------------------------------
-        # 8️⃣  Refresh the generated code view
+        # 7️⃣  Refresh the generated code view
         # -----------------------------------------------------------------
-        update_code_output(editor)
+        editor.update_code_preview()
 
         # Center view and redraw grid now that scrollregion is properly set
         try:

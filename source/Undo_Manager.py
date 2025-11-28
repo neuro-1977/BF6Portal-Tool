@@ -68,32 +68,23 @@ class UndoManager:
         self.is_reverting = True
         try:
             action = self.undo_stack.pop()
-            
-            # The inverse action will be pushed to the redo stack
-            inverse_action = {}
+            self.redo_stack.append(action)
             
             action_type = action.get("type")
             if action_type == "create":
-                inverse_action = {"type": "delete", "block_id": action["block_id"], "block_data": action["block_data"]}
+                # Inverse of create is delete
                 self.editor.delete_block(action["block_id"])
-            
             elif action_type == "delete":
-                inverse_action = {"type": "create", "block_id": action["block_id"], "block_data": action["block_data"]}
+                # Inverse of delete is restore
                 self._restore_block(action["block_data"])
-
             elif action_type == "move":
+                # Inverse of move is moving to the original position
                 block_id = action.get("block_id")
                 original_pos = action.get("original_pos")
-                new_pos = action.get("new_pos")
-                inverse_action = {"type": "move", "block_id": block_id, "original_pos": new_pos, "new_pos": original_pos}
-
                 if block_id and original_pos and block_id in self.editor.all_blocks:
                     self.editor.all_blocks[block_id]['x'] = original_pos[0]
                     self.editor.all_blocks[block_id]['y'] = original_pos[1]
                     self.editor.update_block_position(block_id)
-            
-            self.redo_stack.append(inverse_action)
-
         finally:
             self.is_reverting = False
             self.editor.update_code_preview()
@@ -105,17 +96,18 @@ class UndoManager:
         self.is_reverting = True
         try:
             action = self.redo_stack.pop()
-            
-            # The original action is pushed back to the undo stack
             self.undo_stack.append(action)
 
-            # Perform the original action
+            # Perform the original action again
             action_type = action.get("type")
             if action_type == "create":
-                 self._restore_block(action["block_data"])
+                # Re-create means restoring the block data
+                self._restore_block(action["block_data"])
             elif action_type == "delete":
+                # Re-delete
                 self.editor.delete_block(action["block_id"])
             elif action_type == "move":
+                # Re-move to the new position
                 block_id = action.get("block_id")
                 new_pos = action.get("new_pos")
                 if block_id and new_pos and block_id in self.editor.all_blocks:

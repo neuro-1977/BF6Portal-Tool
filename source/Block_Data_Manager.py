@@ -2,6 +2,7 @@ import json
 import tkinter as tk  # Imported for type hints on the UI instance
 from pathlib import Path
 from resource_helper import get_asset_path
+from editor_helpers import serialize_workspace
 
 
 class BlockDataManager:
@@ -163,37 +164,11 @@ class BlockDataManager:
         Gathers all current block state, converts it into a structured format (JSON),
         and returns the output string.
         """
-        # Export the actual block state from the UI
-        # We need to access the UI's all_blocks dictionary
-        # Since BlockDataManager is initialized with ui_instance, we can access it
-        
         blocks_export = {}
         rule_state_export = {}
-        
-        if hasattr(self.ui, 'all_blocks'):
-            # Deep copy blocks to avoid serializing non-serializable objects (like tkinter widgets)
-            for bid, block in self.ui.all_blocks.items():
-                block_copy = block.copy()
-                # Remove non-serializable keys
-                for key in ['canvas_obj', 'widgets', 'value', 'args']:
-                    if key in block_copy:
-                        del block_copy[key]
-                
-                # Handle args separately (convert StringVars to values)
-                args_export = {}
-                if 'args' in block:
-                    for k, v in block['args'].items():
-                        if isinstance(v, tk.StringVar):
-                            args_export[k] = v.get()
-                        else:
-                            args_export[k] = str(v)
-                block_copy['args'] = args_export
-                
-                # Handle value separately
-                if 'value' in block and isinstance(block['value'], tk.StringVar):
-                    block_copy['value'] = block['value'].get()
 
-                blocks_export[bid] = block_copy
+        if hasattr(self.ui, 'all_blocks'):
+            blocks_export = serialize_workspace(self.ui.all_blocks)
 
         if hasattr(self.ui, 'rule_state'):
             for k, v in self.ui.rule_state.items():
@@ -203,7 +178,7 @@ class BlockDataManager:
                     rule_state_export[k] = v
 
         export_data = {
-            "version": "1.0.4beta",
+            "version": "1.0.5-beta", # Updated version
             "blocks": blocks_export,
             "rule_state": rule_state_export
         }

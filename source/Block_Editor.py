@@ -20,7 +20,7 @@ from resource_helper import get_asset_path
 from Block_Data_Manager import BlockDataManager
 from Sidebar_Manager import SidebarManager
 from TopBar_Manager import TopBarManager
-from editor_helpers import get_dropdown_items, update_code_output
+from editor_helpers import get_dropdown_items, update_code_output, get_snapped_children, get_chain_ids
 from io_handlers import show_exported_json, show_import_dialog
 from workspace_loader import load_blocks_from_json as workspace_load
 from Block_Mover import BlockMover
@@ -30,6 +30,7 @@ from Code_Generator import CodeGenerator
 from Block_Renderer import BlockRenderer
 from Input_Handler import InputHandler
 # from Snap_Handler import SnapHandler  # Not used - Portal-style blocks connect via proximity
+from Undo_Manager import UndoManager
 from Help_System import HelpSystem
 from Error_Logger import get_logger, setup_exception_handler, log_tkinter_errors
 
@@ -37,77 +38,13 @@ from Error_Logger import get_logger, setup_exception_handler, log_tkinter_errors
 class BlockEditor:
     # A block-based visual programming editor using Tkinter.
     # This version implements drag-and-drop chaining for Action and Control blocks.
-    Blocks move as a connected chain, automatically decouple on drag, and snap
-        def spawn_default_scene():
-            print("[DEBUG] Spawning default scene (horizontal chain)...")
-            # MOD block
-            mod_def = {
-                "label": "MOD",
-                "type": "MOD",
-                "color": self.data_manager.palette_color_map.get("MOD", "#4A4A4A"),
-                "args": {}
-            }
-            mod_id = self.get_new_block_id()
-            self.all_blocks[mod_id] = {
-                **mod_def,
-                "id": mod_id,
-                "x": 30,
-                "y": 100,
-                "width": 120,
-                "height": 50,
-                "canvas_obj": None,
-                "widgets": [],
-                "next_block": None,
-            }
-            print(f"[DEBUG] Created MOD block: {mod_id}")
-            # RULE block, snapped to right of MOD
-            rule_def = {
-                "label": "set gamemode",
-                "type": "RULES",
-                "color": self.data_manager.palette_color_map.get("RULES", "#7E3F96"),
-                "args": {"rule_name": "set gamemode", "event_type": "OnPlayerInteract", "scope": "Global"}
-            }
-            rule_id = self.get_new_block_id()
-            self.all_blocks[rule_id] = {
-                **rule_def,
-                "id": rule_id,
-                "x": 170,
-                "y": 100,
-                "width": 180,
-                "height": 50,
-                "canvas_obj": None,
-                "widgets": [],
-                "next_block": None,
-            }
-            self.all_blocks[mod_id]["next_block"] = rule_id
-            print(f"[DEBUG] Created RULE block: {rule_id}, snapped to right of MOD {mod_id}")
-            # CONDITION block, snapped to right of RULE
-            cond_def = {
-                "label": "Equal",
-                "type": "CONDITIONS",
-                "color": self.data_manager.palette_color_map.get("CONDITIONS", "#0277BD"),
-                "args": {"function": "Equal"}
-            }
-            cond_id = self.get_new_block_id()
-            self.all_blocks[cond_id] = {
-                **cond_def,
-                "id": cond_id,
-                "x": 370,
-                "y": 100,
-                "width": 120,
-                "height": 50,
-                "canvas_obj": None,
-                "widgets": [],
-                "next_block": None,
-            }
-            self.all_blocks[rule_id]["next_block"] = cond_id
-            print(f"[DEBUG] Created CONDITION block: {cond_id}, snapped to right of RULE {rule_id}")
-            # Draw all blocks in chain
-            for bid in [mod_id, rule_id, cond_id]:
-                print(f"[DEBUG] Drawing block: {bid}, type: {self.all_blocks[bid]['type']}, next: {self.all_blocks[bid].get('next_block')}")
-                self.draw_block(bid)
-                self.update_block_position(bid)
-            print(f"[DEBUG] All blocks after spawn: {list(self.all_blocks.keys())}")
+    # Blocks move as a connected chain, automatically decouple on drag, and snap
+
+    def __init__(self, master, workspace_name="Untitled"):
+        self.master = master
+        self.logger = get_logger()
+        self.data_manager = BlockDataManager(self)
+        self.undo_manager = UndoManager(self)
         try:
             self.sidebar_manager = SidebarManager(self)
         except Exception as e:
@@ -146,8 +83,8 @@ class BlockEditor:
         self.block_data = self.data_manager.block_data
 
         # --- Editor State ---
-        # "canvas_obj" stores the INTEGER ID of the main polygon shape (crucial for coords update)
-        # "widgets" stores references to Tkinter widgets (Frames, Entrys)
+        self.selected_block = None
+        self.clipboard = None
         self.all_blocks = {}
         self.current_id = 0
 
@@ -246,6 +183,16 @@ class BlockEditor:
         except Exception:
             pass
 
+        self.canvas.bind("<Control-c>", self.copy_block)
+        self.canvas.bind("<Control-v>", self.paste_block)
+        self.canvas.bind("<Delete>", self.delete_selected_block)
+        self.canvas.bind("<Control-z>", self.undo)
+        self.canvas.bind("<Control-y>", self.redo)
+        self.canvas.bind("<Up>", lambda event: self.nudge_block(0, -1))
+        self.canvas.bind("<Down>", lambda event: self.nudge_block(0, 1))
+        self.canvas.bind("<Left>", lambda event: self.nudge_block(-1, 0))
+        self.canvas.bind("<Right>", lambda event: self.nudge_block(1, 0))
+
         # Initialize BlockMover (handles spawning and simple snapping)
         try:
             self.block_mover = BlockMover(self)
@@ -324,7 +271,53 @@ class BlockEditor:
         except Exception:
             pass
 
+    def undo(self, event=None):
+        self.undo_manager.undo()
+
+    def redo(self, event=None):
+        self.undo_manager.redo()
+
+    def nudge_block(self, dx, dy):
+        """Nudges the selected block and its chain by a small delta."""
+        if not self.selected_block:
+            return
+
+        head_block = self.all_blocks.get(self.selected_block)
+        if not head_block:
+            return
+
+        # Record the initial position for the undo action
+        original_pos = (head_block['x'], head_block['y'])
+
+        # Get the entire chain of blocks to move
+        blocks_to_move = self.get_snapped_children(self.selected_block)
+        
+        for block_id in blocks_to_move:
+            block = self.all_blocks.get(block_id)
+            if not block:
+                continue
+            
+            block["x"] += dx
+            block["y"] += dy
+            self.update_block_position(block_id)
+        
+        # Record the move with the undo manager
+        new_pos = (head_block['x'], head_block['y'])
+        self.undo_manager.record_action({
+            "type": "move",
+            "block_id": self.selected_block,
+            "original_pos": original_pos,
+            "new_pos": new_pos,
+        })
+        self.update_code_preview()
+
     # import UI is delegated to io_handlers.show_import_dialog
+
+    def undo(self, event=None):
+        self.undo_manager.undo()
+
+    def redo(self, event=None):
+        self.undo_manager.redo()
 
     def load_blocks_from_json(self, imported_data):
         # Light wrapper delegating load to workspace_loader for separation of concerns.
@@ -789,47 +782,10 @@ class BlockEditor:
             pass
 
     def get_snapped_children(self, block_id):
-        # Returns a list of all block IDs connected to the given block_id,
-        # including the block itself, any blocks connected to 'next',
-        # any nested blocks, and any docked blocks (horizontal) (recursively).
-        if block_id not in self.all_blocks:
-            return []
-
-        children = [block_id]
-        block = self.all_blocks[block_id]
-
-        # 1. Recursively get 'next' block (vertical chaining)
-        next_id = block.get("next_block")
-        if next_id:
-            children.extend(self.get_snapped_children(next_id))
-
-        # 2. Recursively get nested blocks (containers)
-        if "nested_blocks" in block:
-            for child_id in block["nested_blocks"]:
-                children.extend(self.get_snapped_children(child_id))
-                
-        # 3. Recursively get docked blocks (horizontal chaining)
-        if "docked_blocks" in block:
-            for child_id in block["docked_blocks"]:
-                children.extend(self.get_snapped_children(child_id))
-        
-        # 4. Recursively get parameter inputs (nested values)
-        if "inputs" in block:
-            for param_name, slot in block["inputs"].items():
-                if slot.get("block"):
-                    children.extend(self.get_snapped_children(slot["block"]))
-        
-        # Remove duplicates just in case
-        return list(dict.fromkeys(children))
+        return get_snapped_children(self.all_blocks, block_id)
 
     def get_chain_ids(self, start_block_id):
-        # Returns a list of block IDs in the chain starting from start_block_id.
-        chain = []
-        current_id = start_block_id
-        while current_id and current_id in self.all_blocks:
-            chain.append(current_id)
-            current_id = self.all_blocks[current_id].get("next_block")
-        return chain
+        return get_chain_ids(self.all_blocks, start_block_id)
 
     def update_code_preview(self):
         # Updates the code preview window.
@@ -920,6 +876,13 @@ class BlockEditor:
             return
             
         block = self.all_blocks[block_id]
+        
+        # Record action for undo
+        self.undo_manager.record_action({
+            "type": "delete",
+            "block_id": block_id,
+            "block_data": block
+        })
         
         # Remove from parent's nested/docked lists
         self._remove_from_parent(block)
@@ -1040,6 +1003,135 @@ class BlockEditor:
 
         top.protocol("WM_DELETE_WINDOW", on_close)
 
+    def delete_selected_block(self, event=None):
+        if self.selected_block:
+            self.delete_block(self.selected_block)
+            self.selected_block = None
+
+    def copy_block(self, event=None):
+        if not self.selected_block:
+            return
+
+        import copy
+        
+        # Get all blocks in the chain/group starting from the selected block
+        child_ids = self.get_snapped_children(self.selected_block)
+        
+        blocks_to_copy = []
+        for block_id in child_ids:
+            if block_id in self.all_blocks:
+                blocks_to_copy.append(copy.deepcopy(self.all_blocks[block_id]))
+        
+        if not blocks_to_copy:
+            return
+
+        # The head of the chain is the originally selected block
+        head_block = self.all_blocks[self.selected_block]
+
+        self.clipboard = {
+            "head_id": self.selected_block,
+            "head_pos": (head_block['x'], head_block['y']),
+            "blocks": blocks_to_copy
+        }
+        self.logger.log_info("Clipboard", f"Copied {len(blocks_to_copy)} blocks to clipboard.")
+
+    def paste_block(self, event=None):
+        if not self.clipboard:
+            return
+        
+        import copy
+
+        # Check for the new clipboard format
+        if not isinstance(self.clipboard, dict) or "blocks" not in self.clipboard:
+            # Fallback to old simple paste for compatibility
+            new_block_data = copy.deepcopy(self.clipboard)
+            new_block_data['id'] = self.get_new_block_id()
+            x = self.master.winfo_pointerx() - self.master.winfo_rootx()
+            y = self.master.winfo_pointery() - self.master.winfo_rooty()
+            self.block_mover._create_block_at(x, y, new_block_data, new_block_data.get('category', 'UNKNOWN'))
+            return
+
+        # --- Advanced Paste Logic ---
+        id_map = {}
+        new_blocks_data = []
+
+        # 1. Create new IDs and a mapping from old to new
+        for block_data in self.clipboard["blocks"]:
+            old_id = block_data['id']
+            new_id = self.get_new_block_id()
+            id_map[old_id] = new_id
+            
+            new_data = copy.deepcopy(block_data)
+            new_data['id'] = new_id
+            new_blocks_data.append(new_data)
+
+        # 2. Remap all internal connections
+        for new_data in new_blocks_data:
+            # Remap vertical connections
+            if new_data.get('next_block') in id_map:
+                new_data['next_block'] = id_map[new_data['next_block']]
+            if new_data.get('previous_block') in id_map:
+                new_data['previous_block'] = id_map[new_data['previous_block']]
+            
+            # Remap container nesting
+            if new_data.get('nested_in') in id_map:
+                new_data['nested_in'] = id_map[new_data['nested_in']]
+            if new_data.get('parent_id') in id_map:
+                new_data['parent_id'] = id_map[new_data['parent_id']]
+            
+            new_nested_blocks = [id_map[b_id] for b_id in new_data.get('nested_blocks', []) if b_id in id_map]
+            new_data['nested_blocks'] = new_nested_blocks
+
+            # Remap horizontal docking
+            if new_data.get('docked_to') in id_map:
+                new_data['docked_to'] = id_map[new_data['docked_to']]
+
+            new_docked_blocks = [id_map[b_id] for b_id in new_data.get('docked_blocks', []) if b_id in id_map]
+            new_data['docked_blocks'] = new_docked_blocks
+
+            # Remap value nesting
+            if new_data.get('nested_in_param'):
+                old_parent_id, param_name = new_data['nested_in_param']
+                if old_parent_id in id_map:
+                    new_data['nested_in_param'] = (id_map[old_parent_id], param_name)
+            
+            if 'inputs' in new_data:
+                for param_name, slot_info in new_data['inputs'].items():
+                    if slot_info.get('block') in id_map:
+                        slot_info['block'] = id_map[slot_info['block']]
+
+        # 3. Calculate position offset
+        original_head_pos = self.clipboard["head_pos"]
+        mouse_x = self.master.winfo_pointerx() - self.master.winfo_rootx()
+        mouse_y = self.master.winfo_pointery() - self.master.winfo_rooty()
+
+        dx = mouse_x - original_head_pos[0]
+        dy = mouse_y - original_head_pos[1]
+        
+        # 4. Create the new blocks
+        for new_data in new_blocks_data:
+            # Apply offset
+            new_data['x'] += dx
+            new_data['y'] += dy
+            
+            # Remove old canvas objects before creation
+            new_data['canvas_obj'] = None
+            new_data['widgets'] = []
+            
+            # Add to the workspace and draw
+            self.all_blocks[new_data['id']] = new_data
+            self.draw_block(new_data['id'])
+            
+            # Record action for undo
+            self.undo_manager.record_action({
+                "type": "create",
+                "block_id": new_data['id'],
+                "block_data": new_data
+            })
+
+        self.update_code_preview()
+        self.logger.log_info("Clipboard", f"Pasted {len(new_blocks_data)} blocks.")
+
     def import_code(self):
         # Import JSON code into the editor.
         show_import_dialog(self)
@@ -1077,18 +1169,9 @@ class BlockEditor:
 
     def redraw_all_blocks(self):
         # Forces a complete redraw of all blocks to fix visual glitches.
-        self.canvas.delete("all")
-        # Re-draw grid
-        self.draw_grid()
-        
-        # Re-draw all blocks
-        # Sort by ID to maintain some order, or just iterate
-        # We need to be careful about z-order.
-        # Ideally we should traverse the tree, but iterating all_blocks is safer for orphans.
-        for block_id in self.all_blocks:
-            self.block_renderer.draw_block(block_id)
-            
-        self.logger.log_info("Workspace", "Forced redraw of all blocks")
+        if self.block_renderer:
+            self.block_renderer.redraw_all_blocks()
+
 
     def refresh_ui(self):
         # Refresh the UI and code preview.

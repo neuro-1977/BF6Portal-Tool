@@ -37,6 +37,22 @@ The editor now supports one of the most critical features for building logic: sn
     - A **red highlight** appears if the block is not compatible with the slot.
 - **Live Input Validation**: "Number" blocks now validate input as you type. The field will turn red if a non-numeric value is entered, preventing errors.
 
+### 2. **Workflow and Quality of Life**
+
+#### Advanced Copy & Paste
+The copy/paste functionality has been significantly upgraded to support entire block chains.
+- **Copy Children**: Copying a block (`Ctrl+C`) now also copies all of its children (snapped, nested, or docked blocks).
+- **Intelligent Paste**: Pasting (`Ctrl+V`) recreates the entire block structure at the mouse cursor, correctly re-mapping all internal connections to the new set of blocks.
+
+#### Block Nudging
+For fine-tuned control over block positioning, the selected block can now be "nudged" using the arrow keys.
+- **Precision Control**: Move the selected block and its entire chain one pixel at a time using the `<Up>`, `<Down>`, `<Left>`, and `<Right>` arrow keys.
+
+#### Improved Save/Load
+The workspace save/load functionality (via Import/Export JSON) has been hardened to correctly save and restore the full state of the editor.
+- **Full Serialization**: Exporting the workspace now correctly saves all block data, including connections, nested value blocks, and current values.
+- **Robust Deserialization**: Importing a workspace file now correctly reconstructs the entire workspace, including all connections and UI state.
+
 
 ### 1. **Visual & Layout Refinements**
 - **Horizontal Layout for Logic Chains**: CONDITIONS and ACTIONS now stack horizontally (side-by-side) instead of vertically, matching the Portal editor style.

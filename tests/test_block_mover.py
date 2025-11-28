@@ -155,5 +155,129 @@ class TestValueBlockSnapping(unittest.TestCase):
         self.assertIsNone(parent_block['inputs']['amount']['block'], "Parent 'amount' slot should remain empty.")
 
 
+class TestCopyPaste(unittest.TestCase):
+    """Tests for copy and paste functionality in Block_Editor."""
+
+    def setUp(self):
+        """Set up a full editor instance for integration testing."""
+        self.root = tk.Tk()
+        self.root.withdraw()
+        
+        # The methods to test live on the real BlockEditor, so we instantiate it.
+        # This makes it more of an integration test.
+        self.editor = BlockEditor(self.root)
+
+        # Mock the UI methods that would throw errors in a headless environment
+        def mock_winfo(self, *args, **kwargs):
+            return 0
+        self.editor.master.winfo_pointerx = lambda: 300
+        self.editor.master.winfo_pointery = lambda: 300
+        self.editor.master.winfo_rootx = lambda: 0
+        self.editor.master.winfo_rooty = lambda: 0
+    
+    def tearDown(self):
+        self.root.destroy()
+
+    def test_copy_paste_single_block(self):
+        """Test copying and pasting a single block."""
+        # 1. Create a block to copy, using the editor's ID generator
+        # The editor may have initial blocks, so we don't assume a clean slate.
+        self.editor.all_blocks.clear() # Start clean for this test
+        block_id = self.editor.get_new_block_id()
+        self.editor.all_blocks[block_id] = {
+            "id": block_id, "label": "TestBlock", "type": "SEQUENCE",
+            "x": 50, "y": 50, "width": 100, "height": 30,
+            "nested_blocks": []
+        }
+        num_blocks_before = len(self.editor.all_blocks)
+        last_id_before = self.editor.current_id
+
+        # 2. Select and copy the block
+        self.editor.selected_block = block_id
+        self.editor.copy_block()
+
+        # 3. Assert clipboard content
+        self.assertIsNotNone(self.editor.clipboard)
+        self.assertEqual(self.editor.clipboard['head_id'], block_id)
+        self.assertEqual(len(self.editor.clipboard['blocks']), 1)
+
+        # 4. Paste the block
+        self.editor.paste_block()
+
+        # 5. Assertions
+        self.assertEqual(len(self.editor.all_blocks), num_blocks_before + 1, "A new block should have been created.")
+        
+        # Find the new block (it will have the highest ID)
+        pasted_block_id = f"block_{last_id_before + 1}"
+        self.assertIn(pasted_block_id, self.editor.all_blocks)
+        self.assertNotEqual(pasted_block_id, block_id)
+
+        original_block = self.editor.all_blocks[block_id]
+        pasted_block = self.editor.all_blocks[pasted_block_id]
+
+        self.assertEqual(pasted_block['label'], original_block['label'], "Pasted block should have the same label.")
+        # Position should be based on mouse pointer (mocked to 300, 300)
+        # and the original block's position (50, 50). dx = 250, dy = 250.
+        # So new x = 50 + 250 = 300.
+        self.assertEqual(pasted_block['x'], 300)
+        self.assertEqual(pasted_block['y'], 300)
+
+    def test_copy_paste_chained_blocks(self):
+        """Test copying and pasting a chain of connected blocks."""
+        # 1. Create two connected blocks
+        block_a_id = self.editor.get_new_block_id()
+        block_b_id = self.editor.get_new_block_id()
+        self.editor.all_blocks[block_a_id] = {
+            "id": block_a_id, "label": "BlockA", "type": "SEQUENCE",
+            "x": 50, "y": 50, "width": 100, "height": 30,
+            "next_block": block_b_id, "previous_block": None,
+            "nested_blocks": []
+        }
+        self.editor.all_blocks[block_b_id] = {
+            "id": block_b_id, "label": "BlockB", "type": "SEQUENCE",
+            "x": 50, "y": 80, "width": 100, "height": 30,
+            "next_block": None, "previous_block": block_a_id,
+            "nested_blocks": []
+        }
+        num_blocks_before = len(self.editor.all_blocks)
+        last_id_before = self.editor.current_id
+
+        # 2. Select and copy the head of the chain
+        self.editor.selected_block = block_a_id
+        self.editor.copy_block()
+
+        # 3. Assert clipboard content
+        self.assertEqual(len(self.editor.clipboard['blocks']), 2)
+
+        # 4. Paste the blocks
+        self.editor.paste_block()
+
+        # 5. Assertions
+        self.assertEqual(len(self.editor.all_blocks), num_blocks_before + 2, "Two new blocks should have been created.")
+
+        # 6. Find the new blocks and check their connections
+        new_a_id = f"block_{last_id_before + 1}"
+        new_b_id = f"block_{last_id_before + 2}"
+        self.assertIn(new_a_id, self.editor.all_blocks)
+        self.assertIn(new_b_id, self.editor.all_blocks)
+
+        new_block_a = self.editor.all_blocks[new_a_id]
+        new_block_b = self.editor.all_blocks[new_b_id]
+
+        # Check labels to be sure we have the right blocks
+        self.assertEqual(new_block_a['label'], "BlockA")
+        self.assertEqual(new_block_b['label'], "BlockB")
+
+        # Check re-mapped connections
+        self.assertEqual(new_block_a['next_block'], new_b_id, "New A should point to New B.")
+        self.assertEqual(new_block_b['previous_block'], new_a_id, "New B should point back to New A.")
+
+        # Check relative positioning
+        original_dy = self.editor.all_blocks[block_b_id]['y'] - self.editor.all_blocks[block_a_id]['y']
+        new_dy = new_block_b['y'] - new_block_a['y']
+        self.assertEqual(new_dy, original_dy, "Relative Y position of chained blocks should be maintained.")
+
+
+
 if __name__ == "__main__":
     unittest.main()
