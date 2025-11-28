@@ -124,34 +124,54 @@ class SidebarManager:
         self.editor.sidebar_list_container = self.sidebar_list_container
         self.editor.dropdown_panel = self.dropdown_panel
 
+    def _animate_dropdown_width(self, start_width, end_width):
+        """Animates the width of the dropdown panel."""
+        current_width = start_width
+        step = 20 if end_width > start_width else -20
+        delay = 10 # ms
+
+        def step_animation():
+            nonlocal current_width
+            current_width += step
+
+            if (step > 0 and current_width >= end_width) or \
+               (step < 0 and current_width <= end_width):
+                current_width = end_width # Snap to final width
+                self.dropdown_panel.place(width=current_width)
+                if current_width == 0:
+                    self.dropdown_panel.place_forget() # Hide completely when collapsed
+                return
+
+            self.dropdown_panel.place(width=current_width)
+            self.editor.master.after(delay, step_animation)
+
+        step_animation()
+
     def create_category_buttons(self):
         """Creates the category buttons in the sidebar."""
         self.tab_buttons = {}
         # Grouped categories with representative block type for icon
-        # Official Portal flat sidebar: (category, color, icon, text_fg)
+        # Updated to match web UI toolbox.js structure and colors
         official_categories = [
-            ("MOD", "#4A4A4A", "mod_shape", "white", "Core"),
-            ("RULES", "#a259e6", "rules_shape", "white", None),
-            ("EVENTS", "#a259e6", "event_shape", "white", None),
-            ("SUBROUTINE", "#e67e22", "subroutine_shape", "#222", None),
+            ("Core", "#333333", "mod_shape", "white", "Core"),
             ("ACTIONS", "#f7c843", "action_shape", "#222", "Actions"),
             ("CONDITIONS", "#3bb273", "condition_shape", "white", "Logic & Data"),
-            ("LOGIC", "#a259e6", "logic_shape", "white", None),
-            ("MATH", "#3bb273", "math_shape", "white", None),
-            ("VALUES", "#3bb273", "value_shape", "white", None),
-            ("ARRAYS", "#3bb273", "array_shape", "white", None),
-            ("PLAYER", "#f44336", "player_shape", "white", "World"),
-            ("VEHICLES", "#f44336", "vehicle_shape", "white", None),
-            ("GAMEPLAY", "#f44336", "gameplay_shape", "white", None),
-            ("OBJECTIVE", "#f7c843", "objective_shape", "#222", None),
-            ("EMPLACEMENTS", "#f7c843", "emplacement_shape", "#222", None),
-            ("USER INTERFACE", "#2196f3", "ui_shape", "white", "Presentation"),
-            ("AUDIO", "#2196f3", "audio_shape", "white", None),
-            ("CAMERA", "#2196f3", "camera_shape", "white", None),
-            ("EFFECTS", "#2196f3", "effects_shape", "white", None),
-            ("TRANSFORM", "#2196f3", "transform_shape", "white", None),
-            ("AI", "#9e9e9e", "ai_shape", "white", "Other"),
-            ("OTHER", "#9e9e9e", "other_shape", "white", None)
+            ("LOGIC", "#673AB7", "logic_shape", "white", "Logic & Data"),
+            ("MATH", "#1976D2", "math_shape", "white", "Logic & Data"),
+            ("VALUES", "#0288D1", "value_shape", "white", "Logic & Data"),
+            ("ARRAYS", "#0097A7", "array_shape", "white", "Logic & Data"),
+            ("PLAYER", "#C2185B", "player_shape", "white", "World"),
+            ("VEHICLES", "#E64A19", "vehicle_shape", "white", "World"),
+            ("GAMEPLAY", "#5D4037", "gameplay_shape", "white", "World"),
+            ("OBJECTIVE", "#F9A825", "objective_shape", "#222", "World"),
+            ("EMPLACEMENTS", "#8D6E63", "emplacement_shape", "#222", "World"),
+            ("USER INTERFACE", "#607D8B", "ui_shape", "white", "Presentation"),
+            ("AUDIO", "#455A64", "audio_shape", "white", "Presentation"),
+            ("CAMERA", "#37474F", "camera_shape", "white", "Presentation"),
+            ("EFFECTS", "#263238", "effects_shape", "white", "Presentation"),
+            ("TRANSFORM", "#212121", "transform_shape", "white", "Presentation"),
+            ("AI", "#333333", "ai_shape", "white", "Other"),
+            ("OTHER", "#9E9E9E", "other_shape", "white", "Other")
         ]
 
         last_group = None
@@ -200,15 +220,50 @@ class SidebarManager:
                 btn_frame = tk.Frame(self.sidebar_content, bg=cat_color, height=28, cursor="hand2", relief="flat", bd=0)
                 btn_frame.pack(fill="x", padx=(8, 8), pady=1)
                 btn_frame.pack_propagate(False)
-                icon_canvas = tk.Canvas(btn_frame, width=22, height=18, bg=cat_color, highlightthickness=0, bd=0)
+                icon_canvas = tk.Canvas(btn_frame, width=22, height=22, bg=cat_color, highlightthickness=0, bd=0) # Increased height for icon
                 icon_canvas.pack(side="left", padx=(2, 2), pady=2)
-                # Draw the block icon for the category
-                if hasattr(BlockShapes, icon_shape):
-                    shape_fn = getattr(BlockShapes, icon_shape)
-                    shape_coords = shape_fn(2, 2, 18, 14)
-                else:
-                    shape_coords = BlockShapes.get_blockly_statement_shape(2, 2, 18, 14, top_notch=True, bottom_notch=True)
-                icon_canvas.create_polygon(shape_coords, fill=cat_color, outline="#333333", width=1)
+                
+                # --- ICON LOGIC ---
+                icon_path_rel = self.editor.data_manager.ICON_PATHS.get(cat_name)
+                icon_loaded = False
+                if icon_path_rel:
+                    try:
+                        # Construct absolute path: root_dir / relative_path
+                        # BLOCK_DATA_PATH is .../assets. Parent is root.
+                        full_icon_path = self.editor.data_manager.BLOCK_DATA_PATH.parent / icon_path_rel
+                        
+                        if full_icon_path.exists():
+                            if cat_name not in self.icon_cache:
+                                img = tk.PhotoImage(file=str(full_icon_path))
+                                # Resize if too large (simple subsample)
+                                if img.width() > 20 or img.height() > 20: 
+                                    # Simple resize, assumes square icons. If not, needs more complex scaling.
+                                    # Use integer division for subsample
+                                    x_scale = img.width() // 20 or 1
+                                    y_scale = img.height() // 20 or 1
+                                    img = img.subsample(x_scale, y_scale)
+                                self.icon_cache[cat_name] = img
+                            
+                            icon_img = self.icon_cache[cat_name]
+                            icon_canvas.create_image(
+                                11, 11, # Center in the 22x22 canvas
+                                image=icon_img, 
+                                anchor="center",
+                                tags=("icon", cat_name)
+                            )
+                            icon_loaded = True
+                    except Exception as e:
+                        print(f"Error loading icon for {cat_name}: {e}")
+                
+                if not icon_loaded:
+                    # Original block shape drawing fallback
+                    if hasattr(BlockShapes, icon_shape):
+                        shape_fn = getattr(BlockShapes, icon_shape)
+                        shape_coords = shape_fn(2, 2, 18, 14)
+                    else:
+                        shape_coords = BlockShapes.get_blockly_statement_shape(2, 2, 18, 14, top_notch=True, bottom_notch=True)
+                    icon_canvas.create_polygon(shape_coords, fill=cat_color, outline="#333333", width=1)
+                
                 lbl = tk.Label(btn_frame, text=cat_name, bg=cat_color, fg=text_fg, font=("Arial", 9, "bold"), anchor="w")
                 lbl.pack(side="left", fill="both", expand=True, padx=(2, 0))
                 btn_frame.bind("<Button-1>", lambda e, n=cat_name: self.on_tab_click(n))
@@ -236,35 +291,42 @@ class SidebarManager:
             return
 
         self.current_dropdown_tab = tab_name
-        self.dropdown_visible = True
         
         # Get category color for border
         color = self.editor.data_manager.palette_color_map.get(tab_name, "#2d2d2d")
         self.dropdown_panel.configure(highlightbackground=color, highlightthickness=2)
         
-        # Use place to overlay the dropdown panel next to the sidebar
-        self.dropdown_panel.place(
-            x=self.SIDEBAR_WIDTH, 
-            y=0, 
-            relheight=1.0, 
-            width=250
-        )
-        self.dropdown_panel.lift() # Ensure it's above the canvas
-        
-        # Render items
-        try:
-            self.render_sidebar_list(tab_name)
-        except Exception as e:
-            print(f"DEBUG: Error rendering list: {e}")
-            import traceback
-            traceback.print_exc()
+        # Render items before animation to ensure content is there
+        self.render_sidebar_list(tab_name)
+
+        # Start animation if not already visible or animating
+        if not self.dropdown_visible:
+            self.dropdown_visible = True
+            self.dropdown_panel.place(
+                x=self.SIDEBAR_WIDTH, 
+                y=0, 
+                relheight=1.0, 
+                width=0 # Start with 0 width
+            )
+            self.dropdown_panel.lift()
+            self._animate_dropdown_width(0, 250) # Animate from 0 to 250
+        else:
+            # Already visible, just update content and ensure full width
+            self.dropdown_panel.place(
+                x=self.SIDEBAR_WIDTH, 
+                y=0, 
+                relheight=1.0, 
+                width=250 # Ensure full width if already open
+            )
 
     def hide_dropdown(self):
         """Hide the dropdown panel."""
+        if not self.dropdown_panel or not self.dropdown_visible:
+            return
+
         self.dropdown_visible = False
         self.current_dropdown_tab = None
-        if self.dropdown_panel:
-            self.dropdown_panel.place_forget()
+        self._animate_dropdown_width(250, 0) # Animate from 250 to 0
 
     def render_sidebar_list(self, tab_name, filter_text=None):
         """Render the block items for a category inside the sidebar list container."""

@@ -277,7 +277,149 @@ class TestCopyPaste(unittest.TestCase):
         new_dy = new_block_b['y'] - new_block_a['y']
         self.assertEqual(new_dy, original_dy, "Relative Y position of chained blocks should be maintained.")
 
+    def test_detach_value_block_from_parent(self):
+        """Test detaching a value block from a parent parameter slot."""
+        # 1. Create a parent block with a 'Number' parameter slot
+        parent_id = "block_1"
+        self.editor.all_blocks[parent_id] = {
+            "id": parent_id,
+            "label": "SetPlayerHealth", "type": "ACTIONS", "category": "ACTIONS",
+            "x": 100, "y": 100, "width": 250, "height": 38,
+            "inputs": {
+                "player": {'block': None, 'type': 'Player'},
+                "amount": {'block': None, 'type': 'Number'}
+            },
+            "canvas_obj": "poly_1", "widgets": []
+        }
+
+        # 2. Create a 'Number' value block
+        value_block_id = "block_2"
+        self.editor.all_blocks[value_block_id] = {
+            "id": value_block_id,
+            "label": "Number", "type": "VALUE", "category": "VALUES",
+            "x": 255, "y": 110, "width": 100, "height": 30,
+            "connection_output": {"x": 255, "y": 120, "type": "value"},
+            "canvas_obj": "poly_2", "widgets": []
+        }
+
+        # 3. Manually "snap" the value block into the parent
+        parent_block = self.editor.all_blocks[parent_id]
+        value_block = self.editor.all_blocks[value_block_id]
+        
+        parent_block['inputs']['amount']['block'] = value_block_id
+        value_block['nested_in_param'] = (parent_id, 'amount')
+
+        # Assert initial snapped state
+        self.assertEqual(parent_block['inputs']['amount']['block'], value_block_id)
+        self.assertEqual(value_block['nested_in_param'], (parent_id, 'amount'))
+
+        # 4. Simulate detachment (this logic is typically in InputHandler or BlockMover)
+        # In BlockEditor._remove_from_parent is called
+        # I will simulate the BlockEditor._remove_from_parent logic here.
+        # This is the actual code from _remove_from_parent that handles nested_in_param
+        nested_in_param = value_block.get("nested_in_param")
+        if nested_in_param:
+            parent_id_from_nested, param_name = nested_in_param
+            if parent_id_from_nested in self.editor.all_blocks:
+                parent = self.editor.all_blocks[parent_id_from_nested]
+                if "inputs" in parent and param_name in parent["inputs"]:
+                    parent["inputs"][param_name]["block"] = None
+        value_block['nested_in_param'] = None
+
+        # 5. Assert detached state
+        self.assertIsNone(parent_block['inputs']['amount']['block'], "Parent 'amount' slot should be cleared after detachment.")
+        self.assertIsNone(value_block['nested_in_param'], "Value block's 'nested_in_param' should be cleared after detachment.")
 
 
-if __name__ == "__main__":
-    unittest.main()
+class TestCopyPaste(unittest.TestCase):
+    """Tests for copy and paste functionality in Block_Editor."""
+
+    def setUp(self):
+        self.root = tk.Tk()
+        self.root.withdraw()
+        self.editor = BlockEditor(self.root)
+        # Clear initial blocks to ensure clean test state
+        self.editor.all_blocks.clear()
+        self.editor.undo_manager.undo_stack.clear()
+        self.editor.undo_manager.redo_stack.clear()
+
+        # Mock winfo methods
+        self.editor.master.winfo_pointerx = lambda: 300
+        self.editor.master.winfo_pointery = lambda: 300
+        self.editor.master.winfo_rootx = lambda: 0
+        self.editor.master.winfo_rooty = lambda: 0
+    
+    def tearDown(self):
+        self.root.destroy()
+
+    def test_nudge_single_block(self):
+        """Test nudging a single selected block."""
+        block_id = self.editor.get_new_block_id()
+        initial_x, initial_y = 100, 100
+        self.editor.all_blocks[block_id] = {
+            "id": block_id, "label": "NudgeMe", "type": "SEQUENCE",
+            "x": initial_x, "y": initial_y, "width": 100, "height": 30,
+            "nested_blocks": [], "canvas_obj": None, "widgets": []
+        }
+        self.editor.selected_block = block_id
+        
+        # Nudge the block
+        dx, dy = 5, -10
+        self.editor.nudge_block(dx, dy)
+        
+        # Assert new position
+        self.assertEqual(self.editor.all_blocks[block_id]['x'], initial_x + dx)
+        self.assertEqual(self.editor.all_blocks[block_id]['y'], initial_y + dy)
+
+        # Assert undo action was recorded
+        self.assertEqual(len(self.editor.undo_manager.undo_stack), 1)
+        action = self.editor.undo_manager.undo_stack[0]
+        self.assertEqual(action['type'], 'move')
+        self.assertEqual(action['block_id'], block_id)
+        self.assertEqual(action['original_pos'], (initial_x, initial_y))
+        self.assertEqual(action['new_pos'], (initial_x + dx, initial_y + dy))
+
+    def test_nudge_chained_blocks(self):
+        """Test nudging a chain of connected blocks."""
+        # 1. Create a chain of two blocks
+        block_a_id = self.editor.get_new_block_id()
+        block_b_id = self.editor.get_new_block_id()
+        initial_a_x, initial_a_y = 100, 100
+        initial_b_x, initial_b_y = 100, 130 # B is 30px below A
+        
+        self.editor.all_blocks[block_a_id] = {
+            "id": block_a_id, "label": "ChainHead", "type": "SEQUENCE",
+            "x": initial_a_x, "y": initial_a_y, "width": 100, "height": 30,
+            "next_block": block_b_id, "previous_block": None,
+            "nested_blocks": [], "canvas_obj": None, "widgets": []
+        }
+        self.editor.all_blocks[block_b_id] = {
+            "id": block_b_id, "label": "ChainChild", "type": "SEQUENCE",
+            "x": initial_b_x, "y": initial_b_y, "width": 100, "height": 30,
+            "next_block": None, "previous_block": block_a_id,
+            "nested_blocks": [], "canvas_obj": None, "widgets": []
+        }
+        self.editor.selected_block = block_a_id
+
+        # Nudge the chain
+        dx, dy = -5, 5
+        self.editor.nudge_block(dx, dy)
+
+        # Assert new positions
+        self.assertEqual(self.editor.all_blocks[block_a_id]['x'], initial_a_x + dx)
+        self.assertEqual(self.editor.all_blocks[block_a_id]['y'], initial_a_y + dy)
+        self.assertEqual(self.editor.all_blocks[block_b_id]['x'], initial_b_x + dx)
+        self.assertEqual(self.editor.all_blocks[block_b_id]['y'], initial_b_y + dy)
+
+        # Assert undo action was recorded for the head block
+        self.assertEqual(len(self.editor.undo_manager.undo_stack), 1)
+        action = self.editor.undo_manager.undo_stack[0]
+        self.assertEqual(action['type'], 'move')
+        self.assertEqual(action['block_id'], block_a_id)
+        self.assertEqual(action['original_pos'], (initial_a_x, initial_a_y))
+        self.assertEqual(action['new_pos'], (initial_a_x + dx, initial_a_y + dy))
+        
+        
+        if __name__ == "__main__":
+            unittest.main()
+        

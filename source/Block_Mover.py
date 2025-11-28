@@ -17,6 +17,108 @@ class BlockMover:
 
     def __init__(self, editor):
         self.editor = editor
+        self._connection_handlers = {
+            "MOD": self._define_mod_connections,
+            "RULES": self._define_rules_connections,
+            "C_OUTER": self._define_rules_connections, # C_OUTER uses same as RULES
+            "SUBROUTINE": self._define_subroutine_connections,
+            "C_SHAPED": self._define_c_shaped_connections,
+            "CONDITIONS": self._define_conditions_connections,
+            "ACTIONS": self._define_actions_connections,
+            "SEQUENCE": self._define_sequence_connections,
+            "EVENTS": self._define_events_connections,
+            "VALUE": self._define_value_connections,
+            "LOGIC": self._define_value_connections,
+            "MATH": self._define_value_connections,
+            "ARRAYS": self._define_value_connections,
+            "PLAYER": self._define_value_connections,
+            "GAMEPLAY": self._define_value_connections,
+            "TRANSFORM": self._define_value_connections,
+        }
+
+    def _define_mod_connections(self, block, x, y, width, height):
+        header_height = 22
+        block["statement_inputs"] = [{
+            "x": x + 22,
+            "y": y + header_height, 
+            "type": "statement", 
+            "accepts": ["RULES", "C_OUTER", "SUBROUTINE"] 
+        }]
+
+    def _define_rules_connections(self, block, x, y, width, height):
+        header_height = 35
+        block["statement_inputs"] = [
+            { "x": x + 40, "y": y + header_height + 5, "type": "statement", "accepts": ["CONDITIONS"] },
+            { "x": x + 40, "y": y + header_height + 45, "type": "statement", "accepts": ["ACTIONS"] }
+        ]
+        block["connection_previous"] = {"x": x + 20, "y": y, "type": "statement"}
+        block["connection_next"] = {"x": x + 20, "y": y + height, "type": "statement", "accepts": ["RULES", "C_OUTER", "SUBROUTINE"]}
+
+    def _define_subroutine_connections(self, block, x, y, width, height):
+        header_height = 45
+        block["statement_inputs"] = [{
+            "x": x + 30, 
+            "y": y + header_height, 
+            "type": "statement", 
+            "accepts": ["ACTIONS", "CONDITIONS", "SEQUENCE", "C_SHAPED"]
+        }]
+        block["connection_previous"] = {"x": x + 20, "y": y, "type": "statement"}
+        block["connection_next"] = {"x": x + 20, "y": y + height, "type": "statement", "accepts": ["RULES", "C_OUTER", "SUBROUTINE"]}
+
+    def _define_c_shaped_connections(self, block, x, y, width, height):
+        header_height = 45
+        block["statement_inputs"] = [{
+            "x": x + 30, 
+            "y": y + header_height, 
+            "type": "statement", 
+            "accepts": ["ACTIONS", "CONDITIONS", "SEQUENCE", "C_SHAPED"]
+        }]
+        block["connection_previous"] = {"x": x + 20, "y": y, "type": "statement"}
+        block["connection_next"] = {"x": x + 20, "y": y + height, "type": "statement", "accepts": ["ACTIONS", "CONDITIONS", "SEQUENCE", "C_SHAPED"]}
+
+    def _define_conditions_connections(self, block, x, y, width, height):
+        header_height = 35
+        block["statement_inputs"] = [{
+            "x": x + 30, 
+            "y": y + header_height, 
+            "type": "statement", 
+            "accepts": ["EVENTS", "LOGIC", "SEQUENCE"]
+        }]
+        block["connection_previous"] = {"x": x + 20, "y": y, "type": "statement"}
+        block["connection_left"] = {"x": x, "y": y + height/2, "type": "horizontal"}
+        block["connection_right"] = {"x": x + width, "y": y + height/2, "type": "horizontal", "accepts": ["CONDITIONS"]}
+        block["connection_next"] = None
+
+    def _define_actions_connections(self, block, x, y, width, height):
+        header_height = 35
+        block["statement_inputs"] = [{
+            "x": x + 30, 
+            "y": y + header_height, 
+            "type": "statement", 
+            "accepts": ["EVENTS", "SEQUENCE"]
+        }]
+        block["connection_previous"] = {"x": x + 20, "y": y, "type": "statement"}
+        block["connection_left"] = {"x": x, "y": y + height/2, "type": "horizontal"}
+        block["connection_right"] = {"x": x + width, "y": y + height/2, "type": "horizontal", "accepts": ["ACTIONS"]}
+        block["connection_next"] = None
+
+    def _define_sequence_connections(self, block, x, y, width, height):
+        block["connection_previous"] = {"x": x + 20, "y": y, "type": "statement"}
+        block["connection_next"] = {"x": x + 20, "y": y + height, "type": "statement", "accepts": ["EVENTS", "SEQUENCE", "ACTIONS", "CONDITIONS"]}
+        
+        # EVENTS, ACTIONS, and CONDITIONS snap horizontally (Left/Right)
+        btype = block.get("type")
+        if btype == "EVENTS" or block.get("category") == "ACTIONS" or block.get("category") == "CONDITIONS" or btype == "CONDITIONS":
+            block["connection_left"] = {"x": x, "y": y + height/2, "type": "horizontal"}
+            block["connection_right"] = {"x": x + width, "y": y + height/2, "type": "horizontal", "accepts": ["EVENTS", "SEQUENCE", "ACTIONS", "CONDITIONS"]}
+            block["connection_next"] = None
+
+    def _define_events_connections(self, block, x, y, width, height):
+        # EVENTS block behave like SEQUENCE but are often horizontal
+        self._define_sequence_connections(block, x, y, width, height)
+
+    def _define_value_connections(self, block, x, y, width, height):
+        block["connection_output"] = {"x": x, "y": y + 10, "type": "value"}
 
     def spawn_block(self, tab_name, action_key=None, position=None):
         """Spawn a new block (by tab/category and optional action_key).

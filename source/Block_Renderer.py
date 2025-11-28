@@ -158,6 +158,43 @@ class BlockRenderer:
             self.canvas.tag_raise(tag)
         self.canvas.tag_raise(f"{block_id} && widget_window")
 
+        # 6. Draw connection wires for nested value blocks
+        self._draw_value_connection_wires(block_id)
+
+    def _draw_value_connection_wires(self, parent_block_id):
+        """
+        Draws visual 'wires' connecting a parent block's parameter slots to
+        any value blocks nested within them.
+        """
+        self.canvas.delete(f"wire_{parent_block_id}") # Clear existing wires for this block
+        
+        parent_block = self.editor.all_blocks.get(parent_block_id)
+        if not parent_block or 'inputs' not in parent_block:
+            return
+
+        for slot_index, (param_name, slot_info) in enumerate(parent_block['inputs'].items()):
+            value_block_id = slot_info.get('block')
+            if value_block_id and value_block_id in self.editor.all_blocks:
+                value_block = self.editor.all_blocks[value_block_id]
+
+                # Calculate start point (from parent's parameter slot)
+                start_x, start_y = self.get_parameter_slot_position(parent_block_id, slot_index)
+                
+                # Calculate end point (to value block's left-side output connection)
+                # This assumes value blocks have their output connection on the left
+                # A good approximation for the output 'notch' location on a value block
+                end_x = value_block['x'] + 5 # Small offset from left edge
+                end_y = value_block['y'] + value_block['height'] / 2
+
+                # Draw a line
+                self.canvas.create_line(
+                    start_x, start_y,
+                    end_x, end_y,
+                    fill="#CCCCCC", # Subtle grey color
+                    width=1,
+                    tags=(f"wire_{parent_block_id}", parent_block_id, "connection_wire")
+                )
+
     def clear_snap_feedback(self):
         """Clears any active snap feedback indicators."""
         self.canvas.delete("snap_feedback")
