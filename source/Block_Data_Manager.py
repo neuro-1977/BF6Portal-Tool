@@ -178,7 +178,7 @@ class BlockDataManager:
                     rule_state_export[k] = v
 
         export_data = {
-            "version": "1.0.5-beta", # Updated version
+            "version": "1.0.6-beta", # Updated version
             "blocks": blocks_export,
             "rule_state": rule_state_export
         }

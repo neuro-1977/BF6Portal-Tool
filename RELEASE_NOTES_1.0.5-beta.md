@@ -1,4 +1,4 @@
-# Release Notes - Version 1.0.5-beta (November 28, 2025)
+# Release Notes - Version 1.0.6-beta (November 29, 2025)
 
 This is a major feature release that significantly improves the core editing experience by introducing a full Undo/Redo system and implementing the critical Value Block Snapping feature.
 

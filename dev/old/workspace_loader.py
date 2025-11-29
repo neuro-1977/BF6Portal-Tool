@@ -1,0 +1,373 @@
+import tkinter as tk
+from editor_helpers import update_code_output
+
+
+def load_blocks_from_json(editor, imported_data):
+    """Move BlockEditor.load_blocks_from_json implementation here.
+
+    This function operates against the provided `editor` instance so the
+    heavy logic lives outside the UI class and can be unit‑tested more
+    easily.
+    """
+    import time
+    try:
+        # -----------------------------------------------------------------
+        # Show loading feedback to user
+        # -----------------------------------------------------------------
+        loading_label = None
+        if hasattr(editor, 'canvas'):
+            loading_label = editor.canvas.create_text(
+                300, 40, text="Loading workspace...", fill="#FFD700", font=("Arial", 20, "bold"), tag="loading_feedback"
+            )
+            editor.canvas.update()
+        # -----------------------------------------------------------------
+        # 1️⃣  Reset the canvas and internal structures
+        # -----------------------------------------------------------------
+        editor.canvas.delete("all")
+        editor.all_blocks.clear()
+        if hasattr(editor, 'placed_panels'):
+            editor.placed_panels.clear()
+
+        # -----------------------------------------------------------------
+        # 2️⃣  Restore rule‑state variables (StringVars and plain values)
+        # -----------------------------------------------------------------
+        rule_state = imported_data.get("rule_state", {})
+        if rule_state:
+            # StringVar based fields
+            for key, tk_var_type in [
+                ("rule_name", tk.StringVar),
+                ("event_type", tk.StringVar),
+            ]:
+                if key in rule_state and key in editor.rule_state:
+                    if isinstance(editor.rule_state[key], tk_var_type):
+                        editor.rule_state[key].set(rule_state[key])
+                    else:
+                        editor.rule_state[key] = rule_state[key]
+
+            # Plain‑value fields
+            for key in [
+                "mod_id",
+                "rule_id",
+                "first_condition_id",
+                "first_action_id",
+            ]:
+                if key in rule_state:
+                    editor.rule_state[key] = rule_state[key]
+
+        # -----------------------------------------------------------------
+        # 3️⃣  Load raw block definitions
+        # -----------------------------------------------------------------
+        imported_blocks_raw = imported_data.get("blocks", {})
+        
+        # Handle Portal-style JSON (list of blocks) vs Editor-style JSON (dict of blocks)
+        is_portal_json = False
+        if "mod" in imported_data and "blocks" in imported_data["mod"]:
+            # Official Portal JSON structure
+            print("Detected Official Portal JSON format")
+            imported_blocks_raw = imported_data["mod"]["blocks"]["blocks"]
+            is_portal_json = True
+        elif isinstance(imported_blocks_raw, list):
+             # List format (could be Portal blocks list directly)
+             is_portal_json = True
+        
+        if not imported_blocks_raw and not is_portal_json:
+             # Try to find blocks in root if "blocks" key is missing
+             # This supports the "Export Workspace" format if it dumps the dict directly
+             if "block_0" in imported_data or any(k.startswith("block_") for k in imported_data.keys()):
+                 imported_blocks_raw = imported_data
+
+        if not imported_blocks_raw:
+            print("Warning: No blocks found in imported JSON.")
+            print(f"Imported data keys: {list(imported_data.keys())}")
+            print(f"Imported data: {imported_data}")
+            if hasattr(editor, 'canvas'):
+                editor.canvas.create_text(
+                    400, 80, text="No blocks found in imported file!", fill="#FF5555", font=("Arial", 16, "bold"), tag="import_error"
+                )
+                editor.canvas.update()
+            if loading_label:
+                editor.canvas.delete(loading_label)
+            return
+
+        if is_portal_json:
+            print(f"Detected Portal JSON. Block count: {len(imported_blocks_raw)}")
+            _import_portal_blocks(editor, imported_blocks_raw)
+            print(f"After import, all_blocks: {list(editor.all_blocks.keys())}")
+            # Skip the standard loading loop below
+        else:
+            # Determine the highest numeric block id so we can continue generating new ones
+            max_id_num = 0
+            for block_id_str in imported_blocks_raw.keys():
+                try:
+                    # Expected format: "block_42" → extract the numeric part
+                    id_num = int(block_id_str.split("_")[1])
+                    if id_num > max_id_num:
+                        max_id_num = id_num
+                except (ValueError, IndexError):
+                    # Silently ignore malformed ids – they simply won’t affect the counter
+                    pass
+            editor.current_id = max_id_num
+
+            # -----------------------------------------------------------------
+            # 4️⃣  First pass – build the internal block dictionaries
+            # -----------------------------------------------------------------
+            for block_id, block_data_from_json in imported_blocks_raw.items():
+                # Start with a direct copy of all serializable data from the JSON
+                new_block_data = block_data_from_json.copy()
+
+                # Re-constitute Tkinter variables from their stored raw values
+                if 'value' in new_block_data and isinstance(new_block_data['value'], str):
+                    new_block_data['value'] = tk.StringVar(value=new_block_data['value'])
+                
+                # Handle legacy 'args' dictionary if it exists
+                if 'args' in new_block_data and isinstance(new_block_data['args'], dict):
+                    new_block_data['args'] = {
+                        k: tk.StringVar(value=v) for k, v in new_block_data['args'].items()
+                    }
+
+                # Ensure UI-specific keys that cannot be serialized are reset
+                new_block_data['canvas_obj'] = None
+                new_block_data['widgets'] = []
+                new_block_data['widget_frame'] = None
+                new_block_data['widget_vars'] = {} # Re-initialize for safety
+
+                # Add the complete block data to the editor's state
+                editor.all_blocks[block_id] = new_block_data
+
+
+        # -----------------------------------------------------------------
+        # 5️⃣  Second pass – draw every block on the canvas and update its
+
+        # -----------------------------------------------------------------
+        # 5️⃣  Second pass – draw every block on the canvas and update its
+        #      visual position
+        # -----------------------------------------------------------------
+        # OPTIMIZATION: Defer updates to prevent UI freeze during massive drawing
+        # Tkinter doesn't have a 'suspend layout' but we can avoid update_idletasks
+        
+        # Batch drawing: Process in chunks to keep UI responsive-ish
+        # For now, just do it all but maybe print progress
+        total_blocks = len(editor.all_blocks)
+        print(f"Drawing {total_blocks} blocks...")
+        
+        count = 0
+        min_x, min_y, max_x, max_y = 99999, 99999, -99999, -99999
+        print(f"Block keys to import: {list(editor.all_blocks.keys())}")
+        for block_id, block in editor.all_blocks.items():
+            print(f"Drawing block: {block_id} at ({block.get('x')},{block.get('y')}) type={block.get('type')} label={block.get('label')}")
+            editor.draw_block(block_id)
+            editor.update_block_position(block_id)
+            # Track min/max positions for canvas sizing
+            bx, by = block.get("x", 0), block.get("y", 0)
+            bw, bh = block.get("width", 0), block.get("height", 0)
+            min_x = min(min_x, bx)
+            min_y = min(min_y, by)
+            max_x = max(max_x, bx + bw)
+            max_y = max(max_y, by + bh)
+            count += 1
+            if count % 50 == 0:
+                # Yield to UI loop every 50 blocks to prevent "Not Responding"
+                editor.master.update()
+        print(f"Imported block positions: min=({min_x},{min_y}) max=({max_x},{max_y})")
+        print(f"Total blocks drawn: {count}")
+        if count == 0:
+            print("WARNING: No blocks were loaded or drawn from the imported file.")
+            if hasattr(editor, 'canvas'):
+                editor.canvas.create_text(
+                    400, 120, text="No blocks were loaded or drawn!", fill="#FF5555", font=("Arial", 16, "bold"), tag="import_error2"
+                )
+                editor.canvas.update()
+
+        # -----------------------------------------------------------------
+        # 6️⃣  Adjust scroll region & scrollbars
+        # -----------------------------------------------------------------
+        # Get bbox of all blocks, but ensure minimum scrollregion for grid visibility
+        # Ensure canvas fits all blocks
+        bbox = editor.canvas.bbox("all")
+        min_width = 5000
+        min_height = 5000
+        # Use calculated min/max if blocks exist
+        if count > 0:
+            actual_width = max(max_x + 100, min_width)
+            actual_height = max(max_y + 100, min_height)
+            editor.canvas.configure(scrollregion=(0, 0, actual_width, actual_height))
+        elif bbox:
+            actual_width = max(bbox[2], min_width)
+            actual_height = max(bbox[3], min_height)
+            editor.canvas.configure(scrollregion=(0, 0, actual_width, actual_height))
+        else:
+            editor.canvas.configure(scrollregion=(0, 0, min_width, min_height))
+        editor.update_scrollbars()
+
+        # -----------------------------------------------------------------
+        # 7️⃣  Refresh the generated code view
+        # -----------------------------------------------------------------
+        editor.update_code_preview()
+
+        # Center view and redraw grid now that scrollregion is properly set
+        try:
+            editor.center_canvas_view()
+        except Exception:
+            pass
+        try:
+            editor.draw_grid()
+        except Exception:
+            pass
+        # Remove loading feedback
+        if loading_label:
+            editor.canvas.delete(loading_label)
+
+    except (KeyError, AttributeError, tk.TclError) as e:
+        # Log the problem but keep the UI responsive; malformed files shouldn't
+        # crash the whole editor.
+        print(f"Error loading workspace: {e}")
+        # The canvas remains cleared – the user can retry with a corrected file.
+
+def _import_portal_blocks(editor, portal_blocks):
+    """
+    Parses official Portal JSON structure and converts it to our internal block format.
+    This is a recursive process as Portal blocks are nested.
+    """
+    print(f"Importing {len(portal_blocks)} root blocks from Portal JSON...")
+    
+    # 1. Build Lookup Map from loaded definitions
+    # This allows us to find the correct Category and Definition for a Portal Type
+    portal_type_map = {}
+    for cat_name, cat_data in editor.data_manager.block_data.items():
+        sub_cats = cat_data.get("sub_categories", {})
+        for sub_name, blocks in sub_cats.items():
+            for block_name, block_def in blocks.items():
+                portal_type_map[block_name] = {
+                    "category": cat_name,
+                    "def": block_def
+                }
+
+    def get_next_id():
+        return editor.get_new_block_id()
+
+
+    # Map Portal type names to internal types
+    portal_type_map_override = {
+        "modBlock": "MOD",
+        "ruleBlock": "RULES",
+        "conditionBlock": "CONDITIONS",
+        "actionBlock": "ACTIONS",
+        "subroutineBlock": "SUBROUTINE",
+    }
+
+    def process_block(block_data, parent_id=None, x=0, y=0, is_value=False):
+        portal_type = block_data.get("type")
+
+        # Map Portal type to internal type
+        my_type = portal_type_map_override.get(portal_type, portal_type)
+        label = portal_type
+        color = editor.data_manager.palette_color_map.get(my_type, "#555555")
+
+        # Lookup definition
+        if my_type in portal_type_map:
+            mapping = portal_type_map[my_type]
+            block_def = mapping["def"]
+            label = block_def.get("label", portal_type)
+            color = editor.data_manager.palette_color_map.get(my_type, "#555555")
+        else:
+            # Heuristic for unknown blocks
+            if is_value:
+                my_type = "VALUE"
+            if "Rule" in portal_type:
+                my_type = "RULES"
+            elif "Event" in portal_type:
+                my_type = "EVENTS"
+            elif "Condition" in portal_type:
+                my_type = "CONDITIONS"
+            elif "Action" in portal_type:
+                my_type = "ACTIONS"
+            # If still not found, mark as unknown visually
+            if portal_type not in portal_type_map:
+                my_type = "UNKNOWN"
+                label = f"Unknown Block: {portal_type}"
+                color = "#FF5555"  # Bright red for unmatched blocks
+
+        # Special handling for specific Portal blocks
+        if portal_type == "ruleBlock":
+            fields = block_data.get("fields", {})
+            label = fields.get("NAME", "New Rule")
+            my_type = "RULES"
+            color = editor.data_manager.palette_color_map.get(my_type, "#555555")
+        elif portal_type == "modBlock":
+            my_type = "MOD"
+            color = editor.data_manager.palette_color_map.get(my_type, "#555555")
+        elif portal_type == "subroutineBlock":
+            fields = block_data.get("fields", {})
+            label = fields.get("SUBROUTINE_NAME", "Subroutine")
+            my_type = "SUBROUTINE"
+            color = editor.data_manager.palette_color_map.get(my_type, "#555555")
+
+        bid = get_next_id()
+
+        # Prepare Args
+        args_dict = {}
+
+        # 1. Process Fields (Literals)
+        fields = block_data.get("fields", {})
+        for f_name, f_val in fields.items():
+            args_dict[f_name] = tk.StringVar(value=str(f_val))
+
+        # 2. Process Inputs (Nested Blocks)
+        inputs = block_data.get("inputs", {})
+        for input_name, input_data in inputs.items():
+            if "block" in input_data:
+                child_block_data = input_data["block"]
+                child_type = child_block_data.get("type")
+                if child_type == "variableReferenceBlock":
+                    var_name = child_block_data.get("fields", {}).get("NAME", "Var")
+                    args_dict[input_name] = tk.StringVar(value=var_name)
+                else:
+                    child_id = process_block(child_block_data, parent_id=bid, x=x+20, y=y+20, is_value=True)
+                    args_dict[input_name] = tk.StringVar(value="...")
+
+        # Create the block entry
+        width = editor.CHILD_BLOCK_WIDTH
+        height = editor.CHILD_BLOCK_HEIGHT
+        if is_value:
+            width = 150
+            height = 30
+        if portal_type in portal_type_map:
+            def_width = portal_type_map[portal_type]["def"].get("width")
+            if def_width:
+                width = def_width
+
+        editor.all_blocks[bid] = {
+            "id": bid,
+            "label": label,
+            "type": my_type,
+            "color": color,
+            "x": block_data.get("x", x),
+            "y": block_data.get("y", y),
+            "width": width,
+            "height": height,
+            "canvas_obj": None,
+            "widgets": [],
+            "parent_id": parent_id,
+            "next_sibling_id": None,
+            "args": args_dict,
+        }
+
+        # Process Next (Sequence)
+        next_block_data = block_data.get("next", {}).get("block")
+        if next_block_data:
+            next_x = x
+            next_y = y + height + 5
+            if my_type in ["CONDITIONS", "ACTIONS"]:
+                next_x = x + width
+                next_y = y
+            next_id = process_block(next_block_data, parent_id=None, x=next_x, y=next_y, is_value=False)
+            editor.all_blocks[bid]["next_sibling_id"] = next_id
+        return bid
+
+    # Process all root blocks
+    # Portal JSON usually has a list of root blocks (Mod, Rules, Subroutines)
+    current_y = 50
+    for block in portal_blocks:
+        process_block(block, x=50, y=current_y)
+        current_y += 150 # Space out root blocks
+

@@ -1,0 +1,45 @@
+# Project History (git summary)
+
+- Initial Release: BF6Portal Tool
+- Initial commit of BF6 Portal Block Editor (Clean Workspace)
+- Update Block Catalog: Complete ARRAY and AI categories
+- Major Visual Overhaul: Portal Style Colors, Flush Blocks, Subroutine Navigation
+- Content Update: Added Missing Logic, Math, and Player Blocks
+- Refactor: Extract Sidebar Logic, TopBarManager, Zoom Controls
+- Refactor: Input Handler, Grid Fix, Icon Support, Dark Title Bar
+- Refactor: Move Grid Drawing to Block_Renderer, Update README, Add Concept Art
+- Refactor: Clean up Block_Editor, fix Sidebar errors, update docs
+- Feat: Add Asset Database, Mockup Generator, and update Git structure
+- Feat: Add PyInstaller build script and refactor path handling
+- Feat: Implement dynamic sidebar styling and populate block definitions
+- Pivot to Web/Blockly interface: Added web_ui, migration tools, and updated docs
+- Added release packaging script and updated gitignore
+- Added Refresh button and Help menu with images to Web UI
+- Made launcher robust: Added error handling and pause on exit
+- Fixed path resolution in launcher to support both dev and release directory structures
+- Updated Toolbox order, colors, and Rule block structure to match Portal UI
+- Added nested categories and search bar to Web UI
+- Implemented functional Search Bar in Web UI
+- Fix: Remove duplicate Logic blocks from Conditions category
+- Fix: Move Rules, Mod, and Subroutine data to subfolders
+- UI: Improve layout with dedicated header bar and search input
+- Cleanup: Remove redundant Search category from Toolbox
+- Refactor: Extract Rule block logic and move JS to main.js
+- Refactor: Extract standard block creation and help loading logic
+- UI: Add Save/Load buttons, darken grid, and spawn default MOD block
+- Backup before major import/export refactor
+- v1.0.4beta: Flatten web UI sidebar, update docs, fix packaging
+- feat: Implement Undo/Redo and Value Block Snapping
+- feat: Enhance editor with Copy/Paste, Nudging, Save/Load and expanded tests
+- feat: Implement UI polish (wires, icons), nudging/complex snapping tests, and BlockMover refactor
+- v1.0.6-beta: Blockly standalone server fix, staged integration, persistent action logging
+- v1.0.6-beta: Update launch scripts for new web UI load order and documentation
+- v1.0.6-beta: Backup updated asset data files for new UI version
+- v1.0.6-beta: Backup all web UI core files for new load order and minimal UI
+- v1.0.6-beta: Backup updated Python launcher for web UI
+- v1.0.6-beta: Add new web UI assets (block_images.js, blockly/, favicon) for full backup
+- v1.0.6-beta: Add remaining new assets and blockly/ directory for full backup
+- v1.0.6-beta: Rename favicon.png to app_logo.png, add placeholder favicon.ico
+- v1.0.6-beta: Add central error/status box to web UI, clean up favicon/logo, move all Tkinter legacy code to old/. Source/ is now web-only. Repo structure is end-user minimal.
+- Fix: Populate Blockly toolbox with categories
+- Fix: Correct Python application launch and restore old Tkinter editor

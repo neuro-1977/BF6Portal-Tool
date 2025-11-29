@@ -1,0 +1,25 @@
+// Quirky ticker messages for splash, archived for reference and reuse
+module.exports = [
+  "Day is a vestigial mode of time measurement based on solar cycles. Not applicable. I didn't get you anything.",
+  "Banana in disk drive error.",
+  "Please insert disk 3. Banana not detected.",
+  "Look behind you! A three-headed monkey!",
+  "Press any key to continue. Where's the 'any' key?",
+  "Recalibrating flux capacitor...",
+  "Swapping the dilithium crystals...",
+  "'Curse your sudden but inevitable betrayal!'",
+  "'Also, I can kill you with my brain.'",
+  "Reticulating splines...",
+  "Monkey Island: Loading grog...",
+  "Cannon Fodder: 'This game is dedicated to all the soldiers who gave their lives in the war against boredom.'",
+  "BF6Portal Tool is actually trying to fix things. Please stand by...",
+  "If this takes too long, blame the server monkeys.",
+  "Did you try turning it off and on again?",
+  "'You can't take the sky from me.'",
+  "Loading... (We swear it's doing something!)",
+  "Gemini and Neuro approve this message.",
+  "Special thanks to ANDY6170 and BattlefieldPortalHub!",
+  "No more rainbow flash. No more green glitch. Just pure portal magic.",
+  "If you can read this, you're awesome!",
+  "Welcome to the BF6Portal Tool!"
+];

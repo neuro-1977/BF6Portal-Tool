@@ -1,0 +1,13 @@
+feat: Implement UI polish (wires, icons), nudging/complex snapping tests, and BlockMover refactor (partial)
+
+This commit further enhances the editor's visual feedback, expands test coverage, and begins a major refactoring effort.
+
+- **Connection Polish (Visual Wires):**
+  - Implemented drawing of visual "wires" connecting nested value blocks to their parent parameter slots for improved clarity.
+- **UI Polish - Category Icons:**
+  - Modified sidebar category buttons to display specific image icons for better visual identification, falling back to block shapes if icons are unavailable.
+- **Expanded Test Coverage:**
+  - Added new unit tests to verify the block nudging functionality.
+  - Added a test for detaching value blocks from parent parameter slots.
+- **Refactoring & Cleanup:**
+  - Started refactoring `source/Block_Mover.py` to use a more modular, dictionary-based dispatch for connection point definitions (partial implementation).

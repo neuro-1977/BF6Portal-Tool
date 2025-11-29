@@ -1,0 +1,1 @@
+This folder contains all BF6Portal neuro_glitch images. Migrated from publish/assets/assets/img/neuro_glitch/ for canonical reference.

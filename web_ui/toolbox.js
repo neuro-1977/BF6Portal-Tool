@@ -1,13 +1,16 @@
+// --- TOOLBOX_CONFIG: Main Blockly Toolbox Configuration ---
+// All top-level categories go here, not nested under 'Other'.
+// (Paste all categories: Logic, Math, Values, Arrays, World, Presentation, Other, etc. as direct children)
+// Example:
+// { kind: 'category', name: 'Logic', ... },
+// { kind: 'category', name: 'Math', ... },
+// ...
+// { kind: 'category', name: 'Other', ... }
+// TODO: Dynamically generate categories/blocks from assets/knowledgebase if needed.
 var TOOLBOX_CONFIG = {
   kind: 'categoryToolbox',
   contents: [
-    // All top-level categories go here, not nested under 'Other'.
-    // (Paste all categories: Logic, Math, Values, Arrays, World, Presentation, Other, etc. as direct children)
-    // Example:
-    // { kind: 'category', name: 'Logic', ... },
-    // { kind: 'category', name: 'Math', ... },
-    // ...
-    // { kind: 'category', name: 'Other', ... }
+    // ...existing categories and blocks...
   ]
 };
               ]

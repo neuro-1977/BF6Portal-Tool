@@ -1,0 +1,1 @@
+This folder contains all BF6Portal icon images. Migrated from publish/assets/assets/img/icons/ for canonical reference.

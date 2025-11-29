@@ -1,44 +1,56 @@
+
 # BF6Portal Tool: Custom Battlefield Portal Block Editor
 
 This project is a modern, custom block-based editor for Battlefield Portal logic, featuring a unique web UI with minimal design and robust Blockly integration. It enables users to visually create, edit, and export Portal logic scripts for Battlefield 2042.
 
 ## Features
 
-- Modern web UI with top bar, left menu placeholder, and large canvas
-- Robust Blockly integration (in progress)
+- Modern web UI with fixed top menu and left sidebar (always on top of Blockly/canvas)
+- Robust, maintainable overlay system (z-index, fixed/absolute positioning for all menus and modals)
+- Clean, dark-themed interface styled after VS Code and Battlefield Portal
 - Import/export of Portal logic scripts
-- Minimal, dark-themed interface
 - Code view and export options
+- Fully refactored and documented HTML/CSS/JS for maintainability
 
 ## Getting Started
 
-1. Run `run_editor.bat` or `run_editor.ps1` to launch the editor.
-2. The web UI will open in your browser.
-3. Use the top bar for About, Save, Load, Code, Export, Import, and Zoom controls.
-4. (When enabled) Drag blocks from the left menu onto the canvas to build your logic.
+
+### VS Code Autoload (Recommended)
+1. **Open the workspace in VS Code** (`BF6Portal Tool.code-workspace`).
+2. The web editor server will auto-launch via the "Launch Web Editor" task.
+3. Your browser should open to [http://localhost:8000](http://localhost:8000) automatically (if supported by your setup).
+4. If the browser does not open, open it manually and go to [http://localhost:8000](http://localhost:8000).
+5. Use the vertical, centered controls for About, Save, Load, Code, Export, Import, Zoom, and Recenter.
+6. (When enabled) Drag blocks from the left menu onto the canvas to build your logic.
+
+#### Troubleshooting Autoload
+- If the server or browser does not start, use the "Start WEBUI" or "Launch Web Editor" task from the VS Code Run/Tasks menu.
+- Ensure your Python environment is activated and requirements are installed.
+- If you see errors in the terminal, check for missing files or permissions.
+
 
 ## UI Overview
 
 ![UI Mockup](docs/ui_mockup.svg)
 
-- **Top Bar:** About, Save, Load, Code, Export, Import, Zoom controls
-- **Left Menu:** Placeholder for block categories (MOD, RULES, ACTIONS, etc.)
-- **Canvas:** Large area for block arrangement
-- **Recenter:** Button to recenter the canvas
+- **Top Menu Bar:** Fixed, always visible, overlays all content (About, Save, Load, Code, Export, Import, Zoom, Recenter)
+- **Left Sidebar:** Fixed, always visible, overlays all content (Categories, Search, Code Menu)
+- **Canvas:** Large area for block arrangement (Blockly engine)
+- **All modals and menus:** Robust overlay (high z-index, fixed/absolute, never hidden by Blockly)
 
 See also: [Concept UI](docs/CONCEPT_UI.svg)
 
 ## Version History
 
 - **1.0.4:** Initial web UI, basic Blockly integration
-- **1.0.5-beta:** Major UI refactor, new load order, updated documentation and mockups, improved separation of DOS, Web UI, and Blockly UI stages. All documentation and UI mockups now reflect the current web UI state and load order. Legacy references removed.
+- **1.0.6-beta:** Blockly standalone server fix, staged integration, and persistent action logging. All documentation and UI mockups now reflect the current web UI state and load order. Legacy references removed.
 
 ## Documentation
 
 See the `docs/` folder for:
 - `CONCEPT_UI.svg`: Conceptual UI layout (matches current web UI)
 - `ui_mockup.svg`: UI mockup matching the current web UI
-- `MAIN_CONCEPT.md`, `SIDEBAR_LAYOUT.md`, `SNAP_LOGIC.md`: Detailed documentation (all updated for v1.0.5-beta)
+- `MAIN_CONCEPT.md`, `SIDEBAR_LAYOUT.md`, `SNAP_LOGIC.md`: Detailed documentation (all updated for v1.0.6-beta)
 
 ## License
 
@@ -72,7 +84,8 @@ python .\source\Block_Editor.py
 The project is organized into modular components:
 
 - **`web_ui/`**: **(NEW)** The new Web/Blockly frontend.
-  - `index.html`: Main editor entry point.
+  - `index.html`: Main editor entry point. Fixed top menu, fixed left sidebar, robust overlay for all menus/modals. All markup and comments refactored for clarity and maintainability.
+  - `main.js`: Handles all menu/modal logic, sidebar/category selection, and robust overlay.
   - `definitions.js`: Generated block definitions.
   - `toolbox.js`: Generated sidebar configuration.
 
@@ -97,7 +110,7 @@ The project is organized into modular components:
 ## Usage
 
 ### Creating Blocks
-1. Click category buttons (MOD, RULES, CONDITIONS, ACTIONS, EVENTS) in the sidebar
+1. Click category buttons (MOD, RULES, CONDITIONS, ACTIONS, EVENTS) in the sidebar or use the vertical controls.
 2. **Single-click** a menu item to spawn a block at the center of the view
 
 ### Moving Blocks

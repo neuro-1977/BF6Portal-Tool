@@ -1,0 +1,17 @@
+This is a placeholder for the official Blockly media assets.
+
+To fully enable Blockly, copy the following files from the official Blockly distribution (https://github.com/google/blockly/tree/master/media) into this directory:
+
+- sprites.png
+- handopen.cur
+- handclosed.cur
+- click.mp3
+- click.ogg
+- delete.mp3
+- delete.ogg
+- 1x1.gif
+- and any other files present in the official media/ directory
+
+If you see missing icons, cursors, or sounds in the editor, ensure all these files are present.
+
+Last checked: 2025-11-29

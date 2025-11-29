@@ -1,5 +1,59 @@
+// --- Sidebar Code Menu Button Logic (Export, Import, Settings) ---
+document.addEventListener('DOMContentLoaded', function() {
+  const codeBtns = document.querySelectorAll('.sidebar-code-btn');
+  if (!codeBtns.length) return;
+  // Order: Export, Import, Settings
+  const [exportBtn, importBtn, settingsBtn] = codeBtns;
+  if (exportBtn) exportBtn.onclick = function() {
+    // Trigger export (same as top Export .ts button)
+    const topExport = document.getElementById('exportTsBtn');
+    if (topExport) topExport.click();
+  };
+  if (importBtn) importBtn.onclick = function() {
+    // Trigger import (same as top Import .tscn button)
+    const topImport = document.getElementById('importTscnBtn');
+    if (topImport) topImport.click();
+  };
+  if (settingsBtn) settingsBtn.onclick = function() {
+    alert('Settings menu coming soon!');
+  };
+});
+// --- Sidebar Category Selection Logic ---
+document.addEventListener('DOMContentLoaded', function() {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  const cats = Array.from(document.querySelectorAll('.sidebar-category'));
+  cats.forEach(cat => {
+    cat.addEventListener('click', function() {
+      cats.forEach(c => c.classList.remove('selected'));
+      cat.classList.add('selected');
+      // TODO: Populate block palette/toolbox for this category
+    });
+  });
+  // Select first by default
+  if (cats.length) cats[0].classList.add('selected');
+
+  // Sidebar search stub (to be implemented)
+  const search = document.getElementById('sidebarSearch');
+  if (search) {
+    search.addEventListener('input', function(e) {
+      // TODO: Filter categories or blocks
+    });
+  }
+});
 // --- Central Error/Status Box Helper ---
 function showErrorBox(title, messages, dismissable) {
+  // Also show error in splashErrorFrame if present
+  const splashErrorFrame = document.getElementById('splashErrorFrame');
+  if (splashErrorFrame) {
+    if (!messages || (Array.isArray(messages) && messages.length === 0)) {
+      splashErrorFrame.innerHTML = '';
+    } else {
+      splashErrorFrame.innerHTML = (Array.isArray(messages) ? messages : [messages])
+        .map(m => `<div>${m}</div>`).join('');
+    }
+  }
+  // Legacy error box logic (for non-splash errors)
   const box = document.getElementById('errorBox');
   const boxTitle = document.getElementById('errorBoxTitle');
   const boxMessages = document.getElementById('errorBoxMessages');
@@ -53,18 +107,135 @@ function checkUIHealth() {
 
 // Start keep-alive and health check on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
+        // Diagnostics for animated loading bar
+        const animatedLoadingBarAnim = document.getElementById('animatedLoadingBarAnim');
+        if (animatedLoadingBarAnim) {
+          console.log('[ANIMATED LOADING BAR] Element found:', animatedLoadingBarAnim);
+        } else {
+          console.warn('[ANIMATED LOADING BAR] animatedLoadingBarAnim element NOT found');
+        }
+        // Diagnostics for ticker
+        const splashTicker = document.getElementById('splashTicker');
+        const quirkyTickerComments = [
+          "Day is a vestigial mode of time measurement based on solar cycles. Not applicable. I didn't get you anything.",
+          "Banana in disk drive error.",
+          "Welcome to the BF6Portal Tool!",
+          "Please insert disk 3. Banana not detected.",
+          "Look behind you! A three-headed monkey!",
+          "Press any key to continue. Where's the 'any' key?",
+          "Recalibrating flux capacitor...",
+          "Swapping the dilithium crystals...",
+          "'Curse your sudden but inevitable betrayal!'",
+          "'Also, I can kill you with my brain.'",
+          "Reticulating splines...",
+          "Monkey Island: Loading grog...",
+          "Cannon Fodder: 'This game is dedicated to all the soldiers who gave their lives in the war against boredom.'",
+          "BF6Portal Tool is actually trying to fix things. Please stand by...",
+          "If this takes too long, blame the server monkeys.",
+          "Did you try turning it off and on again?",
+          "'You can't take the sky from me.'",
+          "Loading... (We swear it's doing something!)",
+          "Gemini and Neuro approve this message.",
+          "Special thanks to ANDY6170 and BattlefieldPortalHub!",
+          "No more rainbow flash. No more green glitch. Just pure portal magic.",
+          "If you can read this, you're awesome!"
+        ];
+        window._tickerIndex = window._tickerIndex || 0;
+        function cycleTickerMsg() {
+          if (splashTicker) {
+            splashTicker.style.display = 'block';
+            splashTicker.style.opacity = '1';
+            splashTicker.textContent = quirkyTickerComments[window._tickerIndex % quirkyTickerComments.length];
+            console.log('[TICKER] Set to:', splashTicker.textContent);
+            window._tickerIndex++;
+          } else {
+            console.warn('[TICKER] splashTicker element NOT found at cycleTickerMsg');
+          }
+        }
+        if (splashTicker) {
+          setTimeout(() => {
+            cycleTickerMsg();
+            setInterval(cycleTickerMsg, 12000);
+          }, 100);
+        } else {
+          // Fallback: try again after a short delay
+          setTimeout(() => {
+            const splashTickerRetry = document.getElementById('splashTicker');
+            if (splashTickerRetry) {
+              splashTickerRetry.style.display = 'block';
+              splashTickerRetry.style.opacity = '1';
+              splashTickerRetry.textContent = 'Welcome to the BF6Portal Tool!';
+              console.warn('[TICKER] splashTicker element found on retry, fallback message set.');
+            } else {
+              console.error('[TICKER] splashTicker element NOT found after retry.');
+            }
+          }, 500);
+        }
+    // Animated loading bar notch state logic
+    const notch1 = document.getElementById('notch1');
+    const notch2 = document.getElementById('notch2');
+    const notch3 = document.getElementById('notch3');
+    function setNotchState(state) {
+      // state: 1=webui, 2=blockly loading, 3=final checks
+      if (notch1) notch1.style.opacity = (state >= 1) ? '1' : '0.4';
+      if (notch2) notch2.style.opacity = (state >= 2) ? '1' : '0.4';
+      if (notch3) notch3.style.opacity = (state >= 3) ? '1' : '0.4';
+      // Move animated loading bar to correct notch
+      if (animatedLoadingBarAnim) {
+        // Let CSS animation handle movement for splash loading bar
+        // Optionally, you could disable animation and set left for final state if needed
+      }
+    }
+    // Initial state: web UI loaded
+    setNotchState(1);
+
+    // --- Splash Ticker: Show quirky message in splashTicker only ---
+    // (Handled above, removed duplicate logic)
   // DIAGNOSTIC: Log TOOLBOX_CONFIG before Blockly.inject
   console.log('[DIAG] TOOLBOX_CONFIG at inject time:', typeof TOOLBOX_CONFIG, TOOLBOX_CONFIG);
+  // Check for Blockly media assets (now in vendor/blockly/media)
+  fetch('../vendor/blockly/media/sprites.png', {method: 'HEAD'}).then(resp => {
+    if (!resp.ok) {
+      showErrorBox('BLOCKLY MEDIA MISSING', [
+        'The Blockly media directory is missing or incomplete.',
+        'Some icons, cursors, or sounds may not display correctly.',
+        'To fix: Copy the full contents of the official Blockly media/ directory to vendor/blockly/media/'
+      ], true);
+    }
+  }).catch(() => {
+    showErrorBox('BLOCKLY MEDIA MISSING', [
+      'The Blockly media directory is missing or incomplete.',
+      'Some icons, cursors, or sounds may not display correctly.',
+      'To fix: Copy the full contents of the official Blockly media/ directory to vendor/blockly/media/'
+    ], true);
+  });
+  // --- Splash Ticker: Ensure it is visible and cycles before Blockly loads ---
+  // (Handled above, removed duplicate logic)
   // Recenter button functionality
   var recenterBtn = document.getElementById('recenterBtn');
   // --- Minimal Blockly Injection ---
   try {
+      // When Blockly starts loading, set notch 2
+      setNotchState(2);
+    // Robust diagnostics for Blockly and toolbox
+    if (typeof Blockly === 'undefined') {
+      showErrorBox('PORTAL ERROR', ['Blockly is not loaded. Check that blockly.min.js is present and not blocked.'], true);
+      document.getElementById('splashScreen').style.display = 'flex';
+      document.getElementById('blocklyDiv').style.display = 'none';
+      return;
+    }
+    if (typeof TOOLBOX_CONFIG === 'undefined' || !TOOLBOX_CONFIG.contents || TOOLBOX_CONFIG.contents.length === 0) {
+      showErrorBox('PORTAL ERROR', ['TOOLBOX_CONFIG is missing or empty. Check toolbox.js.'], true);
+      document.getElementById('splashScreen').style.display = 'flex';
+      document.getElementById('blocklyDiv').style.display = 'none';
+      return;
+    }
     // Only inject Blockly ONCE, with correct config and trashcan disabled
     if (window.workspace && window.workspace.dispose) {
       window.workspace.dispose();
     }
     window.workspace = Blockly.inject('blocklyDiv', {
-      toolbox: typeof TOOLBOX_CONFIG !== 'undefined' ? TOOLBOX_CONFIG : undefined,
+      toolbox: TOOLBOX_CONFIG,
       theme: Blockly.Themes.Dark,
       renderer: 'geras',
       zoom: {
@@ -83,20 +254,21 @@ document.addEventListener('DOMContentLoaded', function() {
       },
       trashcan: false
     });
-    // --- DIAGNOSTIC: Check for toolbox div ---
     setTimeout(function() {
       var toolboxDiv = document.querySelector('.blocklyToolboxDiv');
       if (!toolboxDiv) {
         console.error('[DIAG] .blocklyToolboxDiv NOT FOUND after Blockly injection!');
         showErrorBox('PORTAL ERROR', ['Toolbox missing! (.blocklyToolboxDiv not found)', 'Try reloading the page or reporting this issue.'], true);
+        document.getElementById('splashScreen').style.display = 'flex';
+        document.getElementById('blocklyDiv').style.display = 'none';
       } else {
         console.log('[DIAG] .blocklyToolboxDiv FOUND after Blockly injection.');
         toolboxDiv.style.outline = '3px solid #4fc3f7';
         toolboxDiv.style.boxShadow = '0 0 16px 4px #4fc3f7cc';
+        document.getElementById('splashScreen').style.display = 'none';
+        document.getElementById('blocklyDiv').style.display = 'block';
       }
     }, 800);
-    document.getElementById('splashScreen').style.display = 'none';
-    document.getElementById('blocklyDiv').style.display = 'block';
     if (recenterBtn) {
       recenterBtn.addEventListener('click', function() {
         if (window.workspace) {
@@ -106,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     // Restore right-click context menu
     window.workspace.configureContextMenu && window.workspace.configureContextMenu();
-    // Save/Load/Export/Import/About button handlers
+    // Save/Load/Export/Import/About button handlers (unchanged)
     document.getElementById('saveBtn').onclick = function() {
       var state = Blockly.serialization.workspaces.save(window.workspace);
       var jsonText = JSON.stringify(state, null, 2);
@@ -209,18 +381,18 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   } catch (e) {
+    showErrorBox('PORTAL ERROR', ['Critical Error: Blockly failed to initialize.', e.message], true);
     document.getElementById('splashScreen').style.display = 'flex';
     document.getElementById('blocklyDiv').style.display = 'none';
-    const splashError = document.getElementById('splashError');
-    if (splashError) splashError.innerHTML = 'Critical Error: Blockly failed to initialize.<br>' + e.message;
     console.error('[BF6Portal] Blockly injection failed:', e);
     return;
   }
-    // --- Splash Screen Loading Messages (legacy, can be removed if not needed) ---
+    // --- Splash Screen Ticker with Quirky Comments ---
+    const splashTicker = document.getElementById('splashTicker');
     const splashMsg = document.getElementById('splashMsg');
     const splashError = document.getElementById('splashError');
-    const wittyMessages = [
-      "Loading... (Zoom zoom!)",
+    const quirkyTickerComments = [
+      "Welcome to the BF6Portal Tool!",
       "Please insert disk 3. Banana not detected.",
       "Look behind you! A three-headed monkey!",
       "Press any key to continue. Where's the 'any' key?",
@@ -228,7 +400,6 @@ document.addEventListener('DOMContentLoaded', function() {
       "Swapping the dilithium crystals...",
       "'Curse your sudden but inevitable betrayal!'",
       "'Also, I can kill you with my brain.'",
-      "'The term 'day' is a vestigial mode of time measurement based on solar cycles. It's not applicable.'",
       "Reticulating splines...",
       "Monkey Island: Loading grog...",
       "Cannon Fodder: 'This game is dedicated to all the soldiers who gave their lives in the war against boredom.'",
@@ -236,15 +407,21 @@ document.addEventListener('DOMContentLoaded', function() {
       "If this takes too long, blame the server monkeys.",
       "Did you try turning it off and on again?",
       "'You can't take the sky from me.'",
-      "Loading... (We swear it's doing something!)"
+      "Loading... (We swear it's doing something!)",
+      "Gemini and Neuro approve this message.",
+      "Special thanks to ANDY6170 and BattlefieldPortalHub!",
+      "No more rainbow flash. No more green glitch. Just pure portal magic.",
+      "If you can read this, you're awesome!"
     ];
-    let wittyIndex = 0;
-    function cycleWittyMsg() {
-      if (splashMsg) splashMsg.innerHTML = wittyMessages[wittyIndex % wittyMessages.length];
-      wittyIndex++;
+    let tickerIndex = 0;
+    function cycleTickerMsg() {
+      if (splashTicker) splashTicker.textContent = quirkyTickerComments[tickerIndex % quirkyTickerComments.length];
+      tickerIndex++;
     }
-    cycleWittyMsg();
-    setInterval(cycleWittyMsg, 20000);
+    cycleTickerMsg();
+    setInterval(cycleTickerMsg, 12000);
+    // Optionally, clear splashMsg (no witty comments here)
+    if (splashMsg) splashMsg.textContent = '';
 
     // --- Splash Error Display Helper ---
     window.showSplashError = function(msgs) {
@@ -279,6 +456,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Wait for Blockly and UI to be ready, or show error after 5s
   let blocklyReady = false;
+    // When final checks complete, set notch 3
+    setNotchState(3);
   function tryReady() {
     console.log('[BF6Portal] Checking for Blockly:', typeof Blockly);
     if (typeof Blockly !== 'undefined' && document.getElementById('blocklyDiv')) {

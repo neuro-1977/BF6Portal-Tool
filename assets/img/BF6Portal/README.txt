@@ -1,0 +1,1 @@
+This folder contains all BF6Portal block images, UI art, and related graphics. Migrated from publish/assets/assets/img/BF6Portal/ for canonical reference.

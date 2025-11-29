@@ -1,0 +1,1 @@
+This folder contains all BF6Portal screenshots. Migrated from dev/assets/img/screenshots/ and publish/assets/assets/img/screenshots/ for canonical reference.

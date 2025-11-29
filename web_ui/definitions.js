@@ -1,3 +1,8 @@
+
+// --- definitions.js: Auto-Generated Blockly Block Definitions ---
+// This file is generated from assets/ JSON and should not be hand-edited.
+// To update, run the appropriate tool/script in tools/.
+
 Blockly.defineBlocksWithJsonArray(
 [
 
