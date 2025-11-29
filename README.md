@@ -1,56 +1,48 @@
-# Version 1.0.4beta (2025-11-27)
+# BF6Portal Tool: Custom Battlefield Portal Block Editor
 
-- Web UI sidebar/toolbox is now always expanded and flat, matching the official Portal system. All categories/blocks are visible under group headers, no nested categories.
-- Packaging improvements: PyInstaller spec updated to include all modules and assets, preventing missing module errors in the executable.
+This project is a modern, custom block-based editor for Battlefield Portal logic, featuring a unique web UI with minimal design and robust Blockly integration. It enables users to visually create, edit, and export Portal logic scripts for Battlefield 2042.
 
-# BF6 Portal-Tool
+## Features
+
+- Modern web UI with top bar, left menu placeholder, and large canvas
+- Robust Blockly integration (in progress)
+- Import/export of Portal logic scripts
+- Minimal, dark-themed interface
+- Code view and export options
+
+## Getting Started
+
+1. Run `run_editor.bat` or `run_editor.ps1` to launch the editor.
+2. The web UI will open in your browser.
+3. Use the top bar for About, Save, Load, Code, Export, Import, and Zoom controls.
+4. (When enabled) Drag blocks from the left menu onto the canvas to build your logic.
+
+## UI Overview
 
 ![UI Mockup](docs/ui_mockup.svg)
 
-Visual block editor for building Battlefield Portal scripts.
+- **Top Bar:** About, Save, Load, Code, Export, Import, Zoom controls
+- **Left Menu:** Placeholder for block categories (MOD, RULES, ACTIONS, etc.)
+- **Canvas:** Large area for block arrangement
+- **Recenter:** Button to recenter the canvas
 
-> **NOTICE (Nov 2025)**: This project is transitioning from a Python/Tkinter desktop app to a **Web-based Google Blockly interface**. The Python app (`source/Block_Editor.py`) is now considered legacy.
+See also: [Concept UI](docs/CONCEPT_UI.svg)
 
-## Testing & Refresh Instructions
+## Version History
 
-**When to restart or refresh:**
+- **1.0.4:** Initial web UI, basic Blockly integration
+- **1.0.5-beta:** Major UI refactor, new load order, updated documentation and mockups, improved separation of DOS, Web UI, and Blockly UI stages. All documentation and UI mockups now reflect the current web UI state and load order. Legacy references removed.
 
-- **If you change Python source code** (in `source/`):
-  - **Restart the Python application** (close and re-run the editor) to ensure all code changes are loaded.
-- **If you only change assets or block data** (in `assets/`):
-  - You can usually just re-import your workspace or refresh the UI.
-- **If you are using the web/Blockly version**:
-  - **Refresh your browser** to load the latest frontend code.
-  - If you change backend code, restart the backend server as well.
+## Documentation
 
-**To avoid errors with old files:**
-- Always re-import your workspace after making code changes.
-- If you see unexpected behavior, try resetting the workspace and re-importing your file.
-- If you get errors, check the console/log for details and ensure you are not using an outdated or incompatible file format.
+See the `docs/` folder for:
+- `CONCEPT_UI.svg`: Conceptual UI layout (matches current web UI)
+- `ui_mockup.svg`: UI mockup matching the current web UI
+- `MAIN_CONCEPT.md`, `SIDEBAR_LAYOUT.md`, `SNAP_LOGIC.md`: Detailed documentation (all updated for v1.0.5-beta)
 
-**Summary Table:**
+## License
 
-| Change Type         | Action Required                |
-|---------------------|-------------------------------|
-| Python code change  | Restart the app/editor        |
-| Asset/data change   | Re-import or refresh UI       |
-| Web UI/frontend     | Refresh browser               |
-| Backend/server      | Restart backend, refresh page |
-| Import old file     | Re-import after restart       |
-
-If in doubt, restart the app and re-import your workspace for a clean test.
-
-## Quick Start (New Web Editor)
-
-1. **Run the Launcher**:
-   ```powershell
-   python tools/launch_blockly.py
-   ```
-2. **Browser**: The editor will open automatically at `http://localhost:8000`.
-
-## Legacy Quick Start (Python/Tkinter)
-
-**PowerShell:**
+This project is licensed under the MIT License.
 
 ```powershell
 # Create and activate a virtualenv

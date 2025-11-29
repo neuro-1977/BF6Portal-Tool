@@ -1,56 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
     <!-- Background -->
-    <rect width="100%" height="100%" fill="#1e1e1e"/>
-    
-    <!-- Sidebar -->
-    <rect width="200" height="600" fill="#252526"/>
-    
-    <!-- Sidebar Header -->
-    <text x="20" y="30" fill="white" font-family="Arial" font-size="20" font-weight="bold">Portal Editor</text>
-    
-    <!-- Categories -->
-    <g transform="translate(10, 60)">
+    <rect width="800" height="600" fill="#181a1b"/>
 
-        <rect y="0" width="180" height="30" rx="4" ry="4" fill="#7E3F96"/>
-        <text x="10" y="20" fill="white" font-family="Arial" font-size="12" font-weight="bold">RULES</text>
-        
-        <rect y="40" width="180" height="30" rx="4" ry="4" fill="#4A4A4A"/>
-        <text x="10" y="60" fill="white" font-family="Arial" font-size="12" font-weight="bold">MOD</text>
-        
-        <rect y="80" width="180" height="30" rx="4" ry="4" fill="#4CAF50"/>
-        <text x="10" y="100" fill="white" font-family="Arial" font-size="12" font-weight="bold">LOGIC</text>
-        
-        <rect y="120" width="180" height="30" rx="4" ry="4" fill="#795548"/>
-        <text x="10" y="140" fill="white" font-family="Arial" font-size="12" font-weight="bold">MATH</text>
-        
-        <rect y="160" width="180" height="30" rx="4" ry="4" fill="#C62828"/>
-        <text x="10" y="180" fill="white" font-family="Arial" font-size="12" font-weight="bold">ACTIONS</text>
-        
-    </g>
+    <!-- Top Bar -->
+    <rect x="0" y="0" width="800" height="44" fill="#23272e" />
+    <text x="20" y="28" font-family="Segoe UI" font-size="20" fill="#b0e0ff" font-weight="bold">BF6Portal Tool</text>
+    <!-- Top Bar Buttons -->
+    <rect x="120" y="10" width="60" height="24" fill="#23272e" rx="4" stroke="#4fc3f7" stroke-width="1" />
+    <text x="130" y="28" font-family="Segoe UI" font-size="13" fill="#4fc3f7">About</text>
+    <rect x="190" y="10" width="60" height="24" fill="#007acc" rx="4" />
+    <text x="200" y="28" font-family="Segoe UI" font-size="13" fill="#fff">Save</text>
+    <rect x="260" y="10" width="60" height="24" fill="#333" rx="4" stroke="#555" stroke-width="1" />
+    <text x="270" y="28" font-family="Segoe UI" font-size="13" fill="#fff">Load</text>
+    <rect x="330" y="10" width="60" height="24" fill="#333" rx="4" stroke="#555" stroke-width="1" />
+    <text x="340" y="28" font-family="Segoe UI" font-size="13" fill="#fff">Code</text>
+    <rect x="400" y="10" width="60" height="24" fill="#4fc3f7" rx="4" />
+    <text x="410" y="28" font-family="Segoe UI" font-size="13" fill="#181a1b">Export</text>
+    <rect x="470" y="10" width="60" height="24" fill="#4fc3f7" rx="4" />
+    <text x="480" y="28" font-family="Segoe UI" font-size="13" fill="#181a1b">Import</text>
+    <!-- Zoom -->
+    <rect x="540" y="10" width="80" height="24" fill="#23272e" rx="4" />
+    <text x="550" y="28" font-family="Segoe UI" font-size="13" fill="#aaa">Zoom</text>
+    <rect x="600" y="18" width="60" height="8" fill="#4fc3f7" rx="4" />
+    <text x="670" y="28" font-family="Segoe UI" font-size="13" fill="#aaa">75%</text>
+
+    <!-- Sidebar Placeholder -->
+    <rect x="0" y="44" width="220" height="556" fill="#23272e" />
+    <text x="30" y="80" font-family="Segoe UI" font-size="18" fill="#444">[Left Menu Placeholder]</text>
 
     <!-- Canvas Area -->
-    <rect x="200" width="600" height="600" fill="#1e1e1e"/>
-    
-    <!-- Grid Pattern -->
-    <defs>
-        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#333333" stroke-width="1"/>
-        </pattern>
-    </defs>
-    <rect x="200" width="600" height="600" fill="url(#grid)"/>
+    <rect x="220" y="44" width="580" height="556" fill="#181a1b" />
 
-    <!-- Example Blocks -->
-    <g transform="translate(250, 50)">
-        <!-- Rule Block -->
-        <rect width="300" height="40" rx="4" ry="4" fill="#7E3F96" stroke="#000" stroke-width="1"/>
-        <text x="10" y="25" fill="white" font-family="Arial" font-size="14" font-weight="bold">RULE: Game Mode Logic</text>
-        
-        <!-- Condition Block -->
-        <rect y="50" width="200" height="30" rx="4" ry="4" fill="#0277BD" stroke="#000" stroke-width="1"/>
-        <text x="10" y="70" fill="white" font-family="Arial" font-size="12">CONDITION: IsGameRunning</text>
-        
-        <!-- Action Block -->
-        <rect y="90" width="200" height="30" rx="4" ry="4" fill="#C62828" stroke="#000" stroke-width="1"/>
-        <text x="10" y="110" fill="white" font-family="Arial" font-size="12">ACTION: EndGame</text>
-    </g>
+    <!-- Recenter Button -->
+    <circle cx="510" cy="80" r="22" fill="#23272e" stroke="#888" stroke-width="2.5" />
+    <line x1="510" y1="62" x2="510" y2="98" stroke="#aaa" stroke-width="2" />
+    <line x1="492" y1="80" x2="528" y2="80" stroke="#aaa" stroke-width="2" />
 </svg>

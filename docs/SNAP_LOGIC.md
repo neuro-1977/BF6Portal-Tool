@@ -1,62 +1,20 @@
-# Block Snapping Logic
+# Snap Logic (v1.0.5-beta)
 
-This document describes how blocks snap together in the BF6 Portal Block Editor.
+The BF6Portal Tool web UI is designed to use snap logic for block connections and alignment on the canvas, leveraging Blockly's built-in snapping system with custom enhancements (pending full restoration).
 
-## Overview
+## How Snapping Will Work
 
-Blocks snap together using colored snap points that indicate what types of blocks can connect. The color of a snap point matches the color of the block type that can snap to it.
+- Blocks can be dragged and snapped to compatible connection points (when enabled)
+- The canvas grid will help align blocks
+- The recenter button recenters the canvas
 
-## Snap Point Locations
+## UI Reference
 
-### MOD Block (Grey C-shape)
-- **Purple snap point** on left bar, below "MOD:" label
-- **Purpose**: RULES blocks snap here
+See [CONCEPT_UI.svg](CONCEPT_UI.svg) and [ui_mockup.svg](ui_mockup.svg) for updated visual references.
 
-### RULES Block (Purple W-shape)
-On the left bar, from top to bottom:
-1. **Blue snap point** - CONDITIONS blocks snap here
-2. **Yellow snap point** - ACTIONS blocks snap here  
-3. **Brown snap point** (next to yellow) - SUBROUTINE blocks snap here
+## Version 1.0.5-beta Note
 
-### CONDITIONS Block (Blue rounded)
-- **Green snap point** in center bottom
-- **Purpose**: EVENTS blocks snap here
-
-### ACTIONS Block (Yellow/Orange notched)
-- **3 Green snap points** horizontally inside the block, after the label text
-- **Purpose**: EVENTS blocks snap here (up to 3 events per action)
-- **Note**: Block will resize dynamically to accommodate more events
-
-### EVENTS Block (Green rounded)
-- **No snap points** - EVENTS are endpoints that only snap TO other blocks
-
-## Snap Rules
-
-### RULES → MOD
-- RULES blocks can **only** snap to MOD blocks
-- Snap to the **purple** snap point on MOD's left bar
-- Can be unsnapped while keeping grouped children
-
-### CONDITIONS → RULES
-- CONDITIONS blocks can **only** snap to RULES blocks
-- Snap to the **blue** snap point on RULES' left bar
-
-### ACTIONS → RULES  
-- ACTIONS blocks can **only** snap to RULES blocks
-- Snap to the **yellow** snap point on RULES' left bar
-
-### SUBROUTINE → RULES
-- SUBROUTINE blocks can snap to RULES blocks
-- Snap to the **brown** snap point on RULES' left bar (next to yellow)
-- Can also snap to MOD blocks as a fallback
-
-### EVENTS → CONDITIONS or ACTIONS
-- EVENTS blocks can snap to CONDITIONS or ACTIONS blocks
-- Snap to **green** snap points
-- CONDITIONS: 1 green snap point in center
-- ACTIONS: 3 green snap points horizontally spaced
-
-## Visual Feedback
+Snap logic and block connections are pending full restoration of Blockly integration. The current UI reflects the new load order and layout, but snapping is not yet enabled.
 
 ### Hover Effects
 - When you hover over a snap point, it lights up with a lighter shade of its color
