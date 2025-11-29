@@ -33,11 +33,20 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def translate_path(self, path):
         # Handle /assets/ request by mapping to the actual assets directory
         if path.startswith("/assets/"):
-            path = path[len("/assets/"):]
+            path = path[len("/assets/") :]
             return os.path.join(ASSETS_DIR, path)
         return super().translate_path(path)
 
+    def guess_type(self, path):
+        # Force correct MIME type for .js files
+        if path.endswith('.js'):
+            return 'application/javascript'
+        return super().guess_type(path)
+
 def main():
+    print(f"[DIAG] Running script: {__file__}")
+    import os
+    print(f"[DIAG] Current working directory: {os.getcwd()}")
     try:
         # Verify directories exist
         if not os.path.exists(WEB_DIR):
@@ -48,22 +57,34 @@ def main():
 
         # Change to web directory so serving works correctly
         os.chdir(WEB_DIR)
-        
+
         # Allow port reuse to prevent "Address already in use" errors
         socketserver.TCPServer.allow_reuse_address = True
-        
+
         with socketserver.TCPServer(("", PORT), Handler) as httpd:
             print(f"Serving at http://localhost:{PORT}")
             print("Press Ctrl+C to stop.")
-            
             # Open browser automatically
             webbrowser.open(f"http://localhost:{PORT}")
-            
+            print("[DIAG] About to call serve_forever()...")
             try:
                 httpd.serve_forever()
+                print("[DIAG] serve_forever() exited normally (unexpected)")
             except KeyboardInterrupt:
                 print("\nStopping server...")
                 httpd.server_close()
+            except Exception as e:
+                print(f"[DIAG] Exception in serve_forever: {e}")
+                import traceback
+                traceback.print_exc()
+                httpd.server_close()
+            print("[DIAG] After serve_forever() block")
+    except Exception as e:
+        print(f"\nAn error occurred: {e}")
+        import traceback
+        traceback.print_exc()
+        print("\n")
+        input("Press Enter to exit...")
                 
     except Exception as e:
         print(f"\nAn error occurred: {e}")
