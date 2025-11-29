@@ -14,7 +14,7 @@ if (Test-Path $VenvPython) {
      # Add source to PYTHONPATH
     $env:PYTHONPATH = "source"
     # Run the editor
-    & $VenvPython -m source.Block_Editor
+    & $VenvPython tools/launch_blockly.py
 } else {
     Write-Error "Virtual environment python not found at $VenvPython"
 }
