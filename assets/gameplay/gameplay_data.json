@@ -1,189 +1,92 @@
 {
-    "color": "#8D6E63",
-    "sub_categories": {
-        "Match": {
-            "EndMatch": {
-                "label": "End Match",
-                "type": "SEQUENCE",
-                "args": [],
-                "param_labels": {},
-                "param_icons": {},
-                "description": "Ends the current match"
-            },
-            "SetMatchTime": {
-                "label": "Set Match Time",
-                "type": "SEQUENCE",
-                "args": ["time"],
-                "param_labels": {
-                    "time": "Time"
-                },
-                "param_icons": {
-                    "time": "123"
-                },
-                "description": "Sets the match time remaining"
-            },
-            "GetMatchTime": {
-                "label": "Match Time",
-                "type": "VALUE",
-                "args": [],
-                "param_labels": {},
-                "param_icons": {},
-                "description": "Returns the current match time"
-            },
-            "PauseMatchTime": {
-                "label": "Pause Match Time",
-                "type": "SEQUENCE",
-                "args": [],
-                "param_labels": {},
-                "param_icons": {},
-                "description": "Pauses the match timer"
-            },
-            "ResumeMatchTime": {
-                "label": "Resume Match Time",
-                "type": "SEQUENCE",
-                "args": [],
-                "param_labels": {},
-                "param_icons": {},
-                "description": "Resumes the match timer"
-            }
+    "EndRound": {
+        "label": "End Round",
+        "type": "ACTION",
+        "args": ["winning_team"],
+        "param_labels": {
+            "winning_team": "Winning Team"
         },
-        "Teams": {
-            "SetTeamScore": {
-                "label": "Set Team Score",
-                "type": "SEQUENCE",
-                "args": ["team", "score"],
-                "param_labels": {
-                    "team": "Team",
-                    "score": "Score"
-                },
-                "param_icons": {
-                    "team": "👥",
-                    "score": "123"
-                },
-                "description": "Sets a team's score"
-            },
-            "GetTeamScore": {
-                "label": "Team Score",
-                "type": "VALUE",
-                "args": ["team"],
-                "param_labels": {
-                    "team": "Team"
-                },
-                "param_icons": {
-                    "team": "👥"
-                },
-                "description": "Returns a team's score"
-            },
-            "ModifyTeamScore": {
-                "label": "Modify Team Score",
-                "type": "SEQUENCE",
-                "args": ["team", "amount"],
-                "param_labels": {
-                    "team": "Team",
-                    "amount": "Amount"
-                },
-                "param_icons": {
-                    "team": "👥",
-                    "amount": "123"
-                },
-                "description": "Adds to a team's score"
-            },
-            "DeclarePlayerTeamWinner": {
-                "label": "Declare Team Winner",
-                "type": "SEQUENCE",
-                "args": ["team"],
-                "param_labels": {
-                    "team": "Team"
-                },
-                "param_icons": {
-                    "team": "👥"
-                },
-                "description": "Declares a team as the winner"
-            }
+        "param_icons": {
+            "winning_team": "T"
         },
-        "Spawn": {
-            "SetRespawnTime": {
-                "label": "Set Respawn Time",
-                "type": "SEQUENCE",
-                "args": ["player", "time"],
-                "param_labels": {
-                    "player": "Player",
-                    "time": "Time"
-                },
-                "param_icons": {
-                    "player": "👤",
-                    "time": "123"
-                },
-                "description": "Sets the player's respawn time"
-            },
-            "DisableRespawn": {
-                "label": "Disable Respawn",
-                "type": "SEQUENCE",
-                "args": ["player"],
-                "param_labels": {
-                    "player": "Player"
-                },
-                "param_icons": {
-                    "player": "👤"
-                },
-                "description": "Prevents player from respawning"
-            },
-            "EnableRespawn": {
-                "label": "Enable Respawn",
-                "type": "SEQUENCE",
-                "args": ["player"],
-                "param_labels": {
-                    "player": "Player"
-                },
-                "param_icons": {
-                    "player": "👤"
-                },
-                "description": "Allows player to respawn"
-            }
+        "description": "Ends the round, declaring a winning team."
+    },
+    "GetGamemode": {
+        "label": "Get Gamemode",
+        "type": "VALUE",
+        "args": [],
+        "param_labels": {},
+        "param_icons": {},
+        "description": "Gets the current gamemode."
+    },
+    "SetGamemode": {
+        "label": "Set Gamemode",
+        "type": "ACTION",
+        "args": ["gamemode"],
+        "param_labels": {
+            "gamemode": "Gamemode"
         },
-        "Global Variables": {
-            "GetGlobalVariable": {
-                "label": "Global Variable",
-                "type": "VALUE",
-                "args": ["variable"],
-                "param_labels": {
-                    "variable": "Variable"
-                },
-                "param_icons": {
-                    "variable": "📝"
-                },
-                "description": "Gets a global variable value"
-            },
-            "SetGlobalVariable": {
-                "label": "Set Global Variable",
-                "type": "SEQUENCE",
-                "args": ["variable", "value"],
-                "param_labels": {
-                    "variable": "Variable",
-                    "value": "Value"
-                },
-                "param_icons": {
-                    "variable": "📝",
-                    "value": "⚙"
-                },
-                "description": "Sets a global variable"
-            },
-            "ModifyGlobalVariable": {
-                "label": "Modify Global Variable",
-                "type": "SEQUENCE",
-                "args": ["variable", "operation", "value"],
-                "param_labels": {
-                    "variable": "Variable",
-                    "operation": "Operation",
-                    "value": "Value"
-                },
-                "param_icons": {
-                    "variable": "📝",
-                    "operation": "⚙",
-                    "value": "123"
-                },
-                "description": "Modifies a global variable"
-            }
-        }
+        "param_icons": {
+            "gamemode": "G"
+        },
+        "description": "Sets the current gamemode."
+    },
+    "EnableFriendlyFire": {
+        "label": "Enable Friendly Fire",
+        "type": "ACTION",
+        "args": ["enabled"],
+        "param_labels": {
+            "enabled": "Enabled"
+        },
+        "param_icons": {
+            "enabled": "B"
+        },
+        "description": "Enables or disables friendly fire."
+    },
+    "SetScore": {
+        "label": "Set Score",
+        "type": "ACTION",
+        "args": ["team", "score"],
+        "param_labels": {
+            "team": "Team",
+            "score": "Score"
+        },
+        "param_icons": {
+            "team": "T",
+            "score": "123"
+        },
+        "description": "Sets the score for a team."
+    },
+    "GetScore": {
+        "label": "Get Score",
+        "type": "VALUE",
+        "args": ["team"],
+        "param_labels": {
+            "team": "Team"
+        },
+        "param_icons": {
+            "team": "T"
+        },
+        "description": "Gets the score for a team."
+    },
+    "SetTimeLimit": {
+        "label": "Set Time Limit",
+        "type": "ACTION",
+        "args": ["time_limit"],
+        "param_labels": {
+            "time_limit": "Time Limit"
+        },
+        "param_icons": {
+            "time_limit": "123"
+        },
+        "description": "Sets the time limit for the round."
+    },
+    "GetTimeLimit": {
+        "label": "Get Time Limit",
+        "type": "VALUE",
+        "args": [],
+        "param_labels": {},
+        "param_icons": {},
+        "description": "Gets the time limit for the round."
     }
 }

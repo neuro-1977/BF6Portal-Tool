@@ -1,242 +1,110 @@
 {
-    "color": "#1565C0",
-    "sub_categories": {
-        "Operations": {
-            "Add": {
-                "label": "Add",
-                "type": "VALUE",
-                "args": ["value_a", "value_b"],
-                "param_labels": {},
-                "param_icons": {
-                    "value_a": "123",
-                    "value_b": "123"
-                },
-                "description": "Returns the sum of two numbers"
-            },
-            "Subtract": {
-                "label": "Subtract",
-                "type": "VALUE",
-                "args": ["value_a", "value_b"],
-                "param_labels": {},
-                "param_icons": {
-                    "value_a": "123",
-                    "value_b": "123"
-                },
-                "description": "Returns the difference of two numbers"
-            },
-            "Multiply": {
-                "label": "Multiply",
-                "type": "VALUE",
-                "args": ["value_a", "value_b"],
-                "param_labels": {},
-                "param_icons": {
-                    "value_a": "123",
-                    "value_b": "123"
-                },
-                "description": "Returns the product of two numbers"
-            },
-            "Divide": {
-                "label": "Divide",
-                "type": "VALUE",
-                "args": ["value_a", "value_b"],
-                "param_labels": {},
-                "param_icons": {
-                    "value_a": "123",
-                    "value_b": "123"
-                },
-                "description": "Returns the quotient of two numbers"
-            },
-            "Modulo": {
-                "label": "Modulo",
-                "type": "VALUE",
-                "args": ["value_a", "value_b"],
-                "param_labels": {},
-                "param_icons": {
-                    "value_a": "123",
-                    "value_b": "123"
-                },
-                "description": "Returns the remainder after division"
-            },
-            "RaiseToPower": {
-                "label": "Raise To Power",
-                "type": "VALUE",
-                "args": ["base", "exponent"],
-                "param_labels": {
-                    "base": "Base",
-                    "exponent": "Power"
-                },
-                "param_icons": {
-                    "base": "123",
-                    "exponent": "123"
-                },
-                "description": "Returns base raised to the power of exponent"
-            }
+    "Add": {
+        "label": "Add",
+        "type": "VALUE",
+        "args": ["value_a", "value_b"],
+        "param_labels": {
+            "value_a": "A",
+            "value_b": "B"
         },
-        "Trigonometry": {
-            "Sin": { "label": "Sine", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} },
-            "Cos": { "label": "Cosine", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} },
-            "Tan": { "label": "Tangent", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} },
-            "Asin": { "label": "Arc Sine", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} },
-            "Acos": { "label": "Arc Cosine", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} },
-            "Atan": { "label": "Arc Tangent", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} }
+        "param_icons": {
+            "value_a": "123",
+            "value_b": "123"
         },
-        "Rounding": {
-            "Round": { "label": "Round", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} },
-            "Ceil": { "label": "Ceiling", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} },
-            "Floor": { "label": "Floor", "type": "VALUE", "args": ["value"], "param_icons": {"value": "123"} }
+        "description": "Returns the sum of A and B"
+    },
+    "Subtract": {
+        "label": "Subtract",
+        "type": "VALUE",
+        "args": ["value_a", "value_b"],
+        "param_labels": {
+            "value_a": "A",
+            "value_b": "B"
         },
-        "Random": {
-            "RandomReal": { "label": "Random Real", "type": "VALUE", "args": ["min", "max"], "param_icons": {"min": "123", "max": "123"} },
-            "RandomInteger": { "label": "Random Integer", "type": "VALUE", "args": ["min", "max"], "param_icons": {"min": "123", "max": "123"} }
+        "param_icons": {
+            "value_a": "123",
+            "value_b": "123"
         },
-        "Functions": {
-            "AbsoluteValue": {
-                "label": "Absolute Value",
-                "type": "VALUE",
-                "args": ["value"],
-                "param_labels": {},
-                "param_icons": {
-                    "value": "123"
-                },
-                "description": "Returns the absolute value of a number"
-            },
-            "SquareRoot": {
-                "label": "Square Root",
-                "type": "VALUE",
-                "args": ["value"],
-                "param_labels": {},
-                "param_icons": {
-                    "value": "123"
-                },
-                "description": "Returns the square root of a number"
-            },
-            "Min": {
-                "label": "Min",
-                "type": "VALUE",
-                "args": ["value_a", "value_b"],
-                "param_labels": {},
-                "param_icons": {
-                    "value_a": "123",
-                    "value_b": "123"
-                },
-                "description": "Returns the smaller of two values"
-            },
-            "Max": {
-                "label": "Max",
-                "type": "VALUE",
-                "args": ["value_a", "value_b"],
-                "param_labels": {},
-                "param_icons": {
-                    "value_a": "123",
-                    "value_b": "123"
-                },
-                "description": "Returns the larger of two values"
-            },
-            "RoundToInteger": {
-                "label": "Round To Integer",
-                "type": "VALUE",
-                "args": ["value", "rounding_type"],
-                "param_labels": {
-                    "rounding_type": "Rounding Type"
-                },
-                "param_icons": {
-                    "value": "123",
-                    "rounding_type": "⚙"
-                },
-                "description": "Rounds a number to nearest integer"
-            }
+        "description": "Returns the difference of A and B"
+    },
+    "Multiply": {
+        "label": "Multiply",
+        "type": "VALUE",
+        "args": ["value_a", "value_b"],
+        "param_labels": {
+            "value_a": "A",
+            "value_b": "B"
         },
-        "Trigonometry": {
-            "Sine": {
-                "label": "Sine",
-                "type": "VALUE",
-                "args": ["angle"],
-                "param_labels": {},
-                "param_icons": {
-                    "angle": "123"
-                },
-                "description": "Returns the sine of an angle in degrees"
-            },
-            "Cosine": {
-                "label": "Cosine",
-                "type": "VALUE",
-                "args": ["angle"],
-                "param_labels": {},
-                "param_icons": {
-                    "angle": "123"
-                },
-                "description": "Returns the cosine of an angle in degrees"
-            },
-            "Tangent": {
-                "label": "Tangent",
-                "type": "VALUE",
-                "args": ["angle"],
-                "param_labels": {},
-                "param_icons": {
-                    "angle": "123"
-                },
-                "description": "Returns the tangent of an angle in degrees"
-            },
-            "ArcSine": {
-                "label": "Arc Sine",
-                "type": "VALUE",
-                "args": ["value"],
-                "param_labels": {},
-                "param_icons": {
-                    "value": "123"
-                },
-                "description": "Returns the arc sine in degrees"
-            },
-            "ArcCosine": {
-                "label": "Arc Cosine",
-                "type": "VALUE",
-                "args": ["value"],
-                "param_labels": {},
-                "param_icons": {
-                    "value": "123"
-                },
-                "description": "Returns the arc cosine in degrees"
-            },
-            "ArcTangent": {
-                "label": "Arc Tangent",
-                "type": "VALUE",
-                "args": ["value"],
-                "param_labels": {},
-                "param_icons": {
-                    "value": "123"
-                },
-                "description": "Returns the arc tangent in degrees"
-            }
+        "param_icons": {
+            "value_a": "123",
+            "value_b": "123"
         },
-        "Random": {
-            "RandomInteger": {
-                "label": "Random Integer",
-                "type": "VALUE",
-                "args": ["min", "max"],
-                "param_labels": {
-                    "min": "Min",
-                    "max": "Max"
-                },
-                "param_icons": {
-                    "min": "123",
-                    "max": "123"
-                },
-                "description": "Returns a random integer between min and max (inclusive)"
-            },
-            "RandomReal": {
-                "label": "Random Real",
-                "type": "VALUE",
-                "args": ["min", "max"],
-                "param_labels": {
-                    "min": "Min",
-                    "max": "Max"
-                },
-                "param_icons": {
-                    "min": "123",
-                    "max": "123"
-                },
-                "description": "Returns a random real number between min and max"
-            }
-        }
+        "description": "Returns the product of A and B"
+    },
+    "Divide": {
+        "label": "Divide",
+        "type": "VALUE",
+        "args": ["value_a", "value_b"],
+        "param_labels": {
+            "value_a": "A",
+            "value_b": "B"
+        },
+        "param_icons": {
+            "value_a": "123",
+            "value_b": "123"
+        },
+        "description": "Returns the quotient of A and B"
+    },
+    "Power": {
+        "label": "Power",
+        "type": "VALUE",
+        "args": ["base", "exponent"],
+        "param_labels": {
+            "base": "Base",
+            "exponent": "Exponent"
+        },
+        "param_icons": {
+            "base": "123",
+            "exponent": "123"
+        },
+        "description": "Returns the base to the exponent power."
+    },
+    "SquareRoot": {
+        "label": "Square Root",
+        "type": "VALUE",
+        "args": ["value"],
+        "param_labels": {
+            "value": "Value"
+        },
+        "param_icons": {
+            "value": "123"
+        },
+        "description": "Returns the square root of a number."
+    },
+    "Absolute": {
+        "label": "Absolute",
+        "type": "VALUE",
+        "args": ["value"],
+        "param_labels": {
+            "value": "Value"
+        },
+        "param_icons": {
+            "value": "123"
+        },
+        "description": "Returns the absolute value of a number."
+    },
+    "Modulo": {
+        "label": "Modulo",
+        "type": "VALUE",
+        "args": ["dividend", "divisor"],
+        "param_labels": {
+            "dividend": "Dividend",
+            "divisor": "Divisor"
+        },
+        "param_icons": {
+            "dividend": "123",
+            "divisor": "123"
+        },
+        "description": "Returns the remainder of a division."
     }
 }
