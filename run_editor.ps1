@@ -11,8 +11,10 @@ if (Test-Path $VenvPython) {
     # Install dependencies
     & $VenvPython -m pip install -r requirements.txt
     
+     # Add source to PYTHONPATH
+    $env:PYTHONPATH = "source"
     # Run the editor
-    & $VenvPython .\source\Block_Editor.py
+    & $VenvPython -m source.Block_Editor
 } else {
     Write-Error "Virtual environment python not found at $VenvPython"
 }
