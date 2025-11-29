@@ -1,146 +1,14 @@
 Blockly.defineBlocksWithJsonArray(
 [
-  {
-    "type": "AIBattlefieldBehaviour",
-    "message0": "AIBattlefieldBehaviour %1 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "player"
-      }
-    ],
-    "colour": "#FBC02D",
-    "tooltip": "",
-    "helpUrl": "",
-    "inputsInline": true,
-    "previousStatement": null,
-    "nextStatement": null
-  },
-  {
-    "type": "AIDefendPositionBehaviour",
-    "message0": "AIDefendPositionBehaviour %1 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "player"
-      }
-    ],
-    "colour": "#FBC02D",
-    "tooltip": "",
-    "helpUrl": "",
-    "inputsInline": true,
-    "previousStatement": null,
-    "nextStatement": null
-  },
-  {
-    "type": "AIIdleBehaviour",
-    "message0": "AIIdleBehaviour %1 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "player"
-      }
-    ],
-    "colour": "#FBC02D",
-    "tooltip": "",
-    "helpUrl": "",
-    "previousStatement": null,
-    "nextStatement": null
-  },
-  {
-    "type": "AILOSMoveTOBehaviour",
-    "message0": "AILOSMoveTOBehaviour %1 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "player"
-      }
-    ],
-    "colour": "#FBC02D",
-    "tooltip": "",
-    "helpUrl": "",
-    "previousStatement": null,
-    "nextStatement": null
-  },
-  {
-    "type": "AIMoveToBehaviour",
-    "message0": "AIMoveToBehaviour %1 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "player"
-      }
-    ],
-    "colour": "#FBC02D",
-    "tooltip": "",
-    "helpUrl": "",
-    "previousStatement": null,
-    "nextStatement": null
-  },
-  {
-    "type": "AIParachuteBehaviour",
-    "message0": "AIParachuteBehaviour %1 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "player"
-      }
-    ],
-    "colour": "#FBC02D",
-    "tooltip": "",
-    "helpUrl": "",
-    "previousStatement": null,
-    "nextStatement": null
-  },
-  {
-    "type": "AIValidateMoveToBehaviour",
-    "message0": "AIValidateMoveToBehaviour %1 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "player"
-      }
-    ],
-    "colour": "#FBC02D",
-    "tooltip": "",
-    "helpUrl": "",
-    "previousStatement": null,
-    "nextStatement": null
-  },
-  {
-    "type": "AIWaypointIdleBehaviour",
-    "message0": "AIWaypointIdleBehaviour %1 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "player"
-      }
-    ],
-    "colour": "#FBC02D",
-    "tooltip": "",
-    "helpUrl": "",
-    "previousStatement": null,
-    "nextStatement": null
-  },
-  {
-    "type": "SetPlayerHealth",
-    "message0": "SetPlayerHealth %1 %2 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "player"
-      },
-      {
-        "type": "input_value",
-        "name": "amount"
-      }
-    ],
-    "colour": "#FBC02D",
-    "tooltip": "",
-    "helpUrl": "",
-    "previousStatement": null,
-    "nextStatement": null
-  },
+
+
+
+
+
+
+
+
+
   {
     "type": "SetPlayerLoadout",
     "message0": "SetPlayerLoadout %1 %2 ",
@@ -160,50 +28,9 @@ Blockly.defineBlocksWithJsonArray(
     "previousStatement": null,
     "nextStatement": null
   },
-  {
-    "type": "Teleport",
-    "message0": "Teleport %1 %2 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "player"
-      },
-      {
-        "type": "input_value",
-        "name": "location"
-      }
-    ],
-    "colour": "#FBC02D",
-    "tooltip": "",
-    "helpUrl": "",
-    "previousStatement": null,
-    "nextStatement": null
-  },
-  {
-    "type": "EndRound",
-    "message0": "EndRound %1 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "winner"
-      }
-    ],
-    "colour": "#FBC02D",
-    "tooltip": "",
-    "helpUrl": "",
-    "previousStatement": null,
-    "nextStatement": null
-  },
-  {
-    "type": "PauseRound",
-    "message0": "PauseRound",
-    "args0": [],
-    "colour": "#FBC02D",
-    "tooltip": "",
-    "helpUrl": "",
-    "previousStatement": null,
-    "nextStatement": null
-  },
+
+
+
   {
     "type": "AIBattlefieldBehavior",
     "message0": "AI Battlefield Behavior %1 ",
@@ -1981,114 +1808,12 @@ Blockly.defineBlocksWithJsonArray(
     "helpUrl": "",
     "output": null
   },
-  {
-    "type": "Equal",
-    "message0": "Equal %1 %2 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "a"
-      },
-      {
-        "type": "input_value",
-        "name": "b"
-      }
-    ],
-    "colour": "#673AB7",
-    "tooltip": "Returns True if inputs are equal",
-    "helpUrl": "",
-    "output": null
-  },
-  {
-    "type": "NotEqual",
-    "message0": "Not Equal %1 %2 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "a"
-      },
-      {
-        "type": "input_value",
-        "name": "b"
-      }
-    ],
-    "colour": "#673AB7",
-    "tooltip": "Returns True if inputs are not equal",
-    "helpUrl": "",
-    "output": null
-  },
-  {
-    "type": "GreaterThan",
-    "message0": "Greater Than %1 %2 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "a"
-      },
-      {
-        "type": "input_value",
-        "name": "b"
-      }
-    ],
-    "colour": "#673AB7",
-    "tooltip": "Returns True if A > B",
-    "helpUrl": "",
-    "output": null
-  },
-  {
-    "type": "LessThan",
-    "message0": "Less Than %1 %2 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "a"
-      },
-      {
-        "type": "input_value",
-        "name": "b"
-      }
-    ],
-    "colour": "#673AB7",
-    "tooltip": "Returns True if A < B",
-    "helpUrl": "",
-    "output": null
-  },
-  {
-    "type": "GreaterThanEqual",
-    "message0": "Greater Than Or Equal %1 %2 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "a"
-      },
-      {
-        "type": "input_value",
-        "name": "b"
-      }
-    ],
-    "colour": "#673AB7",
-    "tooltip": "Returns True if A >= B",
-    "helpUrl": "",
-    "output": null
-  },
-  {
-    "type": "LessThanEqual",
-    "message0": "Less Than Or Equal %1 %2 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "a"
-      },
-      {
-        "type": "input_value",
-        "name": "b"
-      }
-    ],
-    "colour": "#673AB7",
-    "tooltip": "Returns True if A <= B",
-    "helpUrl": "",
-    "output": null
-  },
+
+
+
+
+
+
   {
     "type": "ForVariable",
     "message0": "ForVariable %1 %2 %3  %4",
@@ -2548,20 +2273,7 @@ Blockly.defineBlocksWithJsonArray(
     "helpUrl": "",
     "output": null
   },
-  {
-    "type": "GetPlayerHealth",
-    "message0": "Health %1 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "player"
-      }
-    ],
-    "colour": "#C2185B",
-    "tooltip": "Returns the player's current health",
-    "helpUrl": "",
-    "output": null
-  },
+
   {
     "type": "GetPlayerMaxHealth",
     "message0": "Max Health %1 ",
@@ -2576,21 +2288,7 @@ Blockly.defineBlocksWithJsonArray(
     "helpUrl": "",
     "output": null
   },
-  {
-    "type": "IsPlayerAlive",
-    "message0": "Is Alive %1 ",
-    "args0": [
-      {
-        "type": "input_value",
-        "name": "player"
-      }
-    ],
-    "colour": "#C2185B",
-    "tooltip": "Returns true if player is alive",
-    "helpUrl": "",
-    "previousStatement": null,
-    "nextStatement": null
-  },
+
   {
     "type": "IsPlayerDead",
     "message0": "Is Dead %1 ",

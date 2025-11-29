@@ -1,114 +1,268 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>BF6 Portal Editor (Blockly)</title>
-  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
-  <script src="definitions.js"></script>
-  <script src="toolbox.js"></script>
-  <script src="main.js" defer></script>
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      background-color: #1e1e1e; /* VS Code Dark */
-      color: #fff;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-    }
-    #header {
-      height: 40px;
-      background-color: #252526;
-      border-bottom: 1px solid #333;
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-    }
-    #title {
-      font-weight: bold;
-      font-size: 18px;
-      margin-right: 20px;
-      color: #4fc3f7;
-    }
-    #blocklyDiv {
-      flex: 1;
-      width: 100%;
-    }
-    /* Force Dark Theme on Toolbox */
-    .blocklyToolboxDiv, .blocklyToolbox {
-      background-color: #1e1e1e !important; /* Match canvas background */
-      border-right: 1px solid #333;
-    }
-    /* Target the container of the tree rows */
-    .blocklyTreeRoot, .blocklyTreeRow {
-      background-color: transparent !important;
-      padding: 0 !important;
-    }
-    .blocklyTreeLabel {
-      color: #e0e0e0 !important;
-      font-family: 'Segoe UI', sans-serif;
-      font-weight: 500;
-      font-size: 14px;
-    }
-    /* Row Styling */
-    .blocklyTreeRow {
-      height: 32px !important;
-      line-height: 32px !important;
-      margin-bottom: 2px;
-      border-left: 4px solid transparent;
-      padding-left: 8px !important;
-      background-color: transparent !important; /* Ensure transparency so root color shows */
-    }
-    /* Hover State */
-    .blocklyTreeRow:not(.blocklyTreeSelected):hover {
-      background-color: #2d2d2d !important;
-    }
-    /* Selected State */
-    .blocklyTreeSelected .blocklyTreeRow {
-      background-color: #252526 !important;
-      border-left: 4px solid #4fc3f7 !important; /* Blue accent */
-    }
-    .blocklyTreeSelected .blocklyTreeLabel {
-      color: #fff !important;
-      font-weight: bold;
-    }
-    /* Flyout (the drawer that opens) */
-    .blocklyFlyoutBackground {
-      fill: #252526 !important;
-      fill-opacity: 0.95 !important;
-    }
-    /* Scrollbars */
-    .blocklyScrollbarHandle {
-      fill: #555 !important;
-    }
-    /* Force Dark Theme on Workspace Background */
-    .blocklySvg {
-      background-color: #1e1e1e !important;
-    }
-    /* Help Modal Styles */
-    .modal {
-      display: none; 
-      position: fixed; 
-      z-index: 1000; 
-      left: 0;
-      top: 0;
-      width: 100%; 
-      height: 100%; 
-      overflow: auto; 
-      background-color: rgba(0,0,0,0.7); 
-    }
-    .modal-content {
-      background-color: #2d2d2d;
-      margin: 10% auto; 
-      padding: 20px;
-      border: 1px solid #444;
-      width: 60%; 
-      color: #eee;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-    }
-    .close {
+            <style>
+              #title {
+                font-weight: bold;
+                font-size: 20px;
+                margin-right: 24px;
+                color: #b0e0ff;
+                letter-spacing: 1.5px;
+                text-shadow: 0 1px 2px #000a;
+                display: flex;
+                align-items: center;
+                position: relative;
+              }
+              #title:before {
+                content: '';
+                display: inline-block;
+                width: 38px;
+                height: 38px;
+                margin-right: 12px;
+                background: url('favicon.png') no-repeat center/contain;
+                border-radius: 7px;
+                box-shadow: 0 2px 8px #000a;
+                vertical-align: middle;
+              }
+            </style>
+        <style>
+          html, body {
+            height: 100%;
+            margin: 0;
+            background: #181a1b;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', 'Consolas', 'monospace', sans-serif;
+            overflow: hidden;
+          }
+          #main {
+            height: calc(100vh - 44px);
+            overflow: hidden;
+          }
+          #editorContainer {
+            height: 100%;
+
+            #recenterBtn {
+              top: 80px !important;
+            }
+          }
+      .onboarding-modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.8);
+        align-items: center;
+        justify-content: center;
+      }
+      .onboarding-content {
+        background: #23272e;
+        color: #eee;
+        padding: 32px 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 24px #000a;
+        max-width: 480px;
+        margin: auto;
+        text-align: center;
+      }
+      .onboarding-content h2 {
+        color: #4fc3f7;
+        margin-bottom: 16px;
+      }
+      .onboarding-content ul {
+        text-align: left;
+        margin: 18px 0 24px 0;
+        padding-left: 20px;
+      }
+      .onboarding-content button {
+        background: #4fc3f7;
+        color: #181a1b;
+        border: none;
+
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        background: #181a1b;
+        color: #e0e0e0;
+        font-family: 'Segoe UI', 'Consolas', 'monospace', sans-serif;
+        overflow: hidden;
+      }
+      #main {
+        height: calc(100vh - 44px);
+        overflow: hidden;
+      }
+      #editorContainer {
+        height: 100%;
+        overflow: hidden;
+      }
+      #blocklyDiv {
+        height: 100%;
+        width: 100%;
+        overflow: hidden !important;
+      }
+      .onboarding-modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.8);
+        align-items: center;
+        justify-content: center;
+      }
+      .onboarding-content {
+        background: #23272e;
+        color: #eee;
+        padding: 32px 40px;
+        border-radius: 12px;
+        box-shadow: 0 4px 24px #000a;
+        max-width: 480px;
+        margin: auto;
+        text-align: center;
+      }
+      .onboarding-content h2 {
+        color: #4fc3f7;
+        margin-bottom: 16px;
+      }
+      .onboarding-content ul {
+        text-align: left;
+        margin: 18px 0 24px 0;
+        padding-left: 20px;
+      }
+      .onboarding-content button {
+        background: #4fc3f7;
+        color: #181a1b;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 24px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 12px;
+      }
+      /* Neon/animated styles for About modal names */
+      .neon-neuro {
+        color: #39ff14;
+        font-weight: bold;
+        text-shadow: 0 0 8px #fff, 0 0 24px #39ff14, 2px 2px 0 #fff, 0 2px 0 #fff;
+        font-size: 1.2em;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        animation: neon-flicker 2.2s infinite alternate;
+      }
+      .gemini-animated {
+        color: #39e0ff;
+        font-weight: bold;
+        text-shadow: 0 0 8px #fff, 0 0 24px #39e0ff, 2px 2px 0 #fff, 0 2px 0 #fff;
+        font-size: 1.1em;
+        letter-spacing: 0.08em;
+        animation: neon-flicker 2.2s infinite alternate-reverse;
+      }
+      .mostly-playful {
+        color: #ffb300;
+        font-style: italic;
+        font-size: 1em;
+        margin-left: 8px;
+        text-shadow: 0 0 8px #fff, 0 0 24px #ffb300;
+      }
+      .rainbow-andy {
+        font-weight: bold;
+        background: linear-gradient(90deg, #ff1744, #ffd600, #00e676, #2979ff, #baff80, #ff1744);
+        background-size: 200% 200%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: rainbow-andy 2.5s linear infinite;
+      }
+      @keyframes neon-flicker {
+        0%, 100% { opacity: 1; }
+        45% { opacity: 0.85; }
+        50% { opacity: 0.6; }
+        55% { opacity: 0.85; }
+        60% { opacity: 1; }
+      }
+      @keyframes rainbow-andy {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 100% 50%; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header">
+      <div id="title">BF6Portal Tool</div>
+      <!-- Logo is handled by #title:before CSS, ensure favicon.png is present in web_ui/ -->
+      <button id="aboutBtn" style="padding: 6px 12px; background: #23272e; color: #fff; border: 1px solid #4fc3f7; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: 18px;">About</button>
+      <button id="saveBtn" style="padding: 6px 12px; background: #007acc; color: white; border: none; border-radius: 4px; cursor: pointer;">Save</button>
+      <button id="loadBtn" style="padding: 6px 12px; background: #333; color: white; border: 1px solid #555; border-radius: 4px; cursor: pointer;">Load</button>
+      <button id="codeBtn" style="padding: 6px 12px; background: #333; color: white; border: 1px solid #555; border-radius: 4px; cursor: pointer;">Code</button>
+      <button id="exportBtn" style="padding: 6px 12px; background: #4fc3f7; color: #181a1b; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Export</button>
+      <input type="file" id="importInput" style="display: none;" accept=".json,.ts">
+      <button id="importBtn" style="padding: 6px 12px; background: #4fc3f7; color: #181a1b; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Import</button>
+      <div id="zoomContainer" style="margin-left: 24px; display: flex; align-items: center;">
+        <label for="zoomSlider" style="color: #aaa; font-size: 13px; margin-right: 6px;">Zoom</label>
+        <div style="position: relative; width: 110px; height: 18px; display: flex; align-items: center;">
+          <input type="range" id="zoomSlider" min="30" max="300" value="75" style="width: 100%; background: transparent; appearance: none; -webkit-appearance: none; height: 4px; border-radius: 2px; background: #333; outline: none; margin: 0; padding: 0;">
+        </div>
+        <span id="zoomValue" style="color: #aaa; font-size: 13px; margin-left: 6px;">75%</span>
+      </div>
+    </div>
+
+    <!-- About Modal, only once, outside header, hidden by default -->
+    <div id="aboutModal" class="modal" style="display:none;">
+      <div class="modal-content" style="max-width: 480px;">
+        <span class="close" id="closeAboutModal">&times;</span>
+        <h2>About BF6Portal Tool</h2>
+        <div style="margin-bottom: 12px; font-size: 1.1em; color: #4fc3f7;">A modern, user-friendly block editor for Battlefield Portal scripting.</div>
+        <div style="margin-bottom: 10px;">Author: <span class="neon-neuro">Neuro</span> <span style="font-size:1.13em;vertical-align:middle;"><span class="gemini-animated">&amp; Gemini Code</span><span class="mostly-playful">... Mostly :P</span></span></div>
+        <div style="margin-bottom: 10px;">Contributors: <b><span class="rainbow-andy">ANDY6170</span></b> (special thanks!)</div>
+        <div style="margin-bottom: 10px;">Tech: Blockly, JavaScript, Python, and a lot of coffee.</div>
+        <div style="margin-bottom: 10px;">GitHub: <a href="https://github.com/neuro-1977/BF6Portal-Tool" target="_blank" style="color:#4fc3f7;">BF6Portal-Tool</a></div>
+        <div style="margin: 18px 0 8px 0; font-size: 1.05em; color: #fff; text-align: center;">
+          <span style="display:block; margin-bottom: 4px; letter-spacing:1px;">Made by</span>
+          <span style="display:block;margin-top:8px;font-size:1.1em;">With thanks to <span class="rainbow-andy" id="andy-6170">ANDY6170</span> &amp; <a href="https://discord.gg/z4PXNEsN" target="_blank" style="color:#baff80;text-decoration:underline;">BattlefieldPortalHub</a> discord team.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating recenter (compass) button -->
+    <button id="recenterBtn" title="Recenter Workspace" style="position: absolute; left: 50%; top: 76px; transform: translateX(-50%); z-index: 9999; background: #23272e; border: 2.5px solid #888; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px #000a; cursor: pointer; transition: background 0.2s; margin-top: 4px;">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="15" stroke="#aaa" stroke-width="2.5" fill="#23272e"/>
+        <line x1="16" y1="4" x2="16" y2="28" stroke="#aaa" stroke-width="2"/>
+        <line x1="4" y1="16" x2="28" y2="16" stroke="#aaa" stroke-width="2"/>
+      </svg>
+    </button>
+
+    <div id="main" style="display: flex; height: calc(100vh - 44px);">
+      <div id="sidebar" style="width: 260px; min-width: 220px; max-width: 320px; background: #23272e; border-right: 2px solid #181a1b; display: flex; flex-direction: column; z-index: 2; box-shadow: 2px 0 12px #000a;"></div>
+      <div id="editorContainer" style="flex: 1; display: flex; flex-direction: column; min-height: 0; min-width: 0; background: #181a1b; overflow: hidden !important;">
+        <div id="blocklyDiv" style="flex: 1 1 auto; min-height: 100px;"></div>
+        <div id="dragDivider" style="height: 8px; background: #23272e; cursor: row-resize; display: none; align-items: center; justify-content: center; user-select: none;">
+          <div style="width: 60px; height: 4px; background: #444; border-radius: 2px; margin: 2px auto;"></div>
+        </div>
+        <div id="codeDiv" style="display: none; height: 200px; background: #1e1e1e; border-top: 1px solid #333; padding: 10px; box-sizing: border-box;">
+          <div style="color: #ccc; margin-bottom: 5px; font-size: 12px;">JSON Source View</div>
+          <textarea id="codeOutput" style="width: 100%; height: calc(100% - 25px); background: #252526; color: #d4d4d4; border: 1px solid #333; font-family: monospace; resize: none;" readonly></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="helpTitle">Block Help</h2>
+        <div id="helpBody"></div>
+      </div>
+    </div>
+
+    <script src="toolbox.js"></script>
+    <script src="blockly/blockly.min.js?v=20251128" id="blocklyScript"></script>
+    <script src="definitions.js"></script>
+    <script src="block_images.js"></script>
+    <script src="main.js"></script>
+  </body>
       color: #aaa;
       float: right;
       font-size: 28px;
@@ -138,26 +292,115 @@
     }
   </style>
 </head>
-<body>
+  <body>
   <div id="header">
-    <div id="title">BF6 Portal Editor</div>
-    <div style="flex: 1; display: flex; gap: 10px;">
+    <div id="title">BF6Portal Tool</div>
+    <!-- Logo is handled by #title:before CSS, ensure favicon.png is present -->
+    <button id="aboutBtn" style="padding: 6px 12px; background: #23272e; color: #fff; border: 1px solid #4fc3f7; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: 18px;">About</button>
+
+    <div style="flex: 1; display: flex; gap: 10px; align-items: center;">
+      <button id="healthCheckBtn" style="padding: 6px 12px; background: #4fc3f7; color: #181a1b; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Health Check</button>
+        <!-- Health Check Modal -->
+        <div id="healthModal" class="modal">
+          <div class="modal-content">
+            <span class="close" id="closeHealthModal">&times;</span>
+            <h2>System Health Check</h2>
+            <div id="healthBody"></div>
+          </div>
+        </div>
       <button id="saveBtn" style="padding: 6px 12px; background: #007acc; color: white; border: none; border-radius: 4px; cursor: pointer;">Save</button>
+      <button id="importHelpBtn" style="padding: 6px 12px; background: #ffb300; color: #181a1b; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; display: none;">Import Help</button>
+        <!-- Import Help Modal -->
+        <div id="importHelpModal" class="modal">
+          <div class="modal-content">
+            <span class="close" id="closeImportHelpModal">&times;</span>
+            <h2>Import Help &amp; Issues</h2>
+            <div id="importHelpBody"></div>
+          </div>
+        </div>
       <button id="loadBtn" style="padding: 6px 12px; background: #333; color: white; border: 1px solid #555; border-radius: 4px; cursor: pointer;">Load</button>
       <button id="codeBtn" style="padding: 6px 12px; background: #333; color: white; border: 1px solid #555; border-radius: 4px; cursor: pointer;">Code</button>
+      <button id="exportTsBtn" style="padding: 6px 12px; background: #4fc3f7; color: #181a1b; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Export .ts</button>
       <input type="file" id="loadInput" style="display: none;" accept=".json">
+      <input type="file" id="tscnInput" style="display: none;" accept=".tscn">
+      <button id="importTscnBtn" style="padding: 6px 12px; background: #4fc3f7; color: #181a1b; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Import .tscn</button>
+      <div id="zoomContainer" style="margin-left: 24px; display: flex; align-items: center;">
+        <label for="zoomSlider" style="color: #aaa; font-size: 13px; margin-right: 6px;">Zoom</label>
+        <div style="position: relative; width: 110px; height: 18px; display: flex; align-items: center;">
+          <input type="range" id="zoomSlider" min="30" max="300" value="75" style="width: 100%; background: transparent; appearance: none; -webkit-appearance: none; height: 4px; border-radius: 2px; background: #333; outline: none; margin: 0; padding: 0;">
+          <style>
+            #zoomSlider::-webkit-slider-thumb {
+              -webkit-appearance: none;
+              appearance: none;
+              width: 16px;
+              height: 16px;
+              border-radius: 50%;
+              background: #4fc3f7;
+              border: 2px solid #23272e;
+              cursor: pointer;
+              box-shadow: 0 2px 6px #0006;
+              transition: background 0.2s;
+            }
+            #zoomSlider::-moz-range-thumb {
+              width: 16px;
+              height: 16px;
+              border-radius: 50%;
+              background: #4fc3f7;
+              border: 2px solid #23272e;
+              cursor: pointer;
+              box-shadow: 0 2px 6px #0006;
+              transition: background 0.2s;
+            }
+            #zoomSlider::-ms-thumb {
+              width: 16px;
+              height: 16px;
+              border-radius: 50%;
+              background: #4fc3f7;
+              border: 2px solid #23272e;
+              cursor: pointer;
+              box-shadow: 0 2px 6px #0006;
+              transition: background 0.2s;
+            }
+            #zoomSlider::-webkit-slider-runnable-track {
+              height: 4px;
+              border-radius: 2px;
+              background: #333;
+            }
+            #zoomSlider::-ms-fill-lower, #zoomSlider::-ms-fill-upper {
+              background: #333;
+            }
+            #zoomSlider:focus {
+              outline: none;
+            }
+          </style>
+        </div>
+        <span id="zoomValue" style="color: #aaa; font-size: 13px; margin-left: 6px;">75%</span>
+      </div>
     </div>
-    <div style="width: 300px;">
-      <input type="text" id="blockSearch" placeholder="Search blocks..." 
-             style="width: 100%; padding: 6px; background: #3c3c3c; color: white; border: 1px solid #555; border-radius: 4px;">
-    </div>
+    <!-- Search bar will be injected into the toolbox/sidebar by JS -->
   </div>
 
-  <div id="blocklyDiv"></div>
-  
-  <div id="codeDiv" style="display: none; height: 200px; background: #1e1e1e; border-top: 1px solid #333; padding: 10px; box-sizing: border-box;">
-    <div style="color: #ccc; margin-bottom: 5px; font-size: 12px;">JSON Source View</div>
-    <textarea id="codeOutput" style="width: 100%; height: calc(100% - 25px); background: #252526; color: #d4d4d4; border: 1px solid #333; font-family: monospace; resize: none;" readonly></textarea>
+    <!-- Floating recenter (compass) button -->
+    <button id="recenterBtn" title="Recenter Workspace" style="position: absolute; left: 50%; top: 76px; transform: translateX(-50%); z-index: 9999; background: #23272e; border: 2.5px solid #888; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px #000a; cursor: pointer; transition: background 0.2s; margin-top: 4px;">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="15" stroke="#aaa" stroke-width="2.5" fill="#23272e"/>
+        <line x1="16" y1="4" x2="16" y2="28" stroke="#aaa" stroke-width="2"/>
+        <line x1="4" y1="16" x2="28" y2="16" stroke="#aaa" stroke-width="2"/>
+      </svg>
+    </button>
+
+  <div id="main" style="display: flex; height: calc(100vh - 44px);">
+    <div id="sidebar" style="width: 260px; min-width: 220px; max-width: 320px; background: #23272e; border-right: 2px solid #181a1b; display: flex; flex-direction: column; z-index: 2; box-shadow: 2px 0 12px #000a;"></div>
+    <div id="editorContainer" style="flex: 1; display: flex; flex-direction: column; min-height: 0; min-width: 0; background: #181a1b; overflow: hidden !important;">
+      <div id="blocklyDiv" style="flex: 1 1 auto; min-height: 100px;"></div>
+      <div id="dragDivider" style="height: 8px; background: #23272e; cursor: row-resize; display: none; align-items: center; justify-content: center; user-select: none;">
+        <div style="width: 60px; height: 4px; background: #444; border-radius: 2px; margin: 2px auto;"></div>
+      </div>
+      <div id="codeDiv" style="display: none; height: 200px; background: #1e1e1e; border-top: 1px solid #333; padding: 10px; box-sizing: border-box;">
+        <div style="color: #ccc; margin-bottom: 5px; font-size: 12px;">JSON Source View</div>
+        <textarea id="codeOutput" style="width: 100%; height: calc(100% - 25px); background: #252526; color: #d4d4d4; border: 1px solid #333; font-family: monospace; resize: none;" readonly></textarea>
+      </div>
+    </div>
   </div>
 
   <!-- Help Modal -->
@@ -168,5 +411,52 @@
       <div id="helpBody"></div>
     </div>
   </div>
+  <script src="toolbox.js"></script>
+    <script>
+      // Print all script tags before Blockly loads
+      console.log('[DIAG] Script tags BEFORE Blockly:');
+      Array.from(document.getElementsByTagName('script')).forEach(s => {
+        console.log('[DIAG] Script:', s.src || '[inline]', 'type:', s.type || '[none]');
+      });
+    </script>
+    <script src="blockly/blockly.min.js?v=20251128" id="blocklyScript"></script>
+    <script>
+      // Print all script tags after Blockly loads
+      console.log('[DIAG] Script tags AFTER Blockly:');
+      Array.from(document.getElementsByTagName('script')).forEach(s => {
+        console.log('[DIAG] Script:', s.src || '[inline]', 'type:', s.type || '[none]');
+      });
+      console.log('[DIAG] Blockly script loaded');
+      console.log('[DIAG] typeof Blockly after script:', typeof Blockly);
+      if (typeof Blockly === 'undefined') {
+        document.body.insertAdjacentHTML('afterbegin', '<div style="position:fixed;top:0;left:0;width:100vw;height:40px;background:#c00;color:#fff;z-index:9999999;font-size:18px;text-align:center;line-height:40px;">[DIAG] Blockly is undefined after script load!</div>');
+      }
+    </script>
+    <script>
+      console.log('[DIAG] Blockly script loaded');
+      console.log('[DIAG] typeof Blockly after script:', typeof Blockly);
+      if (typeof Blockly === 'undefined') {
+        document.body.insertAdjacentHTML('afterbegin', '<div style="position:fixed;top:0;left:0;width:100vw;height:40px;background:#c00;color:#fff;z-index:9999999;font-size:18px;text-align:center;line-height:40px;">[DIAG] Blockly is undefined after script load!</div>');
+      }
+    </script>
+    <script>
+      // Add error handler for Blockly script
+      document.getElementById('blocklyScript').onerror = function(e) {
+        const splash = document.getElementById('splashScreen');
+        if (splash) {
+          splash.style.opacity = '1';
+          splash.style.display = 'flex';
+          const splashMsg = document.getElementById('splashMsg');
+          const splashError = document.getElementById('splashError');
+          if (splashMsg) splashMsg.innerHTML = '';
+          if (splashError) splashError.innerHTML = `<div style=\"font-size:1.15em;margin-bottom:6px;\">Critical Error: <b>blockly.min.js</b> failed to load.</div><div style='margin-bottom:2px;'>🛠️ <span style='color:#fff;'>The core editor could not be initialized.<br>Check that <b>blockly.min.js</b> is present and not blocked by browser or server.<br><br><b>Script load error:</b> ${e.message || e.type}</span></div><div style='margin-top:8px;font-size:0.95em;color:#baff80;'>If this persists, please contact support with a screenshot.</div>`;
+        }
+        // Also log to console
+        console.error('Failed to load blockly.min.js', e);
+      };
+    </script>
+  <script src="definitions.js"></script>
+  <script src="block_images.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
