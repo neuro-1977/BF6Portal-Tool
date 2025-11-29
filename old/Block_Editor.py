@@ -1,7 +1,5 @@
 """
-LEGACY EDITOR (Tkinter)
------------------------
-This file contains the original Python/Tkinter implementation of the editor.
+"""
 As of November 2025, the project is migrating to a Web/Blockly-based interface
 (see `web_ui/` and `tools/launch_blockly.py`).
 

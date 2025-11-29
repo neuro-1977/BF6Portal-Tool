@@ -1,7 +1,31 @@
+// --- Central Error/Status Box Helper ---
+function showErrorBox(title, messages, dismissable) {
+  const box = document.getElementById('errorBox');
+  const boxTitle = document.getElementById('errorBoxTitle');
+  const boxMessages = document.getElementById('errorBoxMessages');
+  const boxClose = document.getElementById('errorBoxClose');
+  if (!box || !boxTitle || !boxMessages) return;
+  boxTitle.textContent = title || 'PORTAL STATUS';
+  if (Array.isArray(messages)) {
+    boxMessages.innerHTML = messages.map(m => `<div>${m}</div>`).join('');
+  } else {
+    boxMessages.innerHTML = messages ? `<div>${messages}</div>` : '';
+  }
+  box.style.display = 'block';
+  if (boxClose) {
+    if (dismissable) {
+      boxClose.style.display = 'block';
+      boxClose.onclick = () => { box.style.display = 'none'; };
+    } else {
+      boxClose.style.display = 'none';
+      boxClose.onclick = null;
+    }
+  }
+}
 // --- Session Keep-Alive and UI Health Check ---
 function keepSessionAlive() {
   setInterval(() => {
-    fetch('favicon.png', {cache: 'no-store'}).catch(() => {});
+    fetch('app_logo.png', {cache: 'no-store'}).catch(() => {});
   }, 2 * 60 * 1000); // Every 2 minutes
 }
 
@@ -16,52 +40,12 @@ function checkUIHealth() {
       // Remove top banner if present
       const alert = document.getElementById('uiHealthAlert');
       if (alert) alert.remove();
-      // Centered error block for all errors
-      let block = document.getElementById('uiHealthErrorBlock');
-      if (!block) {
-        block = document.createElement('div');
-        block.id = 'uiHealthErrorBlock';
-        document.body.appendChild(block);
-      }
-      block.style.position = 'fixed';
-      block.style.top = '50%';
-      block.style.left = '50%';
-      block.style.transform = 'translate(-50%, -50%)';
-      block.style.width = '520px';
-      block.style.height = '220px';
-      block.style.background = "url('assets/img/error_bg_bfptool.png') center center / cover no-repeat";
-      block.style.color = '#fff';
-      block.style.zIndex = '100000';
-      block.style.display = 'flex';
-      block.style.flexDirection = 'column';
-      block.style.alignItems = 'center';
-      block.style.justifyContent = 'center';
-      block.style.borderRadius = '18px';
-      block.style.boxShadow = '0 4px 32px #000a';
-      block.style.fontSize = '20px';
-      block.style.fontWeight = 'bold';
-      block.style.overflow = 'hidden';
-      block.innerHTML = `
-        <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(30,0,0,0.68);z-index:1;border-radius:18px;"></div>
-        <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;width:100%;padding:0 24px;">
-          <div style="font-size:28px;margin-bottom:12px;">🚨 UI Error</div>
-          <div style="margin-bottom:10px;font-size:16px;">Critical UI elements are missing.<br>This is not your fault!</div>
-          <div style="font-size:15px;font-weight:normal;margin-bottom:10px;">Try reloading the page.<br>If this persists, contact support with a screenshot.</div>
-          <div style="font-size:14px;font-weight:normal;margin-top:8px;color:#ffdada;max-height:60px;overflow:auto;text-align:left;width:100%;"><b>Details:</b><br>${errors.map(e => `• ${e}`).join('<br>')}</div>
-          <div style="margin: 18px 0 0 0; font-size: 1.05em; color: #fff; text-align: center;">
-            <span style="display:block; margin-bottom: 4px; letter-spacing:1px;">Made by</span>
-            <span class="neon-neuro" style="display:block;margin-bottom:4px;">Neuro</span>
-            <div style=\"font-size:1.13em;display:flex;justify-content:center;align-items:center;margin-top:2px;margin-bottom:2px;gap:8px;\"><span class=\"gemini-animated\">&amp; Gemini Code</span><span class=\"mostly-playful\">... Mostly :P</span></div>
-            <!-- neuromancer_full.png reference removed -->
-            <span style="display:block;margin-top:8px;font-size:1.1em;">With thanks to <span class="rainbow-andy" id="andy-6170_error">ANDY6170</span> &amp; <a href=\"https://discord.gg/z4PXNEsN\" target=\"_blank\" style=\"color:#baff80;text-decoration:underline;\">BattlefieldPortalHub</a> discord team.</span>
-          </div>
-        </div>
-      `;
+      showErrorBox('PORTAL STATUS', ['Critical UI elements are missing.', ...errors], false);
     } else {
       const alert = document.getElementById('uiHealthAlert');
       if (alert) alert.remove();
-      const block = document.getElementById('uiHealthErrorBlock');
-      if (block) block.remove();
+      const box = document.getElementById('errorBox');
+      if (box) box.style.display = 'none';
     }
   }
   setInterval(check, 10000); // Every 10 seconds
@@ -104,19 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var toolboxDiv = document.querySelector('.blocklyToolboxDiv');
       if (!toolboxDiv) {
         console.error('[DIAG] .blocklyToolboxDiv NOT FOUND after Blockly injection!');
-        var diag = document.createElement('div');
-        diag.textContent = '[DIAG] Toolbox missing! (.blocklyToolboxDiv not found)';
-        diag.style.position = 'fixed';
-        diag.style.top = '0';
-        diag.style.left = '0';
-        diag.style.width = '100vw';
-        diag.style.background = '#c00';
-        diag.style.color = '#fff';
-        diag.style.zIndex = '9999999';
-        diag.style.fontSize = '18px';
-        diag.style.textAlign = 'center';
-        diag.style.lineHeight = '40px';
-        document.body.appendChild(diag);
+        showErrorBox('PORTAL ERROR', ['Toolbox missing! (.blocklyToolboxDiv not found)', 'Try reloading the page or reporting this issue.'], true);
       } else {
         console.log('[DIAG] .blocklyToolboxDiv FOUND after Blockly injection.');
         toolboxDiv.style.outline = '3px solid #4fc3f7';
@@ -155,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const state = JSON.parse(evt.target.result);
             Blockly.serialization.workspaces.load(state, window.workspace);
           } catch (err) {
-            alert('Failed to load workspace: ' + err.message);
+            showErrorBox('LOAD ERROR', ['Failed to load workspace: ' + err.message], true);
           }
         };
         reader.readAsText(file);
@@ -201,13 +173,13 @@ document.addEventListener('DOMContentLoaded', function() {
               const state = JSON.parse(evt.target.result);
               Blockly.serialization.workspaces.load(state, window.workspace);
             } catch (err) {
-              alert('Failed to import JSON: ' + err.message);
+              showErrorBox('IMPORT ERROR', ['Failed to import JSON: ' + err.message], true);
             }
           } else if (ext === 'ts') {
             // TODO: Implement TypeScript import logic
-            alert('TypeScript import is not yet implemented.');
+            showErrorBox('IMPORT ERROR', ['TypeScript import is not yet implemented.'], true);
           } else {
-            alert('Unsupported file type: ' + ext);
+            showErrorBox('IMPORT ERROR', ['Unsupported file type: ' + ext], true);
           }
         };
         reader.readAsText(file);
@@ -388,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (exportTsBtn) {
     exportTsBtn.addEventListener('click', function() {
       if (!window.Blockly || !window.workspace) {
-        alert('Blockly workspace not loaded.');
+        showErrorBox('EXPORT ERROR', ['Blockly workspace not loaded.'], true);
         return;
       }
       const xml = Blockly.Xml.workspaceToDom(window.workspace);
@@ -576,12 +548,12 @@ document.addEventListener('DOMContentLoaded', function() {
         results.push('Error checking blocks: ' + e.message);
       }
       // Backend/server reachability check
-      fetch('favicon.png', {cache: 'no-store'})
+      fetch('app_logo.png', {cache: 'no-store'})
         .then(resp => {
           if (resp.ok) {
             results.push('Backend/server: ONLINE');
           } else {
-            results.push('Backend/server: OFFLINE (favicon fetch failed)');
+            results.push('Backend/server: OFFLINE (logo fetch failed)');
           }
           healthBody.innerHTML = '<ul>' + results.map(r => `<li>${r}</li>`).join('') + '</ul>';
           healthModal.style.display = 'block';

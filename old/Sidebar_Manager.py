@@ -65,66 +65,7 @@ class SidebarManager:
             bg="#0a0a0a",
             highlightthickness=0
         )
-        scrollbar = ttk.Scrollbar(
-            self.sidebar_frame,
-            orient="vertical",
-            command=canvas_sidebar.yview
-        )
-        
-        self.sidebar_content = tk.Frame(canvas_sidebar, bg="#0a0a0a")
-        self.sidebar_content.bind(
-            "<Configure>",
-            lambda e: canvas_sidebar.configure(scrollregion=canvas_sidebar.bbox("all"))
-        )
-        # Ensure the inner window matches the sidebar width so children aren't squashed
-        canvas_sidebar.create_window((0, 0), window=self.sidebar_content, anchor="nw", width=self.SIDEBAR_WIDTH)
-        canvas_sidebar.configure(yscrollcommand=scrollbar.set, width=self.SIDEBAR_WIDTH)
-        
-        canvas_sidebar.pack(side="left", fill="y", expand=True)
-        scrollbar.pack(side="right", fill="y")
-        
-        # Build category buttons
-        self.create_category_buttons()
-
-        # Create expandable dropdown panel for block items (appears to the right of sidebar)
-        self.dropdown_panel = tk.Frame(
-            parent,
-            bg="#1a1a1a",
-            width=250,
-            bd=2,
-            relief="raised"
-        )
-        self.dropdown_panel.pack_propagate(False)
-        
-        # Scrollable container for the dropdown items
-        dropdown_canvas = tk.Canvas(
-            self.dropdown_panel,
-            bg="#1a1a1a",
-            highlightthickness=0
-        )
-        dropdown_scrollbar = ttk.Scrollbar(
-            self.dropdown_panel,
-            orient="vertical",
-            command=dropdown_canvas.yview
-        )
-        
-        self.sidebar_list_container = tk.Frame(dropdown_canvas, bg="#1a1a1a")
-        self.sidebar_list_container.bind(
-            "<Configure>",
-            lambda e: dropdown_canvas.configure(scrollregion=dropdown_canvas.bbox("all"))
-        )
-        
-        dropdown_canvas.create_window((0, 0), window=self.sidebar_list_container, anchor="nw", width=246)
-        dropdown_canvas.configure(yscrollcommand=dropdown_scrollbar.set)
-        
-        dropdown_canvas.pack(side="left", fill="both", expand=True)
-        dropdown_scrollbar.pack(side="right", fill="y")
-        
-        # Expose sidebar_list_container to editor if needed (legacy support)
-        self.editor.sidebar_list_container = self.sidebar_list_container
-        self.editor.dropdown_panel = self.dropdown_panel
-
-    def _animate_dropdown_width(self, start_width, end_width):
+        """
         """Animates the width of the dropdown panel."""
         current_width = start_width
         step = 20 if end_width > start_width else -20
