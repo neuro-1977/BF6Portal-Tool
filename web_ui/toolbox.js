@@ -1,652 +1,121 @@
-// --- TOOLBOX_CONFIG: Main Blockly Toolbox Configuration ---
-// All top-level categories go here, not nested under 'Other'.
-// (Paste all categories: Logic, Math, Values, Arrays, World, Presentation, Other, etc. as direct children)
-// Example:
-// { kind: 'category', name: 'Logic', ... },
-// { kind: 'category', name: 'Math', ... },
-// ...
-// { kind: 'category', name: 'Other', ... }
-// TODO: Dynamically generate categories/blocks from assets/knowledgebase if needed.
 var TOOLBOX_CONFIG = {
-  kind: 'categoryToolbox',
-  contents: [
-    // ...existing categories and blocks...
-  ]
-};
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Comparison',
-              colour: '#673AB7',
-              contents: [
-                { kind: 'block', type: 'Equal' },
-                { kind: 'block', type: 'NotEqual' },
-                { kind: 'block', type: 'GreaterThan' },
-                { kind: 'block', type: 'LessThan' },
-                { kind: 'block', type: 'GreaterThanEqual' },
-                { kind: 'block', type: 'LessThanEqual' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Loops',
-              colour: '#673AB7',
-              contents: [
-                { kind: 'block', type: 'ForVariable' }
-              ]
-            }
-          ]
-        },
-        {
-          kind: 'category',
-          name: 'Math',
-          colour: '#1976D2',
-          contents: [
-            {
-              kind: 'category',
-              name: 'Operations',
-              colour: '#1976D2',
-              contents: [
-                { kind: 'block', type: 'Add' },
-                { kind: 'block', type: 'Subtract' },
-                { kind: 'block', type: 'Multiply' },
-                { kind: 'block', type: 'Divide' },
-                { kind: 'block', type: 'Modulo' },
-                { kind: 'block', type: 'RaiseToPower' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Trigonometry',
-              colour: '#1976D2',
-              contents: [
-                { kind: 'block', type: 'Sine' },
-                { kind: 'block', type: 'Cosine' },
-                { kind: 'block', type: 'Tangent' },
-                { kind: 'block', type: 'ArcSine' },
-                { kind: 'block', type: 'ArcCosine' },
-                { kind: 'block', type: 'ArcTangent' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Rounding',
-              colour: '#1976D2',
-              contents: [
-                { kind: 'block', type: 'Round' },
-                { kind: 'block', type: 'Ceil' },
-                { kind: 'block', type: 'Floor' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Random',
-              colour: '#1976D2',
-              contents: [
-                { kind: 'block', type: 'RandomInteger' },
-                { kind: 'block', type: 'RandomReal' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Functions',
-              colour: '#1976D2',
-              contents: [
-                { kind: 'block', type: 'AbsoluteValue' },
-                { kind: 'block', type: 'SquareRoot' },
-                { kind: 'block', type: 'Min' },
-                { kind: 'block', type: 'Max' },
-                { kind: 'block', type: 'RoundToInteger' }
-              ]
-            }
-          ]
-        },
-        {
-          kind: 'category',
-          name: 'Values',
-          colour: '#0288D1',
-          contents: [
-            {
-              kind: 'category',
-              name: 'Literals',
-              colour: '#0288D1',
-              contents: [
-                { kind: 'block', type: 'Number' },
-                { kind: 'block', type: 'String' },
-                { kind: 'block', type: 'Boolean' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Variables',
-              colour: '#0288D1',
-              contents: [
-                { kind: 'block', type: 'SetVariable' },
-                { kind: 'block', type: 'GetVariable' }
-              ]
-            }
-          ]
-        },
-        {
-          kind: 'category',
-          name: 'Arrays',
-          colour: '#0097A7',
-          contents: [
-            {
-              kind: 'category',
-              name: 'Modification',
-              colour: '#0097A7',
-              contents: [
-                { kind: 'block', type: 'SetVariableAtIndex' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Creation',
-              colour: '#0097A7',
-              contents: [
-                { kind: 'block', type: 'EmptyArray' },
-                { kind: 'block', type: 'ArrayLiteral' },
-                { kind: 'block', type: 'ArrayOfSize' },
-                { kind: 'block', type: 'ArrayFromPlayers' },
-                { kind: 'block', type: 'ArrayFromDeadPlayers' },
-                { kind: 'block', type: 'ArrayFromLivingPlayers' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Manipulation',
-              colour: '#0097A7',
-              contents: [
-                { kind: 'block', type: 'ClearArray' },
-                { kind: 'block', type: 'ConcatArrays' },
-                { kind: 'block', type: 'ReverseArray' },
-                { kind: 'block', type: 'AppendToArray' },
-                { kind: 'block', type: 'RemoveFromArray' },
-                { kind: 'block', type: 'RemoveFromArrayByIndex' },
-                { kind: 'block', type: 'ArraySlice' },
-                { kind: 'block', type: 'RandomValueInArray' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Access',
-              colour: '#0097A7',
-              contents: [
-                { kind: 'block', type: 'ValueInArray' },
-                { kind: 'block', type: 'FirstOf' },
-                { kind: 'block', type: 'LastOf' },
-                { kind: 'block', type: 'IndexOfArrayValue' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Query',
-              colour: '#0097A7',
-              contents: [
-                { kind: 'block', type: 'CountOf' },
-                { kind: 'block', type: 'ArrayContains' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Filtering',
-              colour: '#0097A7',
-              contents: [
-                { kind: 'block', type: 'ForEachInArray' },
-                { kind: 'block', type: 'MapArray' },
-                { kind: 'block', type: 'FilteredArray' },
-                { kind: 'block', type: 'SortedArray' }
-              ]
-            }
-          ]
-        }
-      ]
-    },
+  "kind": "categoryToolbox",
+  "contents": [
     {
-      kind: 'category',
-      name: 'World',
-      colour: '#f44336',
-      contents: [
+      "kind": "category",
+      "name": "Home",
+      "contents": [
         {
-          kind: 'category',
-          name: 'Player',
-          colour: '#C2185B',
-          contents: [
-            {
-              kind: 'category',
-              name: 'Player State',
-              colour: '#C2185B',
-              contents: [
-                { kind: 'block', type: 'EventPlayer' },
-                { kind: 'block', type: 'GetPlayerHealth' },
-                { kind: 'block', type: 'IsPlayerAlive' },
-                { kind: 'block', type: 'IsPlayerDead' },
-                { kind: 'block', type: 'GetPlayerTeam' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Player Actions',
-              colour: '#C2185B',
-              contents: [
-                { kind: 'block', type: 'SetPlayerHealth' },
-                { kind: 'block', type: 'KillPlayer' },
-                { kind: 'block', type: 'RespawnPlayer' },
-                { kind: 'block', type: 'TeleportPlayer' },
-                { kind: 'block', type: 'SetPlayerMaxHealth' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Player Info',
-              colour: '#C2185B',
-              contents: [
-                { kind: 'block', type: 'GetPlayerPosition' },
-                { kind: 'block', type: 'GetPlayerVelocity' },
-                { kind: 'block', type: 'GetPlayerSpeed' },
-                { kind: 'block', type: 'GetPlayerFacingDirection' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Player Variables',
-              colour: '#C2185B',
-              contents: [
-                { kind: 'block', type: 'GetPlayerVariable' },
-                { kind: 'block', type: 'SetPlayerVariable' },
-                { kind: 'block', type: 'ModifyPlayerVariable' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Input',
-              colour: '#C2185B',
-              contents: [
-                { kind: 'block', type: 'EnablePlayerInput' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Transform',
-              colour: '#C2185B',
-              contents: [
-                { kind: 'block', type: 'GetPlayerPosition' },
-                { kind: 'block', type: 'Teleport' }
-              ]
-            }
+          "kind": "category",
+          "name": "Logic",
+          "categorystyle": "logic_category",
+          "contents": [
+            { "kind": "block", "type": "controls_if" },
+            { "kind": "block", "type": "logic_compare" },
+            { "kind": "block", "type": "logic_operation" },
+            { "kind": "block", "type": "logic_negate" },
+            { "kind": "block", "type": "logic_boolean" },
+            { "kind": "block", "type": "logic_null", "disabled": "true" },
+            { "kind": "block", "type": "logic_ternary" }
           ]
         },
         {
-          kind: 'category',
-          name: 'Vehicles',
-          colour: '#E64A19',
-          contents: [
-            {
-              kind: 'category',
-              name: 'Vehicle Spawning',
-              colour: '#E64A19',
-              contents: [
-                { kind: 'block', type: 'SpawnVehicle' },
-                { kind: 'block', type: 'DespawnVehicle' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Vehicle Types',
-              colour: '#E64A19',
-              contents: [
-                { kind: 'block', type: 'VehicleTypeTank' },
-                { kind: 'block', type: 'VehicleTypeAPC' },
-                { kind: 'block', type: 'VehicleTypeHelicopter' },
-                { kind: 'block', type: 'VehicleTypeJet' },
-                { kind: 'block', type: 'VehicleTypeTransport' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Vehicle Properties',
-              colour: '#E64A19',
-              contents: [
-                { kind: 'block', type: 'GetVehicleHealth' },
-                { kind: 'block', type: 'SetVehicleHealth' },
-                { kind: 'block', type: 'GetVehicleDriver' },
-                { kind: 'block', type: 'EjectFromVehicle' },
-                { kind: 'block', type: 'LockVehicle' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Vehicle Control',
-              colour: '#E64A19',
-              contents: [
-                { kind: 'block', type: 'SetVehicleSpeed' },
-                { kind: 'block', type: 'DisableVehicle' },
-                { kind: 'block', type: 'EnableVehicle' }
-              ]
-            }
+          "kind": "category",
+          "name": "Loops",
+          "categorystyle": "loop_category",
+          "contents": [
+            { "kind": "block", "type": "controls_repeat_ext", "inputs": { "TIMES": { "shadow": { "type": "math_number", "fields": { "NUM": 10 } } } } },
+            { "kind": "block", "type": "controls_repeat", "disabled": "true" },
+            { "kind": "block", "type": "controls_whileUntil" },
+            { "kind": "block", "type": "controls_for", "inputs": { "FROM": { "shadow": { "type": "math_number", "fields": { "NUM": 1 } } }, "TO": { "shadow": { "type": "math_number", "fields": { "NUM": 10 } } }, "BY": { "shadow": { "type": "math_number", "fields": { "NUM": 1 } } } } },
+            { "kind": "block", "type": "controls_forEach" },
+            { "kind": "block", "type": "controls_flow_statements" }
           ]
         },
         {
-          kind: 'category',
-          name: 'Gameplay',
-          colour: '#5D4037',
-          contents: [
-            {
-              kind: 'category',
-              name: 'Match',
-              colour: '#5D4037',
-              contents: [
-                { kind: 'block', type: 'EndMatch' },
-                { kind: 'block', type: 'SetMatchTime' },
-                { kind: 'block', type: 'GetMatchTime' },
-                { kind: 'block', type: 'PauseMatchTime' },
-                { kind: 'block', type: 'ResumeMatchTime' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Teams',
-              colour: '#5D4037',
-              contents: [
-                { kind: 'block', type: 'SetTeamScore' },
-                { kind: 'block', type: 'GetTeamScore' },
-                { kind: 'block', type: 'ModifyTeamScore' },
-                { kind: 'block', type: 'DeclarePlayerTeamWinner' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Spawn',
-              colour: '#5D4037',
-              contents: [
-                { kind: 'block', type: 'SetRespawnTime' },
-                { kind: 'block', type: 'DisableRespawn' },
-                { kind: 'block', type: 'EnableRespawn' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Global Variables',
-              colour: '#5D4037',
-              contents: [
-                { kind: 'block', type: 'GetGlobalVariable' },
-                { kind: 'block', type: 'SetGlobalVariable' },
-                { kind: 'block', type: 'ModifyGlobalVariable' }
-              ]
-            }
+          "kind": "category",
+          "name": "Math",
+          "categorystyle": "math_category",
+          "contents": [
+            { "kind": "block", "type": "math_number", "fields": { "NUM": 123 } },
+            { "kind": "block", "type": "math_arithmetic", "inputs": { "A": { "shadow": { "type": "math_number", "fields": { "NUM": 1 } } }, "B": { "shadow": { "type": "math_number", "fields": { "NUM": 1 } } } } },
+            { "kind": "block", "type": "math_single", "inputs": { "NUM": { "shadow": { "type": "math_number", "fields": { "NUM": 9 } } } } },
+            { "kind": "block", "type": "math_trig", "inputs": { "NUM": { "shadow": { "type": "math_number", "fields": { "NUM": 45 } } } } },
+            { "kind": "block", "type": "math_constant" },
+            { "kind": "block", "type": "math_number_property", "inputs": { "NUMBER_TO_CHECK": { "shadow": { "type": "math_number", "fields": { "NUM": 0 } } } } },
+            { "kind": "block", "type": "math_round", "inputs": { "NUM": { "shadow": { "type": "math_number", "fields": { "NUM": 3.1 } } } } },
+            { "kind": "block", "type": "math_on_list" },
+            { "kind": "block", "type": "math_modulo", "inputs": { "DIVIDEND": { "shadow": { "type": "math_number", "fields": { "NUM": 64 } } }, "DIVISOR": { "shadow": { "type": "math_number", "fields": { "NUM": 10 } } } } },
+            { "kind": "block", "type": "math_constrain", "inputs": { "VALUE": { "shadow": { "type": "math_number", "fields": { "NUM": 50 } } }, "LOW": { "shadow": { "type": "math_number", "fields": { "NUM": 1 } } }, "HIGH": { "shadow": { "type": "math_number", "fields": { "NUM": 100 } } } } },
+            { "kind": "block", "type": "math_random_int", "inputs": { "FROM": { "shadow": { "type": "math_number", "fields": { "NUM": 1 } } }, "TO": { "shadow": { "type": "math_number", "fields": { "NUM": 100 } } } } },
+            { "kind": "block", "type": "math_random_float" },
+            { "kind": "block", "type": "math_atan2", "inputs": { "X": { "shadow": { "type": "math_number", "fields": { "NUM": 1 } } }, "Y": { "shadow": { "type": "math_number", "fields": { "NUM": 1 } } } } }
           ]
         },
         {
-          kind: 'category',
-          name: 'Objective',
-          colour: '#F9A825',
-          contents: [
-            {
-              kind: 'category',
-              name: 'General',
-              colour: '#F9A825',
-              contents: [
-                { kind: 'block', type: 'SetObjectiveState' },
-                { kind: 'block', type: 'GetObjectiveState' }
-              ]
-            }
+          "kind": "category",
+          "name": "Text",
+          "categorystyle": "text_category",
+          "contents": [
+            { "kind": "block", "type": "text" },
+            { "kind": "block", "type": "text_join" },
+            { "kind": "block", "type": "text_append", "inputs": { "TEXT": { "shadow": { "type": "text" } } } },
+            { "kind": "block", "type": "text_length", "inputs": { "VALUE": { "shadow": { "type": "text", "fields": { "TEXT": "abc" } } } } },
+            { "kind": "block", "type": "text_isEmpty", "inputs": { "VALUE": { "shadow": { "type": "text", "fields": { "TEXT": "" } } } } },
+            { "kind": "block", "type": "text_indexOf", "inputs": { "VALUE": { "block": { "type": "text", "fields": { "TEXT": "abc" } } }, "FIND": { "shadow": { "type": "text", "fields": { "TEXT": "b" } } } } },
+            { "kind": "block", "type": "text_charAt", "inputs": { "VALUE": { "block": { "type": "text", "fields": { "TEXT": "abc" } } } } },
+            { "kind": "block", "type": "text_getSubstring", "inputs": { "STRING": { "block": { "type": "text", "fields": { "TEXT": "abc" } } } } },
+            { "kind": "block", "type": "text_changeCase", "inputs": { "TEXT": { "shadow": { "type": "text", "fields": { "TEXT": "abc" } } } } },
+            { "kind": "block", "type": "text_trim", "inputs": { "TEXT": { "shadow": { "type": "text", "fields": { "TEXT": "abc" } } } } },
+            { "kind": "block", "type": "text_print", "inputs": { "TEXT": { "shadow": { "type": "text", "fields": { "TEXT": "abc" } } } } },
+            { "kind": "block", "type": "text_prompt_ext", "inputs": { "TEXT": { "shadow": { "type": "text", "fields": { "TEXT": "abc" } } } } }
           ]
         },
         {
-          kind: 'category',
-          name: 'Emplacements',
-          colour: '#8D6E63',
-          contents: [
-            {
-              kind: 'category',
-              name: 'General',
-              colour: '#8D6E63',
-              contents: [
-                { kind: 'block', type: 'DeployEmplacement' }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      kind: 'category',
-      name: 'Presentation',
-      colour: '#2196f3',
-      contents: [
-        {
-          kind: 'category',
-          name: 'UI',
-          colour: '#607D8B',
-          contents: [
-            {
-              kind: 'category',
-              name: 'Messages',
-              colour: '#607D8B',
-              contents: [
-                { kind: 'block', type: 'ShowMessage' },
-                { kind: 'block', type: 'ShowBigMessage' },
-                { kind: 'block', type: 'ShowNotification' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'HUD Elements',
-              colour: '#607D8B',
-              contents: [
-                { kind: 'block', type: 'SetHUDVisible' },
-                { kind: 'block', type: 'UpdateHUDText' },
-                { kind: 'block', type: 'CreateCustomHUD' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Indicators',
-              colour: '#607D8B',
-              contents: [
-                { kind: 'block', type: 'CreateWorldMarker' },
-                { kind: 'block', type: 'RemoveWorldMarker' },
-                { kind: 'block', type: 'SetObjectiveMarker' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Scoreboard',
-              colour: '#607D8B',
-              contents: [
-                { kind: 'block', type: 'UpdateScoreboard' },
-                { kind: 'block', type: 'ShowScoreboard' }
-              ]
-            }
+          "kind": "category",
+          "name": "Lists",
+          "categorystyle": "list_category",
+          "contents": [
+            { "kind": "block", "type": "lists_create_with", "mutation": { "items": "0" } },
+            { "kind": "block", "type": "lists_create_with" },
+            { "kind": "block", "type": "lists_repeat", "inputs": { "NUM": { "shadow": { "type": "math_number", "fields": { "NUM": 5 } } } } },
+            { "kind": "block", "type": "lists_length" },
+            { "kind": "block", "type": "lists_isEmpty" },
+            { "kind": "block", "type": "lists_indexOf" },
+            { "kind": "block", "type": "lists_getIndex" },
+            { "kind": "block", "type": "lists_setIndex" },
+            { "kind": "block", "type": "lists_getSublist" },
+            { "kind": "block", "type": "lists_split", "inputs": { "DELIM": { "shadow": { "type": "text", "fields": { "TEXT": "," } } } } },
+            { "kind": "block", "type": "lists_sort" }
           ]
         },
         {
-          kind: 'category',
-          name: 'Audio',
-          colour: '#455A64',
-          contents: [
-            {
-              kind: 'category',
-              name: 'General',
-              colour: '#455A64',
-              contents: [
-                { kind: 'block', type: 'LoadMusic' },
-                { kind: 'block', type: 'PlayMusic' },
-                { kind: 'block', type: 'SetMusicParam' },
-                { kind: 'block', type: 'UnloadMusic' },
-                { kind: 'block', type: 'PlaySound' },
-                { kind: 'block', type: 'PlayVO' },
-                { kind: 'block', type: 'StopSound' }
-              ]
-            }
+          "kind": "category",
+          "name": "Colour",
+          "categorystyle": "colour_category",
+          "contents": [
+            { "kind": "block", "type": "colour_picker" },
+            { "kind": "block", "type": "colour_random" },
+            { "kind": "block", "type": "colour_rgb", "inputs": { "RED": { "shadow": { "type": "math_number", "fields": { "NUM": 100 } } }, "GREEN": { "shadow": { "type": "math_number", "fields": { "NUM": 50 } } }, "BLUE": { "shadow": { "type": "math_number", "fields": { "NUM": 0 } } } } },
+            { "kind": "block", "type": "colour_blend", "inputs": { "COLOUR1": { "shadow": { "type": "colour_picker", "fields": { "COLOUR": "#ff0000" } } }, "COLOUR2": { "shadow": { "type": "colour_picker", "fields": { "COLOUR": "#3333ff" } } }, "RATIO": { "shadow": { "type": "math_number", "fields": { "NUM": 0.5 } } } } }
           ]
         },
         {
-          kind: 'category',
-          name: 'Camera',
-          colour: '#37474F',
-          contents: [
-            {
-              kind: 'category',
-              name: 'Camera Control',
-              colour: '#37474F',
-              contents: [
-                { kind: 'block', type: 'SetPlayerCamera' },
-                { kind: 'block', type: 'LockCameraToTarget' },
-                { kind: 'block', type: 'CameraShake' },
-                { kind: 'block', type: 'SetCameraFOV' },
-                { kind: 'block', type: 'ResetCamera' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Camera Modes',
-              colour: '#37474F',
-              contents: [
-                { kind: 'block', type: 'FirstPersonCamera' },
-                { kind: 'block', type: 'ThirdPersonCamera' },
-                { kind: 'block', type: 'FreeCamera' },
-                { kind: 'block', type: 'SpectatorCamera' }
-              ]
-            }
-          ]
+          "kind": "sep"
         },
         {
-          kind: 'category',
-          name: 'Effects',
-          colour: '#263238',
-          contents: [
-            {
-              kind: 'category',
-              name: 'Visual Effects',
-              colour: '#263238',
-              contents: [
-                { kind: 'block', type: 'PlayEffect' },
-                { kind: 'block', type: 'StopEffect' },
-                { kind: 'block', type: 'ParticleEffect' },
-                { kind: 'block', type: 'ExplosionEffect' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Screen Effects',
-              colour: '#263238',
-              contents: [
-                { kind: 'block', type: 'ScreenFlash' },
-                { kind: 'block', type: 'ScreenFade' },
-                { kind: 'block', type: 'ApplyScreenFilter' }
-              ]
-            }
-          ]
+          "kind": "category",
+          "name": "Variables",
+          "categorystyle": "variable_category",
+          "custom": "VARIABLE"
         },
         {
-          kind: 'category',
-          name: 'Transform',
-          colour: '#212121',
-          contents: [
-            {
-              kind: 'category',
-              name: 'Position',
-              colour: '#212121',
-              contents: [
-                { kind: 'block', type: 'Vector' },
-                { kind: 'block', type: 'VectorTowards' },
-                { kind: 'block', type: 'DistanceBetween' },
-                { kind: 'block', type: 'XComponentOf' },
-                { kind: 'block', type: 'YComponentOf' },
-                { kind: 'block', type: 'ZComponentOf' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Vector Operations',
-              colour: '#212121',
-              contents: [
-                { kind: 'block', type: 'Normalize' },
-                { kind: 'block', type: 'DotProduct' },
-                { kind: 'block', type: 'CrossProduct' },
-                { kind: 'block', type: 'VectorMagnitude' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Directions',
-              colour: '#212121',
-              contents: [
-                { kind: 'block', type: 'Up' },
-                { kind: 'block', type: 'Down' },
-                { kind: 'block', type: 'Left' },
-                { kind: 'block', type: 'Right' },
-                { kind: 'block', type: 'Forward' },
-                { kind: 'block', type: 'Backward' }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      kind: 'category',
-      name: 'Other',
-      colour: '#9e9e9e',
-      contents: [
-        {
-          kind: 'category',
-          name: 'AI',
-          colour: '#333333',
-          contents: [
-            {
-              kind: 'category',
-              name: 'Behavior',
-              colour: '#333333',
-              contents: [
-                { kind: 'block', type: 'AIBattlefieldBehavior' },
-                { kind: 'block', type: 'AIDefendPositionBehavior' },
-                { kind: 'block', type: 'AIIdleBehavior' },
-                { kind: 'block', type: 'AIMoveToBehavior' },
-                { kind: 'block', type: 'AIParachuteBehavior' },
-                { kind: 'block', type: 'AIWaypointIdleBehavior' },
-                { kind: 'block', type: 'AIFollowPlayer' },
-                { kind: 'block', type: 'AIHoldPosition' },
-                { kind: 'block', type: 'AIAttackTarget' },
-                { kind: 'block', type: 'SetAIBehavior' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'Spawning',
-              colour: '#333333',
-              contents: [
-                { kind: 'block', type: 'DeployAI' },
-                { kind: 'block', type: 'DespawnAI' },
-                { kind: 'block', type: 'SetAISpawnLocation' }
-              ]
-            },
-            {
-              kind: 'category',
-              name: 'State',
-              colour: '#333333',
-              contents: [
-                { kind: 'block', type: 'SetAIHealth' },
-                { kind: 'block', type: 'SetAITeam' },
-                { kind: 'block', type: 'GetAIHealth' },
-                { kind: 'block', type: 'GetAITeam' },
-                { kind: 'block', type: 'AIIsAlive' }
-              ]
-            }
-          ]
-        },
-        {
-          kind: 'category',
-          name: 'General',
-          colour: '#9E9E9E',
-          contents: [
-            { kind: 'block', type: 'Comment' }
-          ]
+          "kind": "category",
+          "name": "Functions",
+          "categorystyle": "procedure_category",
+          "custom": "PROCEDURE"
         }
       ]
     }
   ]
-};
+}

@@ -1,7 +1,32 @@
 
+# 2025-11-30: Workspace Reset and Default Blockly Restore
+
+**[2025-11-30  Workspace Log]**
+- All custom menu structure and blockly setup have been safely backed up.
+- The web_ui/blockly directory is now restored to a default Blockly install (from vendor/blockly if needed).
+- The custom boot screen is disabled but preserved for future use.
+- Serenity/other projects are paused; all focus is on clean, default Blockly integration and safe backup of all customizations.
+
+
+
+## Current Action
+- All custom menu structure and blockly setup have been backed up to `backups/menu_structure_2025-11-30/` and `backups/blockly_custom_2025-11-30/`.
+- The web_ui/blockly directory is now a clean, default Blockly install (copied from vendor/blockly if needed).
+- The custom boot/splash screen is commented out in index.html and preserved for future restoration.
+- All settings and extensions should reflect the BF6Portal Tool workspace only.
+- Serenity/other projects are paused; focus is on clean, default Blockly integration and safe backup of all customizations.
+
+## Next Steps
+- Test that the default Blockly loads and runs in the main web UI.
+- Re-enable or rebuild features as needed, using the backed-up customizations as reference.
+- Keep this README and all documentation up to date with every major workspace change.
+
 # BF6Portal Tool: Custom Battlefield Portal Block Editor
 
-This project is a modern, custom block-based editor for Battlefield Portal logic, featuring a unique web UI with minimal design and robust Blockly integration. It enables users to visually create, edit, and export Portal logic scripts for Battlefield 2042.
+
+This project is a modern, custom block-based editor for Battlefield Portal logic, featuring a robust, branded web UI with full Blockly integration. **The only supported UI is the one in `web_ui/`—never use or serve the test/standalone/blank UI.**
+
+**Main Task:** Build, maintain, and extend the robust web_ui/Blockly interface. All menus, overlays, and block integration must be robust, maintainable, and always on top. All documentation and workflow should reflect this as the ongoing main priority.
 
 ## Features
 

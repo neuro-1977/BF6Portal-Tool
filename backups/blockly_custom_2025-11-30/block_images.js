@@ -1,0 +1,1 @@
+// Placeholder for custom blockly block images backup. Add extracted customizations here if needed.

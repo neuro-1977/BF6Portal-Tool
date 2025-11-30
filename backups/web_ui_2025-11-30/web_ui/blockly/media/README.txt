@@ -1,0 +1,1 @@
+# Placeholder for Blockly media README. Restore from official Blockly distribution or previous backup.

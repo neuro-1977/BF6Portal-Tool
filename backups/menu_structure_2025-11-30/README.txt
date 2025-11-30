@@ -1,0 +1,1 @@
+Backup of all menu structure and custom blockly setup as of 2025-11-30. This folder will store any extracted menu logic, UI layouts, and configuration for future restoration or reference.

@@ -1,0 +1,1 @@
+// Placeholder for menu structure JS backup. Add extracted menu logic here if needed.

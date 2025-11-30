@@ -1,0 +1,1 @@
+// Placeholder for menu structure block images backup. Add extracted block image logic here if needed.

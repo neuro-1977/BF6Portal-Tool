@@ -1,0 +1,1 @@
+# Placeholder for Blockly media assets checklist. Restore from official Blockly distribution or previous backup.

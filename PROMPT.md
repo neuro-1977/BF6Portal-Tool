@@ -5,7 +5,10 @@ description: The master prompt and workflow reference for the project. All workf
 ---
 
 
+
 # PROMPT (Master Workflow & Vision)
+
+**MAIN TASK: Build and maintain the robust web_ui/Blockly interface. The web_ui/ is the only supported UI—never use or serve the test/blank/standalone UI. All menus, overlays, and block integration must be robust, maintainable, and always on top.**
 
 **This file is the single source of truth for all workflow, instructions, and project vision. Always check this file and the main memory file first.**
 
@@ -18,18 +21,13 @@ description: The master prompt and workflow reference for the project. All workf
 # BF6Portal Tool: Master UI/UX and Refactor Prompt (2025-11-29)
 
 ## Master Prompt: UI/UX and Refactor Plan 
------------------------------------------------------------------------
-user editable area keep safe.
------------------------------------------------------------------------
-prompt Updated.
-# -- //no agent response required to thie intial call of this prompt.//
 
 ---
 **STATUS UPDATE (2025-11-29):**
 All web UI functions are now complete except for the ticker text on the boot/splash screen. The ticker is the only remaining incomplete feature; all other UI/UX requirements and controls are implemented and working as specified. Continue work on restoring/cycling the quirky ticker comments at the bottom of the splash. All other web UI features are considered done unless new issues are found.
 
 ---
-check blocks folder for screenshots analyze them and make documentation for them in a seperate folder
+check dump folder for screenshots analyze them and make documentation for them in a seperate folder
 ### 1. Boot/Splash Screen ("Green Box")
 - **Do NOT change the working boot/splash screen except for bugfixes or visual polish.**
 	- The green box, logo, credits, loading bar, are correct and match the screenshot and prompt.
