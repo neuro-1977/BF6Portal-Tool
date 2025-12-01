@@ -1,0 +1,1492 @@
+{
+  "Screenshot 2025-11-29 084828": [
+    {
+      "name": "HELP x",
+      "children": []
+    },
+    {
+      "name": "> Break",
+      "children": []
+    },
+    {
+      "name": "Breaks and exits the execution of a looping block, such as While or ForVariable.",
+      "children": []
+    },
+    {
+      "name": "While true w",
+      "children": []
+    },
+    {
+      "name": "Wait 1",
+      "children": []
+    },
+    {
+      "name": "Break",
+      "children": []
+    },
+    {
+      "name": "|",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 084835": [
+    {
+      "name": "RELP",
+      "children": []
+    },
+    {
+      "name": "Continue",
+      "children": []
+    },
+    {
+      "name": "Forces the execution of a looping block (such as While or ForVariable) to the start of the next iteration of that block.",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 084840": [
+    {
+      "name": "Meow",
+      "children": []
+    },
+    {
+      "name": "~S ForVariable",
+      "children": []
+    },
+    {
+      "name": "The start of a series of Actions that will execute in a loop, modifying the control variable on each iteration. If the contro",
+      "children": []
+    },
+    {
+      "name": "Variable reaches or passes the range end value, the loop exits, and execution continues through the remaining Actions",
+      "children": []
+    },
+    {
+      "name": "the RULE.",
+      "children": []
+    },
+    {
+      "name": "_. Inputs.",
+      "children": []
+    },
+    {
+      "name": "1. Variable: variableTolterate",
+      "children": []
+    },
+    {
+      "name": "a 2. Number: startValue",
+      "children": []
+    },
+    {
+      "name": "3. Number: endValue",
+      "children": []
+    },
+    {
+      "name": "4, Number: intervalValue",
+      "children": []
+    },
+    {
+      "name": "a0 o> o@* Oo.",
+      "children": []
+    },
+    {
+      "name": " = ",
+      "children": []
+    },
+    {
+      "name": "DealDamage EventPlayer (6)",
+      "children": []
+    },
+    {
+      "name": "By",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 084846": [
+    {
+      "name": "HELP os",
+      "children": []
+    },
+    {
+      "name": "Ss ForVariable",
+      "children": []
+    },
+    {
+      "name": "The start of a series of Actions that will execute in a loop, modifying the control variable on each iteration. If the control",
+      "children": []
+    },
+    {
+      "name": "Variable reaches or passes the range end value, the loop exits, and execution continues through the remaining Actions in",
+      "children": []
+    },
+    {
+      "name": "the RULE.",
+      "children": []
+    },
+    {
+      "name": "Inputs",
+      "children": []
+    },
+    {
+      "name": "1. Variable: variableTolterate",
+      "children": []
+    },
+    {
+      "name": "2. Number: startValue",
+      "children": []
+    },
+    {
+      "name": "3. Number: endValue",
+      "children": []
+    },
+    {
+      "name": ". Number: intervalValue",
+      "children": []
+    },
+    {
+      "name": "ForVariable (x) y From ¢ jo | te ¢ 8 oo",
+      "children": []
+    },
+    {
+      "name": "DealDamage (eE ) EventPlayer fs | ®",
+      "children": []
+    },
+    {
+      "name": "By",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 084856": [
+    {
+      "name": "A special block which evaluates conditions to control the flow of Actions in the If, Else If, and Else branches.",
+      "children": []
+    },
+    {
+      "name": "Inputs",
+      "children": []
+    },
+    {
+      "name": ": 1. Bool: condition",
+      "children": []
+    },
+    {
+      "name": "8 @ tow @ omen @ tor @ orem",
+      "children": []
+    },
+    {
+      "name": "By",
+      "children": []
+    },
+    {
+      "name": "ae",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 084905": [
+    {
+      "name": "HELP",
+      "children": []
+    },
+    {
+      "name": "~ While",
+      "children": []
+    },
+    {
+      "name": "A block of Actions that will execute in a loop as long as the provided condition is True.",
+      "children": []
+    },
+    {
+      "name": "Note: You must utilize a Wait block at the beginning or the end of the iteration.",
+      "children": []
+    },
+    {
+      "name": "Inputs",
+      "children": []
+    },
+    {
+      "name": "1. Bool: condition",
+      "children": []
+    },
+    {
+      "name": "hile @) @) _ GetSoldierstate ® EventPlayer SoldierStateBoolltem  SoldierSta",
+      "children": []
+    },
+    {
+      "name": "R=",
+      "children": []
+    },
+    {
+      "name": "Wait [1]",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 084912": [
+    {
+      "name": "= GRETERUUES",
+      "children": []
+    },
+    {
+      "name": ". Y |G) OBJECTIVE | i",
+      "children": []
+    },
+    {
+      "name": "ee tit tt",
+      "children": []
+    },
+    {
+      "name": "os an tit tt",
+      "children": []
+    },
+    {
+      "name": ".) TRANSFORM |",
+      "children": []
+    },
+    {
+      "name": "UI) USER INTERFACE | | | ttt",
+      "children": []
+    },
+    {
+      "name": "foems itt tt",
+      "children": []
+    },
+    {
+      "name": "",
+      "children": []
+    },
+    {
+      "name": "ureras",
+      "children": []
+    },
+    {
+      "name": "CONTROL ACTIONS ee",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 084926": [
+    {
+      "name": "a M@liiiiiiiiiiiiiiiiin",
+      "children": []
+    },
+    {
+      "name": "CREATE SUBROUTINE Me ens",
+      "children": []
+    },
+    {
+      "name": "..: NAME es",
+      "children": []
+    },
+    {
+      "name": "a test subroutine es",
+      "children": []
+    },
+    {
+      "name": "a REMOVE es",
+      "children": []
+    },
+    {
+      "name": "a ADD PARAMETER PARAMETER ee",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 084932": [
+    {
+      "name": "__-_ ee  = =",
+      "children": []
+    },
+    {
+      "name": "d",
+      "children": []
+    },
+    {
+      "name": "a mo:",
+      "children": []
+    },
+    {
+      "name": "are suBROUTINE _",
+      "children": []
+    },
+    {
+      "name": "4 : test subroutine ne",
+      "children": []
+    },
+    {
+      "name": "] Bciiinnsiin: REMOVE a",
+      "children": []
+    },
+    {
+      "name": "] Bciiinnsiin: ADD PARAMETER PARAMETER a",
+      "children": []
+    },
+    {
+      "name": "se } oes",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 084942": [
+    {
+      "name": "cow",
+      "children": []
+    },
+    {
+      "name": "v ke |",
+      "children": []
+    },
+    {
+      "name": "(pen seise © FB setsebroutinezrgument No parameters",
+      "children": []
+    },
+    {
+      "name": "ka)PiaveR aa",
+      "children": []
+    },
+    {
+      "name": "'t.) TRANSFORM",
+      "children": []
+    },
+    {
+      "name": "(Cul) USER INTERFACE.",
+      "children": []
+    },
+    {
+      "name": "ie | | | ll",
+      "children": []
+    },
+    {
+      "name": "(66) LITERALS |",
+      "children": []
+    },
+    {
+      "name": "(2¢) VARIABLES | | | ll",
+      "children": []
+    },
+    {
+      "name": "| eee",
+      "children": []
+    },
+    {
+      "name": "a",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 084948": [
+    {
+      "name": "TELL",
+      "children": []
+    },
+    {
+      "name": "Tete] fy",
+      "children": []
+    },
+    {
+      "name": "i a",
+      "children": []
+    },
+    {
+      "name": "a Pt",
+      "children": []
+    },
+    {
+      "name": "Sel",
+      "children": []
+    },
+    {
+      "name": "Ty tf py yy",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085014": [
+    {
+      "name": "| SUBROUTINE test subroutine a a",
+      "children": []
+    },
+    {
+      "name": "th [UR = New Rule vent Ongoing lobz",
+      "children": []
+    },
+    {
+      "name": "ee",
+      "children": []
+    },
+    {
+      "name": "| | a a ee",
+      "children": []
+    },
+    {
+      "name": "| ee",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085036": [
+    {
+      "name": "© |G) oBsectve Pt tt",
+      "children": []
+    },
+    {
+      "name": "-fome Sone",
+      "children": []
+    },
+    {
+      "name": "fone Pt | tt",
+      "children": []
+    },
+    {
+      "name": ".) TRANSFORM a",
+      "children": []
+    },
+    {
+      "name": "i USER INTERFACE Pi |i",
+      "children": []
+    },
+    {
+      "name": "a oot",
+      "children": []
+    },
+    {
+      "name": "(a=) SELECTION LISTS",
+      "children": []
+    },
+    {
+      "name": " aan",
+      "children": []
+    },
+    {
+      "name": " Pt | tt",
+      "children": []
+    },
+    {
+      "name": "rosie | Pt | tt",
+      "children": []
+    },
+    {
+      "name": "CONTROL ACTIONS a a",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085041": [
+    {
+      "name": "| SUBROUTINE test subroutine",
+      "children": []
+    },
+    {
+      "name": "| | _  | | | mi",
+      "children": []
+    },
+    {
+      "name": "RULE [QSQEME) event Ongoing ~ Global ~",
+      "children": []
+    },
+    {
+      "name": "a",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085047": [
+    {
+      "name": "u GLOBAL (0 / 16) OBJECT (0 / 16) aeneeneeeee",
+      "children": []
+    },
+    {
+      "name": "a AreaTrigger ee",
+      "children": []
+    },
+    {
+      "name": "+ CapturePoint a a",
+      "children": []
+    },
+    {
+      "name": "a EmplacementSpawner ......",
+      "children": []
+    },
+    {
+      "name": "a InteractPoint =",
+      "children": []
+    },
+    {
+      "name": "+ LootSpawner wits",
+      "children": []
+    },
+    {
+      "name": "a MCOM - 4",
+      "children": []
+    },
+    {
+      "name": "a RingOfFire :",
+      "children": []
+    },
+    {
+      "name": "+ ScreenEffect ig",
+      "children": []
+    },
+    {
+      "name": "a (deprecated) a",
+      "children": []
+    },
+    {
+      "name": "t Sector 1",
+      "children": []
+    },
+    {
+      "name": "a SFX :@",
+      "children": []
+    },
+    {
+      "name": "+ SpatialObject ia",
+      "children": []
+    },
+    {
+      "name": "a Spawner 7",
+      "children": []
+    },
+    {
+      "name": "+ SpawnPoint iia",
+      "children": []
+    },
+    {
+      "name": "= Team _",
+      "children": []
+    },
+    {
+      "name": ": NEW VARIABLE a",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085055": [
+    {
+      "name": "jects a % CUSTOM DRAFT / RULES EDITOR / BLOCKS",
+      "children": []
+    },
+    {
+      "name": "v",
+      "children": []
+    },
+    {
+      "name": "=",
+      "children": []
+    },
+    {
+      "name": "© k@pouecrve | « a>",
+      "children": []
+    },
+    {
+      "name": "° » |c-oomen | NUMBER a || | ||",
+      "children": []
+    },
+    {
+      "name": "ee",
+      "children": []
+    },
+    {
+      "name": "| oTRawsrors | a",
+      "children": []
+    },
+    {
+      "name": "| un usen nrenrace oes i a | | | |",
+      "children": []
+    },
+    {
+      "name": "fowns",
+      "children": []
+    },
+    {
+      "name": "",
+      "children": []
+    },
+    {
+      "name": "a | | |",
+      "children": []
+    },
+    {
+      "name": "x) VARIABLES",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085101": [
+    {
+      "name": "HELP",
+      "children": []
+    },
+    {
+      "name": "Bool",
+      "children": []
+    },
+    {
+      "name": "A Bool is fancy game developer talk for a True or False value. This type is used to define or identify the state of a variety of",
+      "children": []
+    },
+    {
+      "name": "Is a player currently prone?",
+      "children": []
+    },
+    {
+      "name": "Is the player using a specific soldier?",
+      "children": []
+    },
+    {
+      "name": "Can players not score points because of some custom condition?",
+      "children": []
+    },
+    {
+      "name": "( false -",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085108": [
+    {
+      "name": "=",
+      "children": []
+    },
+    {
+      "name": "fou can enter any numerical value you want here.",
+      "children": []
+    },
+    {
+      "name": "1, 2, 3.14, -10.2",
+      "children": []
+    },
+    {
+      "name": "Use this block in combination with math blocks to do all sorts of fun mathematical equations.",
+      "children": []
+    },
+    {
+      "name": "Gees)",
+      "children": []
+    },
+    {
+      "name": "Oss 60 oo)",
+      "children": []
+    },
+    {
+      "name": "Co",
+      "children": []
+    },
+    {
+      "name": "© @ wm  ©@® @)",
+      "children": []
+    },
+    {
+      "name": "Ac",
+      "children": []
+    },
+    {
+      "name": "Gam ee X=)",
+      "children": []
+    },
+    {
+      "name": "|",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085114": [
+    {
+      "name": "HELP A",
+      "children": []
+    },
+    {
+      "name": "~s String",
+      "children": []
+    },
+    {
+      "name": "You can use this block to utilize text within your mod.",
+      "children": []
+    },
+    {
+      "name": "Team 2s Flag has been Captured!",
+      "children": []
+    },
+    {
+      "name": "Aplayer has become the Juggernaut. Beware!",
+      "children": []
+    },
+    {
+      "name": "Phase 3 of your really cool custom mod has started!",
+      "children": []
+    },
+    {
+      "name": "_ - Note: It's your responsibility to ensure a safe and fair experience for others, violating the EA User Agreement by using",
+      "children": []
+    },
+    {
+      "name": "2 offensive or inappropriate text may result in account bans.",
+      "children": []
+    },
+    {
+      "name": "7",
+      "children": []
+    },
+    {
+      "name": "»",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085129": [
+    {
+      "name": "SUBROUTINE",
+      "children": []
+    },
+    {
+      "name": "Calls a SUBROUTINE block of the same name.",
+      "children": []
+    },
+    {
+      "name": "Soon ee",
+      "children": []
+    },
+    {
+      "name": "|",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085141": [
+    {
+      "name": "ec # RES HER Ane _ - 2",
+      "children": []
+    },
+    {
+      "name": "=m FS were cee senna tenant",
+      "children": []
+    },
+    {
+      "name": "(G) OBJECTIVE |",
+      "children": []
+    },
+    {
+      "name": " | © Meserecageotim  Muserctgee » OR",
+      "children": []
+    },
+    {
+      "name": "|caprvee 7 © MusicParamsitem  MusicParams + BRAmplRade ©",
+      "children": []
+    },
+    {
+      "name": "|",
+      "children": []
+    },
+    {
+      "name": "1.) TRANSFORM",
+      "children": []
+    },
+    {
+      "name": "© AmmoTypesitem © AmmoTypes ~  ARCarbine Ammo +",
+      "children": []
+    },
+    {
+      "name": "UI) USER INTERFACE",
+      "children": []
+    },
+    {
+      "name": "4) VEHICLES © ArmorTypesitem  ArmorTypeGlacier »  CeramicArmor »",
+      "children": []
+    },
+    {
+      "name": "| Camerasitem Cameras ~ _FirstPerson ~",
+      "children": []
+    },
+    {
+      "name": "|",
+      "children": []
+    },
+    {
+      "name": "© __CustomNotificationSlatsitem __CustomNotificationSlots HeaderText",
+      "children": []
+    },
+    {
+      "name": "2) VARIABLES",
+      "children": []
+    },
+    {
+      "name": "oUTELS | © Factionsitem Factions ~ NTO",
+      "children": []
+    },
+    {
+      "name": "CONTROL ACTIONS | © Gadgetsitem Gadgets » _Callln_Air_Strike",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085147": [
+    {
+      "name": "_ Gadgetsltem",
+      "children": []
+    },
+    {
+      "name": "Returns a Gadgets Item which can be used with AddGadget and AddUIGadgetlmage.",
+      "children": []
+    },
+    {
+      "name": "Output",
+      "children": []
+    },
+    {
+      "name": "Gadgetsitem",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085154": [
+    {
+      "name": "-",
+      "children": []
+    },
+    {
+      "name": "Factionslte",
+      "children": []
+    },
+    {
+      "name": "Returns a Factions Item which can be used with IsFaction.",
+      "children": []
+    },
+    {
+      "name": "Output",
+      "children": []
+    },
+    {
+      "name": "Factionsitem",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085206": [
+    {
+      "name": "| ee",
+      "children": []
+    },
+    {
+      "name": "fF ttt td te",
+      "children": []
+    },
+    {
+      "name": "SS",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085210": [
+    {
+      "name": "en",
+      "children": []
+    },
+    {
+      "name": "Pe tT pT",
+      "children": []
+    },
+    {
+      "name": "tit | | | | |",
+      "children": []
+    },
+    {
+      "name": "<=",
+      "children": []
+    },
+    {
+      "name": "By Factions | a",
+      "children": []
+    },
+    {
+      "name": "aes",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085240": [
+    {
+      "name": "VoiceOverFlagsitem  VoiceOverFlags ~ Alpha ~",
+      "children": []
+    },
+    {
+      "name": "WeaponAttachmentsitem  WeaponAttachments » Ammo Buckshot =)",
+      "children": []
+    },
+    {
+      "name": "© Weaponsitem Weapons 3) | | AssaultRifle AK4D ©",
+      "children": []
+    },
+    {
+      "name": "© Worldiconimagesitem  Worldiconimages ~ Alert -",
+      "children": []
+    },
+    {
+      "name": "© GetUlimageType _UllmageType ~ Crowning",
+      "children": []
+    },
+    {
+      "name": "© caturtexeanchor Ulanchor * _BottomCenter = GetUITextAnchor _UlAnchor » __BottomCenter ~",
+      "children": []
+    },
+    {
+      "name": "© cetuwmndgesoean BSE © Ble",
+      "children": []
+    },
+    {
+      "name": "© _ cetumidgetdepth UDepth ~ _AboveGarell =)",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085248": [
+    {
+      "name": "|} {| | |} | | ff",
+      "children": []
+    },
+    {
+      "name": "titi} tt ty",
+      "children": []
+    },
+    {
+      "name": "SEE",
+      "children": []
+    },
+    {
+      "name": "7 ",
+      "children": []
+    },
+    {
+      "name": "© sere os Ce)",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085317": [
+    {
+      "name": "© iencin|Hena> ema)",
+      "children": []
+    },
+    {
+      "name": "© Wercconimagestem Werdeonimages © Alert =",
+      "children": []
+    },
+    {
+      "name": ") Getliagetype UlimageType Crowne -",
+      "children": []
+    },
+    {
+      "name": "Of)",
+      "children": []
+    },
+    {
+      "name": "EEE ===)",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085326": [
+    {
+      "name": "Cees (es) (eral a",
+      "children": []
+    },
+    {
+      "name": "(S) UIBgFillltem | ag 3) | ature >",
+      "children": []
+    },
+    {
+      "name": "(fs) 7",
+      "children": []
+    },
+    {
+      "name": "(S) UmageTypetem _UlmageType ~  CrownOutline =) a",
+      "children": []
+    },
+    {
+      "name": "© VehicleListitem VehicleList ~ Abrams + )",
+      "children": []
+    },
+    {
+      "name": "© VehicleStateVectoritem  VehicleStateVector ~ FacingDirection ~ )",
+      "children": []
+    },
+    {
+      "name": "© VoiceOverEvents2Ditem VoiceOverEvents2D + Chaconne 7 )",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085334": [
+    {
+      "name": "© swcmnen sree» ment",
+      "children": []
+    },
+    {
+      "name": "Oe Ey)",
+      "children": []
+    },
+    {
+      "name": "© SoldierStateNumberitem SoldierStateNumber v CurrentHealth o))",
+      "children": []
+    },
+    {
+      "name": "S) SoldlerStateVectortem SolderStateVector © EyePosition ©",
+      "children": []
+    },
+    {
+      "name": "© srawnmodestem Spawntiodes » _AutoSpawn =",
+      "children": []
+    },
+    {
+      "name": "(S) StatonarEmplacementetem StatnaryEmplacementist » BGH7TTOW ~",
+      "children": []
+    },
+    {
+      "name": "(S) Txuttzin [ims NAS",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085342": [
+    {
+      "name": "v",
+      "children": []
+    },
+    {
+      "name": "(3) MATH, © _Pumtimespawn_craite ResidentaNortite RuntimeSpawn Granite ResidentaINorth  AcaciaUrban.O1-S a)",
+      "children": []
+    },
+    {
+      "name": "~ | @)owectve",
+      "children": []
+    },
+    {
+      "name": "Ss es ae)",
+      "children": []
+    },
+    {
+      "name": "| Gee) OTHER",
+      "children": []
+    },
+    {
+      "name": "|caprvee © RumtimaSpa 3wn_Limestoneltem feet imestone ~  ACModule_02 - a",
+      "children": []
+    },
+    {
+      "name": "-) TRANSFORM RuntimeSpawn Outsktatem Ru etimeSpawn_Outekite » ACMode.03 )",
+      "children": []
+    },
+    {
+      "name": "UI) USER INTERFACE",
+      "children": []
+    },
+    {
+      "name": "v RuntimeSpawn Sandltem  RuntimeSpawn_Sand ~  ACModule_01 =)",
+      "children": []
+    },
+    {
+      "name": "4) VEHICLES",
+      "children": []
+    },
+    {
+      "name": "») SELECTION LISTS © RuntimeSpawn_Tungstenitem  RuntimeSpawn_Tungsten =) - ACUnit_04 -",
+      "children": []
+    },
+    {
+      "name": "66) LITERALS 4",
+      "children": []
+    },
+    {
+      "name": "ScoreboardTypeltem  ScoreboardType =) | CustomFFA",
+      "children": []
+    },
+    {
+      "name": "20) VARIABLES",
+      "children": []
+    },
+    {
+      "name": "Ce 7",
+      "children": []
+    },
+    {
+      "name": "SUBROUTINES",
+      "children": []
+    },
+    {
+      "name": "CONTROL ACTIONS ( © _seconaryesponsitm __SecondanyWeaponeGiacer © NAS",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085351": [
+    {
+      "name": "en ees rte sess p 7 aa",
+      "children": []
+    },
+    {
+      "name": "(©) _PlayerDamagetypesitem PlayerDamageTypes » Default + ee",
+      "children": []
+    },
+    {
+      "name": "© PlayrDeathTypestem  PayrDeatypes = Deserting =)",
+      "children": []
+    },
+    {
+      "name": "© | PrimaryWeaponsitem PrimaryWeapons =) Nay",
+      "children": []
+    },
+    {
+      "name": "EEE Se)",
+      "children": []
+    },
+    {
+      "name": "4a)",
+      "children": []
+    },
+    {
+      "name": "RuntimeSpawn_Abbasidtem  RuntimeSpawn_Abbasid =) | ACModule_01 ~ )",
+      "children": []
+    },
+    {
+      "name": "RuntimeSpawn_Aftermathltem  RuntimeSpawn_Aftermath + AoModle 01 ol}",
+      "children": []
+    },
+    {
+      "name": "RuntimeSpawn_Badlandsitem  RuntimeSpawn_Badlands ~ AbraO1_Chassis ~",
+      "children": []
+    },
+    {
+      "name": "S) RuntimeSpawn_Batteryitem  RuntimeSpawn Battery ~ AAGun_O1 »",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085359": [
+    {
+      "name": "(=) CustomNotificationSlotsitem CustomNotificationSlots ~ J ees J a",
+      "children": []
+    },
+    {
+      "name": "Factionsitem Factions » NATO +",
+      "children": []
+    },
+    {
+      "name": "aXe",
+      "children": []
+    },
+    {
+      "name": "Gadgetsltem Gadgets » Calllln_Air_Strike ~",
+      "children": []
+    },
+    {
+      "name": "fetseion fies lventoSiots + Caling = ~ Callin",
+      "children": []
+    },
+    {
+      "name": "© MeleeWeaponsitrn MeleeGiacior » WA 2)",
+      "children": []
+    },
+    {
+      "name": "MoveSpeeditem  MoveSpeed » InvestigateRun",
+      "children": []
+    },
+    {
+      "name": "S) Opentadgetstem OpenGadgets w UnguidedRocketLauncher »",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085406": [
+    {
+      "name": "i w a a",
+      "children": []
+    },
+    {
+      "name": "CEI)",
+      "children": []
+    },
+    {
+      "name": "(S) MusicPaclagestem MuscPaclages = BR >",
+      "children": []
+    },
+    {
+      "name": "© MisPaometem MuscPorams + BRLAMpIRude ©",
+      "children": []
+    },
+    {
+      "name": "S) SacI Item fprarallVpe + AR.Cattne Amino =",
+      "children": []
+    },
+    {
+      "name": "S) ArmorTypesitem  ArmorTypeGlacier + Geramictror ©",
+      "children": []
+    },
+    {
+      "name": "© cosotston cadets» oan A-stle =",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085416": [
+    {
+      "name": "=_",
+      "children": []
+    },
+    {
+      "name": "+t",
+      "children": []
+    },
+    {
+      "name": "+t",
+      "children": []
+    },
+    {
+      "name": "<p aa",
+      "children": []
+    },
+    {
+      "name": "",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085438": [
+    {
+      "name": "_ on",
+      "children": []
+    },
+    {
+      "name": "al",
+      "children": []
+    },
+    {
+      "name": "+",
+      "children": []
+    },
+    {
+      "name": "@ coveniceteam | |",
+      "children": []
+    },
+    {
+      "name": "|",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085445": [
+    {
+      "name": "aa 2)",
+      "children": []
+    },
+    {
+      "name": "@) _ Getvehictes: ® LE",
+      "children": []
+    },
+    {
+      "name": "(H) __Getvehicieteam r®) =",
+      "children": []
+    },
+    {
+      "name": "SOLDIER i",
+      "children": []
+    },
+    {
+      "name": "oe",
+      "children": []
+    },
+    {
+      "name": "(©) GetPiayerFromVehicleSeat |",
+      "children": []
+    },
+    {
+      "name": "oto",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085450": [
+    {
+      "name": "a ee ee",
+      "children": []
+    },
+    {
+      "name": "i",
+      "children": []
+    },
+    {
+      "name": "a7",
+      "children": []
+    },
+    {
+      "name": "_ ae",
+      "children": []
+    },
+    {
+      "name": "el",
+      "children": []
+    },
+    {
+      "name": "won ae",
+      "children": []
+    },
+    {
+      "name": "rT",
+      "children": []
+    },
+    {
+      "name": "ae",
+      "children": []
+    },
+    {
+      "name": " ae",
+      "children": []
+    },
+    {
+      "name": "",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085457": [
+    {
+      "name": "ee",
+      "children": []
+    },
+    {
+      "name": "o ant",
+      "children": []
+    },
+    {
+      "name": "aan",
+      "children": []
+    },
+    {
+      "name": "aan",
+      "children": []
+    },
+    {
+      "name": "aan",
+      "children": []
+    },
+    {
+      "name": "@ women aan",
+      "children": []
+    },
+    {
+      "name": "rp) aan",
+      "children": []
+    },
+    {
+      "name": " an:",
+      "children": []
+    },
+    {
+      "name": "o oc",
+      "children": []
+    },
+    {
+      "name": "@ vemos -",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085503": [
+    {
+      "name": "a Se 0 a a ®  Ps Bo :",
+      "children": []
+    },
+    {
+      "name": "@ coumecnnte | |",
+      "children": []
+    },
+    {
+      "name": "@ eeeenoser | |",
+      "children": []
+    },
+    {
+      "name": "= Z",
+      "children": []
+    },
+    {
+      "name": "| |",
+      "children": []
+    },
+    {
+      "name": "ED) | |",
+      "children": []
+    },
+    {
+      "name": "© eatiigtione a",
+      "children": []
+    },
+    {
+      "name": "| |",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 085510": [
+    {
+      "name": "HELP x",
+      "children": []
+    },
+    {
+      "name": "GetUIWidgetPositio:",
+      "children": []
+    },
+    {
+      "name": "Returns the positional vector of the specified UI Widget.",
+      "children": []
+    },
+    {
+      "name": "Inputs",
+      "children": []
+    },
+    {
+      "name": "1. UlWidget: uiWidget",
+      "children": []
+    },
+    {
+      "name": "Output",
+      "children": []
+    },
+    {
+      "name": "Vector",
+      "children": []
+    },
+    {
+      "name": "EEN",
+      "children": []
+    },
+    {
+      "name": "® GetUIWidgetPosition EventUlWidget",
+      "children": []
+    },
+    {
+      "name": "Sr",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 111234": [
+    {
+      "name": "[",
+      "children": []
+    }
+  ],
+  "Screenshot 2025-11-29 111247": [
+    {
+      "name": "HELP x",
+      "children": []
+    },
+    {
+      "name": "=s Teleport",
+      "children": []
+    },
+    {
+      "name": "Teleports a target to a provided valid position facing a specified angle (in radians).",
+      "children": []
+    },
+    {
+      "name": "Inputs",
+      "children": []
+    },
+    {
+      "name": ": 1. Player: player",
+      "children": []
+    },
+    {
+      "name": "as 2. Vector: destination",
+      "children": []
+    },
+    {
+      "name": "= 3. Number: orientation",
+      "children": []
+    },
+    {
+      "name": "",
+      "children": []
+    },
+    {
+      "name": "Oar Somm OG Oo Oo)",
+      "children": []
+    },
+    {
+      "name": "1. Vehicle: vehicle",
+      "children": []
+    },
+    {
+      "name": "2. Vector: destination",
+      "children": []
+    },
+    {
+      "name": "3. Number: orientation",
+      "children": []
+    },
+    {
+      "name": "Teeoort  @) Fvnnvcice @) cover OB BG oO  f£",
+      "children": []
+    }
+  ]
+}

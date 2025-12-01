@@ -1,4 +1,4 @@
-
+always keep TODO
 
 
 # TODO (Live, always reference PROMPT.md)
@@ -7,7 +7,7 @@
 
 ## Workflow
 
-- PROMPT.md is the master source of truth. Always check it first.
+- GEMINI.md is the master source of truth. Always check it first.
 - All session memory and action logs are referenced in PROMPT.md and session_db.
 - Update all documentation and references with each new addition or change.
 
