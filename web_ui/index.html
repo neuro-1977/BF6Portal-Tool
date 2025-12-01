@@ -1,36 +1,68 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
   <meta charset="utf-8">
-  <title>Blockly Demo</title>
+  <title>BF6 Portal Tool</title>
   <style>
     html, body {
       height: 100%;
       margin: 0;
-      overflow: hidden; /* Hide scrollbars if content overflows */
-    }
-    body {
-      background-color: #fff;
+      padding: 0;
+      overflow: hidden;
       font-family: sans-serif;
     }
+    body {
+      display: flex;
+      flex-direction: column;
+      background-color: #2b2b2b;
+    }
+    #header {
+      height: 50px;
+      background-color: #2d2d2d;
+      color: #e0e0e0;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      flex-shrink: 0;
+      border-bottom: 1px solid #444;
+    }
+    #header h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      margin-right: 20px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    #searchBar {
+      padding: 6px 12px;
+      border-radius: 4px;
+      border: 1px solid #555;
+      background-color: #3d3d3d;
+      color: #fff;
+      outline: none;
+      width: 250px;
+    }
+    #searchBar::placeholder {
+      color: #aaa;
+    }
     #blocklyDiv {
-      height: 100%;
+      flex-grow: 1;
       width: 100%;
     }
   </style>
 </head>
 <body>
-  <div id="bootScreen" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #222; color: #eee; display: flex; justify-content: center; align-items: center; font-size: 2em; z-index: 1000;">
-    Loading BF6 Portal Editor...
+  <div id="header">
+    <img src="assets/img/app_logo.png" alt="Logo" style="height: 40px; margin-right: 15px;">
+    <h1>BF6 Portal Tool</h1>
+    <input type="text" id="searchBar" placeholder="Search blocks...">
   </div>
   <div id="blocklyDiv"></div>
-
-
-
-  <script src="blockly/blockly.min.js"></script>
-  <script src="block_definitions.js"></script>
+  <script src="blockly/blockly_compressed.js"></script>
+  <script src="blockly/blocks_compressed.js"></script>
+  <script src="blockly/javascript_compressed.js"></script>
+  <script src="blockly/en.js"></script>
   <script src="toolbox.js"></script>
   <script src="main.js"></script>
-
 </body>
 </html>

@@ -21,6 +21,20 @@ const bf6_theme = Blockly.Theme.defineTheme('bf6_theme', {
         'subroutines_category': { 'colour': '#E6A85C' },
         'control_actions_category': { 'colour': '#A285E6' },
     },
+    'componentStyles': {
+        'workspaceBackgroundColour': '#2b2b2b',
+        'toolboxBackgroundColour': '#333333',
+        'toolboxForegroundColour': '#fff',
+        'flyoutBackgroundColour': '#252526',
+        'flyoutForegroundColour': '#ccc',
+        'flyoutOpacity': 1,
+        'scrollbarColour': '#797979',
+        'insertionMarkerColour': '#fff',
+        'insertionMarkerOpacity': 0.3,
+        'scrollbarOpacity': 0.4,
+        'cursorColour': '#d0d0d0',
+        'blackBackground': '#333'
+    }
 });
 
 var workspace = Blockly.inject('blocklyDiv',
@@ -29,8 +43,8 @@ var workspace = Blockly.inject('blocklyDiv',
         theme: bf6_theme,
         grid: {
             spacing: 20,
-            length: 3,
-            colour: '#ccc',
+            length: 20,
+            colour: '#444',
             snap: true
         },
         zoom: {
@@ -43,13 +57,3 @@ var workspace = Blockly.inject('blocklyDiv',
         },
         trashcan: true
     });
-
-// Hide boot screen after a delay
-document.addEventListener('DOMContentLoaded', (event) => {
-    const bootScreen = document.getElementById('bootScreen');
-    if (bootScreen) {
-        setTimeout(() => {
-            bootScreen.style.display = 'none';
-        }, 3000); // Hide after 3 seconds
-    }
-});
