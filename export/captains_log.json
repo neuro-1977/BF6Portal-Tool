@@ -1,0 +1,34 @@
+[
+  {
+    "date": "2025-12-01",
+    "title": "The \"Wake Up Button\" & Serenity Brain",
+    "objective": "Establish a resilient, multi-workspace \"Brain\" that allows the project to resume instantly after crashes or session loss.",
+    "status": "Operational.",
+    "notes": "- **Objective**: Establish a resilient, multi-workspace \"Brain\" that allows the project to resume instantly after crashes or session loss.\n- **Changes**:\n    - **Master Database**: `serenity.db` created as the single source of truth for Logs and Blocks.\n    - **Instructions**:\n        - `START.md`: Deployed to Serenity root. Acts as the \"Wake Up\" instruction for the AI.\n        - `DISCORD_BOT_INSTRUCTIONS.md`: Deployed to Serenity root. Guides Discord bot behavior.\n    - **Sync Tools**:\n        - `tools/export_package.py`: Exports local data to JSON.\n        - `tools/sync_from_serenity.py`: Pulls updates from the Brain back to this workspace.\n        - `tools/sync_all_workspaces.py`: Master script to push Brain updates to all registered workspaces.\n    - **Setup Script**: `setup_database.ps1` updated to deploy all of the above to the Serenity project folder.\n- **Status**: Operational.\n- **Concept**: \"The Wake Up Button\". Running `start` (reading START.md) in Serenity instantly loads the entire project context from `serenity.db`, allowing seamless continuation of work.",
+    "exported_at": "2025-12-01T06:45:17.818616"
+  },
+  {
+    "date": "2025-12-01",
+    "title": "Serenity Database & Nifty Export",
+    "objective": "Establish a master SQLite database (`serenity.db`) for the Serenity project and enable easy export of BF6 Portal assets.",
+    "status": "",
+    "notes": "- **Objective**: Establish a master SQLite database (`serenity.db`) for the Serenity project and enable easy export of BF6 Portal assets.\n- **Changes**:\n    - Created `setup_database.ps1`:\n        - Installs \"DB Browser for SQLite\".\n        - Prompts for target directory (default: `D:\\=Code=\\Serenity`).\n        - Creates `serenity.db` with `LogEntries` and `Blocks` tables.\n        - Imports current log and block definitions.\n    - Created `tools/export_package.py`:\n        - Exports Captain's Log to `export/captains_log.json`.\n        - Parses and exports block definitions to `export/bf6_blocks.json`.\n        - Copies key JS files (`bf6_blocks.js`, `bf6_toolbox.js`, `bf6_startup.js`) to `export/`.\n- **Status**: Completed.",
+    "exported_at": "2025-12-01T06:45:17.818616"
+  },
+  {
+    "date": "2025-12-01",
+    "title": "IDE Freeze Fix & Boot Script Rename",
+    "objective": "Fix IDE freeze caused by splash screen locking up on error, and rename \"boot\" related files to avoid confusion/conflicts.",
+    "status": "",
+    "notes": "- **Objective**: Fix IDE freeze caused by splash screen locking up on error, and rename \"boot\" related files to avoid confusion/conflicts.\n- **Changes**:\n    - Renamed `web_ui/boot.js` to `web_ui/startup.js`.\n    - Updated `web_ui/index.html` to reference `startup.js`.\n    - Renamed `BootSequence` class to `StartupSequence` in `startup.js`.\n    - Modified `web_ui/main.js` to disable the splash screen overlay when errors occur.\n    - Updated splash screen text from \"booting\" to \"starting\".\n- **Status**: Completed.",
+    "exported_at": "2025-12-01T06:45:17.818616"
+  },
+  {
+    "date": "2025-12-01",
+    "title": "Project Initialization & UI Restoration",
+    "objective": "Restore the \"awesome\" window UI while maintaining the stable `blockly_compressed.js` core.",
+    "status": "In Progress.",
+    "notes": "- **Objective**: Restore the \"awesome\" window UI while maintaining the stable `blockly_compressed.js` core.\n- **Status**: In Progress.\n- **Notes**:\n    - Identified need for verbose logging in generator scripts.\n    - Consolidating documentation here.\n    - Restoring \"awesome\" UI from archives.\n    - **Requirement**: Built-in error checker (boot sequence/error log).\n\n## References\n- [Blockly Developer Tools](https://developers.google.com/blockly)\n- [Project Vision](file:///d:/=Code=/BF6Portal%20Tool/.agent/workflows/project_vision.md)",
+    "exported_at": "2025-12-01T06:45:17.818616"
+  }
+]
