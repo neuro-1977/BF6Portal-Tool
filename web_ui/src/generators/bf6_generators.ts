@@ -1412,3 +1412,28 @@ bf6Generators['CONDITION_BLOCK'] = function(block: any, generator: any) {
   // TODO: Implement generator
   return '';
 };
+
+bf6Generators['enable_game_mode_objective'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'false';
+  const code = `mod.EnableGameModeObjective(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['enable_default_game_mode_scoring'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'false';
+  const code = `mod.EnableDefaultGameModeScoring(${value0});\n`;
+  return code;
+};
+
+bf6Generators['enable_default_game_mode_win_condition'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'false';
+  const code = `mod.EnableDefaultGameModeWinCondition(${value0});\n`;
+  return code;
+};
+
+bf6Generators['enable_vo_messaging'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'false';
+  const code = `mod.EnableVOMessaging(${value0});\n`;
+  return code;
+};
