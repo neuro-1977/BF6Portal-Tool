@@ -3,15 +3,15 @@ import os
 from pathlib import Path
 
 def create_release_zip():
-    release_name = "Serenity_Blockly_Editor_v1.0.1Beta.zip"
+    release_name = "BF6Portal_Tool_v1.2.2.zip"
     files_to_include = [
-        ("blockly-workspace/src/index.html", "index.html"),
-        ("blockly-workspace/src/index.ts", "index.ts"),
-        ("blockly-workspace/src/serialization.ts", "serialization.ts"),
-        ("blockly-workspace/src/server.ts", "server.ts"),
-        ("blockly-workspace/package.json", "package.json"),
+        ("web_ui/src/index.html", "index.html"),
+        ("web_ui/src/index.ts", "index.ts"),
+        ("web_ui/src/serialization.ts", "serialization.ts"),
+        ("web_ui/src/server.ts", "server.ts"),
+        ("package.json", "package.json"),
         ("README.md", "README.md"),
-        ("PROMPT.txt", "PROMPT.txt")
+        ("dist/BF6Portal Tool Setup 1.2.2.exe", "BF6Portal Tool Setup 1.2.2.exe")
     ]
     print(f"Creating release package: {release_name}...")
     with zipfile.ZipFile(release_name, 'w', zipfile.ZIP_DEFLATED) as zipf:
