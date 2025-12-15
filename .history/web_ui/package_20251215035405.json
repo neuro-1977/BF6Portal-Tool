@@ -12,12 +12,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "blockly": "^12.3.1",
     "@blockly/theme-dark": "^8.0.1",
-    "@svgdotjs/svg.js": "^3.2.5",
-    "blockly": "^12.3.1"
+    "@svgdotjs/svg.js": "^3.2.5"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^13.0.1",
     "css-loader": "^6.7.1",
     "html-webpack-plugin": "^5.5.0",
     "source-map-loader": "^4.0.1",

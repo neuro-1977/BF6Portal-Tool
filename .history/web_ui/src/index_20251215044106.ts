@@ -97,7 +97,11 @@ try {
   Blockly.common.defineBlocks(bf6PortalExpandedBlocks); // New registration
 
   // Register generated blocks
-  Blockly.common.defineBlocks(generatedBlocks);
+  const generatedBlocksDict: {[key: string]: any} = {};
+  generatedBlocks.forEach(block => {
+      generatedBlocksDict[block.id] = block;
+  });
+  Blockly.common.defineBlocks(generatedBlocksDict);
 
   // Merge generated toolbox into main toolbox
   // We append the generated categories to the end of the main toolbox contents

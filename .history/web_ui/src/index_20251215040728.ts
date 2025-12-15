@@ -13,8 +13,6 @@ import {blocks as textBlocks} from './blocks/text';
 import {blocks as homeBlocks} from './blocks/home';
 import {bf6PortalBlocks} from './blocks/bf6portal';
 import {bf6PortalExpandedBlocks} from './blocks/bf6portal_expanded'; // New import
-import {generatedBlocks} from './blocks/generated_blocks'; // Auto-generated blocks
-import {generatedToolbox} from './generated_toolbox'; // Auto-generated toolbox
 import {registerMutators, SUBROUTINE_DEF_MUTATOR, SUBROUTINE_CALL_MUTATOR} from './blocks/subroutine_mutator';
 import {bf6Generators} from './generators/bf6_generators'; // Custom generators
 import {javascriptGenerator} from 'blockly/javascript'; // Use TypeScript generator
@@ -33,17 +31,6 @@ try {
     menuBar.render();
 } catch (e) {
     console.error("Failed to initialize MenuBar:", e);
-}
-
-// Hide splash screen after initialization
-const splashScreen = document.getElementById('splashScreen');
-if (splashScreen) {
-    setTimeout(() => {
-        splashScreen.style.opacity = '0';
-        setTimeout(() => {
-            splashScreen.style.display = 'none';
-        }, 500);
-    }, 1000); // Show for at least 1 second
 }
 
 // Store the original toolbox for filtering
@@ -95,16 +82,6 @@ try {
   Blockly.common.defineBlocks(homeBlocks);
   Blockly.common.defineBlocks(bf6PortalBlocks);
   Blockly.common.defineBlocks(bf6PortalExpandedBlocks); // New registration
-
-  // Register generated blocks
-  Blockly.common.defineBlocks(generatedBlocks);
-
-  // Merge generated toolbox into main toolbox
-  // We append the generated categories to the end of the main toolbox contents
-  if (generatedToolbox && generatedToolbox.contents) {
-      (toolbox.contents as any[]).push(...generatedToolbox.contents);
-  }
-
   Object.assign(javascriptGenerator.forBlock, bf6Generators); // Use bf6Generators with javascriptGenerator
 
   // Set up UI elements and inject Blockly

@@ -3132,21 +3132,5 @@ export const bf6PortalExpandedBlocks = Blockly.common.createBlockDefinitionsFrom
     "nextStatement": "Action",
     "colour": "#FFEB3B",
     "tooltip": "Stops chasing a variable."
-  },
-  {
-    "type": "ACTION_BLOCK",
-    "message0": "Action",
-    "previousStatement": "Action",
-    "nextStatement": "Action",
-    "colour": "#B5A045",
-    "tooltip": "A placeholder action block."
-  },
-  {
-    "type": "CONTROL_ACTION_BLOCK",
-    "message0": "Control Action:",
-    "previousStatement": "Action",
-    "nextStatement": "Action",
-    "colour": "#A285E6",
-    "tooltip": "A placeholder control action block."
   }
 ]);

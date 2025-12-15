@@ -53,11 +53,6 @@ const config = {
       filename: 'view-data.html',
       chunks: ['view-data'],
     }),
-    new CopyWebpackPlugin({
-      patterns: [
-        { from: 'assets', to: 'assets' },
-      ],
-    }),
   ],
 };
 

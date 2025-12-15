@@ -55,6 +55,7 @@ const config = {
     }),
     new CopyWebpackPlugin({
       patterns: [
+        { from: 'blockly', to: 'blockly' },
         { from: 'assets', to: 'assets' },
       ],
     }),

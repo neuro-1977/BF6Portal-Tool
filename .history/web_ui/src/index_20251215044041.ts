@@ -95,16 +95,6 @@ try {
   Blockly.common.defineBlocks(homeBlocks);
   Blockly.common.defineBlocks(bf6PortalBlocks);
   Blockly.common.defineBlocks(bf6PortalExpandedBlocks); // New registration
-
-  // Register generated blocks
-  Blockly.common.defineBlocks(generatedBlocks);
-
-  // Merge generated toolbox into main toolbox
-  // We append the generated categories to the end of the main toolbox contents
-  if (generatedToolbox && generatedToolbox.contents) {
-      (toolbox.contents as any[]).push(...generatedToolbox.contents);
-  }
-
   Object.assign(javascriptGenerator.forBlock, bf6Generators); // Use bf6Generators with javascriptGenerator
 
   // Set up UI elements and inject Blockly

@@ -82,7 +82,6 @@ export const loadFromFile = function (workspace: Blockly.Workspace, jsonContent:
     Blockly.Events.disable();
     Blockly.serialization.workspaces.load(data, workspace, undefined);
     Blockly.Events.enable();
-    (workspace as any).scrollCenter();
   } catch (e) {
     console.error("Failed to load workspace from file:", e);
     alert("Failed to load workspace. Invalid JSON file.");
