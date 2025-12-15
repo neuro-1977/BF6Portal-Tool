@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setupAboutQuotes().catch((e) => console.warn('[BF6] setupAboutQuotes failed:', e));
     setupAboutModal();
+    setupTerminalConsole();
 
     // Prefer the simple injection path for stability.
     // If you want to switch back to StartupSequence later, you can.
@@ -14,6 +15,41 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Button Listeners
     setupButtonListeners();
 });
+
+function setupTerminalConsole() {
+    const toggleBtn = document.getElementById('terminal-toggle');
+    const container = document.getElementById('terminal-drawer');
+    if (!toggleBtn || !container) return;
+
+    // This feature is meant for the Electron build (needs require('electron') + xterm).
+    if (typeof require !== 'function') {
+        // In a plain browser context, there's nothing to toggle.
+        toggleBtn.style.display = 'none';
+        return;
+    }
+
+    let drawer = null;
+    try {
+        // terminal-drawer.js exports the class.
+        const TerminalDrawer = require('./terminal-drawer.js');
+        drawer = new TerminalDrawer('terminal-drawer');
+
+        // Only enable the button if xterm initialized.
+        if (!drawer || !drawer.container || !drawer.term || !drawer.fitAddon || typeof drawer.toggle !== 'function') {
+            throw new Error('TerminalDrawer did not initialize (missing xterm deps?)');
+        }
+
+        // Keep a reference for debugging.
+        window.__terminalDrawer = drawer;
+    } catch (e) {
+        console.warn('[BF6] Terminal console unavailable:', e);
+        // Hide the button to avoid a dead control.
+        toggleBtn.style.display = 'none';
+        return;
+    }
+
+    toggleBtn.addEventListener('click', () => drawer.toggle());
+}
 
 function setupButtonListeners() {
     console.log("[BF6] Setting up button listeners...");

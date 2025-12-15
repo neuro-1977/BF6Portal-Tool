@@ -97,7 +97,9 @@
         display: block; /* Ensure visible */
       }
       .blocklyMainBackground {
-        fill: #181a1b !important;
+        /* Blockly 12 draws the grid as a pattern fill on the main background.
+           Allow that pattern to show through (fallback to solid when grid is off). */
+        fill: var(--blocklyGridPattern, #181a1b) !important;
       }
       .blocklySvg {
         background: #181a1b !important;
