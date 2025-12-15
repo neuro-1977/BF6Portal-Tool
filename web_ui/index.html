@@ -122,7 +122,7 @@
       .blocklyZoom,
       .blocklyScrollbarHorizontal,
       .blocklyScrollbarVertical {
-        display: none !important;
+        display: initial !important;
       }
     </style>
     <style>
@@ -221,57 +221,6 @@
       }
     </style>
     <!-- Splash Screen REMOVED -->
-    <!-- About Modal (Restored standard modal) -->
-    <div
-      id="aboutModal"
-      class="modal"
-      style="
-        display: none;
-        position: fixed;
-        z-index: 4000;
-        left: 0;
-        top: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.82);
-        align-items: center;
-        justify-content: center;
-      "
-    >
-      <div
-        class="modal-content"
-        style="
-          max-width: 480px;
-          margin: auto;
-          background: #23272e;
-          color: #fff;
-          border-radius: 14px;
-          box-shadow: 0 4px 32px #000a;
-          padding: 32px 32px 18px 32px;
-          position: relative;
-        "
-      >
-        <span
-          class="close"
-          id="closeAboutModal"
-          style="
-            position: absolute;
-            top: 12px;
-            right: 18px;
-            font-size: 2em;
-            cursor: pointer;
-          "
-          >&times;</span
-        >
-        <h2>About BF6Portal Tool</h2>
-        <div style="margin-bottom: 12px; font-size: 1.1em; color: #4fc3f7">
-          A modern, user-friendly block editor for Battlefield Portal scripting.
-        </div>
-        <div style="margin-bottom: 10px">
-          Author: <span class="neon-neuro">Neuro</span>
-        </div>
-      </div>
-    </div>
     <style>
       /* Diagnostics for animated loading bar */
       #animatedLoadingBarAnim {
@@ -565,23 +514,28 @@
     </div>
     <!-- Top menu bar (fixed, always on top) -->
     <div id="header">
-      <button class="menu-btn" id="fileMenuBtn">File</button>
-      <button class="menu-btn" id="editMenuBtn">Edit</button>
-      <button class="menu-btn" id="viewMenuBtn">View</button>
-      <button class="menu-btn" id="helpMenuBtn">Help</button>
-      <div style="width: 20px;"></div>
       <button class="menu-btn" id="loadBtn" style="color: #4fc3f7;">Load JSON</button>
       <button class="menu-btn" id="saveBtn" style="color: #4fc3f7;">Save JSON</button>
       <button class="menu-btn" id="exportTsBtn" style="color: #baff80;">Export TS</button>
-      <span
+
+      <div
+        id="ticker"
         style="
-          margin-left: 24px;
-          font-weight: bold;
-          letter-spacing: 1.5px;
-          color: #4fc3f7;
+          margin-left: 16px;
+          flex: 1 1 auto;
+          overflow: hidden;
+          white-space: nowrap;
+          color: #baff80;
+          opacity: 0.95;
+          font-size: 0.95em;
         "
-        >BF6Portal Tool</span
+        aria-label="Status ticker"
       >
+        <span id="tickerText"></span>
+      </div>
+
+      <span id="title">BF6Portal Tool</span>
+      <button class="menu-btn" id="aboutBtn">About</button>
     </div>
 
     <!-- About Modal (fixed overlay, always on top) -->
@@ -626,7 +580,12 @@
           "
           >&times;</span
         >
-        <h2>About BF6Portal Tool</h2>
+        <div style="text-align: center; margin-bottom: 14px;">
+          <div class="boot-logo" style="font-size: 2.2em; margin-bottom: 8px;">BF6 PORTAL TOOL</div>
+          <div class="boot-loader" style="display: inline-block; margin: 6px auto 0 auto;"></div>
+          <div class="boot-text" style="margin-top: 10px;">Ready.</div>
+        </div>
+        <h2 style="margin-top: 0;">About BF6Portal Tool</h2>
         <div style="margin-bottom: 12px; font-size: 1.1em; color: #4fc3f7">
           A modern, user-friendly block editor for Battlefield Portal scripting.
         </div>
@@ -710,67 +669,6 @@
           position: relative;
         "
       >
-        <!-- Central error/status box -->
-        <div
-          id="errorBox"
-          style="
-            display: none;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 3000;
-            min-width: 340px;
-            max-width: 520px;
-            background: #23272e;
-            color: #fff;
-            border: 2px solid #4fc3f7;
-            border-radius: 14px;
-            box-shadow: 0 4px 32px #000a;
-            padding: 28px 32px 18px 32px;
-            text-align: center;
-            font-size: 1.13em;
-            font-family: 'Segoe UI', 'Consolas', monospace, sans-serif;
-          "
-        >
-          <div
-            id="errorBoxTitle"
-            style="
-              font-size: 1.25em;
-              font-weight: bold;
-              color: #4fc3f7;
-              margin-bottom: 10px;
-              letter-spacing: 1.5px;
-              text-shadow: 0 2px 8px #000a;
-            "
-          >
-            PORTAL STATUS
-          </div>
-          <div
-            id="errorBoxMessages"
-            style="
-              max-height: 180px;
-              overflow-y: auto;
-              text-align: left;
-              font-size: 1em;
-              line-height: 1.5;
-              margin-bottom: 8px;
-            "
-          ></div>
-          <div
-            id="errorBoxClose"
-            style="
-              margin-top: 8px;
-              color: #baff80;
-              font-size: 0.98em;
-              cursor: pointer;
-              text-decoration: underline;
-              display: none;
-            "
-          >
-            Dismiss
-          </div>
-        </div>
         <div id="blocklyDiv" style="flex: 1 1 auto; min-height: 100px"></div>
         <div
           id="dragDivider"
@@ -909,34 +807,6 @@
     <script src="startup.js"></script>
     <script src="main.js"></script>
     <!-- xterm.js and addon-fit will be loaded via require in main.js or injected -->
-    <script>
-      // Boot Screen Logic
-      function playBootSequence() {
-        const bootScreen = document.getElementById('boot-screen');
-        if (!bootScreen) return;
-        
-        bootScreen.style.display = 'flex';
-        bootScreen.style.opacity = '1';
-        
-        // Simulate loading sequence
-        setTimeout(() => {
-          bootScreen.style.opacity = '0';
-          setTimeout(() => {
-            bootScreen.style.display = 'none';
-          }, 500);
-        }, 3000); // 3 seconds animation
-      }
-
-      // Bind to About Modal button (to be added)
-      document.addEventListener('DOMContentLoaded', () => {
-        const replayBtn = document.getElementById('replayIntroBtn');
-        if (replayBtn) {
-          replayBtn.addEventListener('click', () => {
-            document.getElementById('aboutModal').style.display = 'none';
-            playBootSequence();
-          });
-        }
-      });
-    </script>
+    <!-- About / ticker behavior is handled in main.js (kept out of inline scripts on purpose). -->
   </body>
 </html>

@@ -4,6 +4,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("[BF6] DOM Loaded. Initializing...");
 
+    setupTicker();
+    setupAboutModal();
+
     // Prefer the simple injection path for stability.
     // If you want to switch back to StartupSequence later, you can.
     fallbackInjection();
@@ -16,13 +19,7 @@ function setupButtonListeners() {
     console.log("[BF6] Setting up button listeners...");
 
     const btnMap = {
-        'fileMenuBtn': () => console.log('File Menu Clicked'),
-        'editMenuBtn': () => console.log('Edit Menu Clicked'),
-        'viewMenuBtn': () => console.log('View Menu Clicked'),
-        'helpMenuBtn': () => {
-            const modal = document.getElementById('aboutModal');
-            if (modal) modal.style.display = 'flex';
-        },
+        'aboutBtn': () => openAboutModal(),
         'loadBtn': () => {
             const input = document.getElementById('loadInput');
             if (input) input.click();
@@ -30,15 +27,11 @@ function setupButtonListeners() {
         'saveBtn': () => saveWorkspace(),
         'exportTsBtn': () => exportToTypeScript(),
         'closeAboutModal': () => {
-            const modal = document.getElementById('aboutModal');
-            if (modal) modal.style.display = 'none';
+            closeAboutModal();
         },
         'replayIntroBtn': () => {
-            const modal = document.getElementById('aboutModal');
-            if (modal) modal.style.display = 'none';
-            if (typeof playBootSequence === 'function') {
-                playBootSequence();
-            }
+            // Keep the "boot" vibe, but only inside the About popup.
+            runAboutBootAnimation();
         }
     };
 
@@ -53,6 +46,114 @@ function setupButtonListeners() {
     const loadInput = document.getElementById('loadInput');
     if (loadInput) {
         loadInput.addEventListener('change', handleFileUpload);
+    }
+}
+
+function setupAboutModal() {
+    const modal = document.getElementById('aboutModal');
+    if (!modal) return;
+
+    // Close when clicking the dimmed backdrop (but not when clicking inside the modal content).
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeAboutModal();
+        }
+    });
+
+    // Close on Escape.
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display !== 'none') {
+            closeAboutModal();
+        }
+    });
+}
+
+function openAboutModal() {
+    const modal = document.getElementById('aboutModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    runAboutBootAnimation();
+}
+
+function closeAboutModal() {
+    const modal = document.getElementById('aboutModal');
+    if (!modal) return;
+    modal.style.display = 'none';
+}
+
+function runAboutBootAnimation() {
+    // We keep this intentionally lightweight: no full-screen overlay, no resizing Blockly.
+    const modal = document.getElementById('aboutModal');
+    if (!modal || modal.style.display === 'none') return;
+
+    // If the About modal contains a loader, briefly animate it.
+    const loader = modal.querySelector('.boot-loader');
+    const bootText = modal.querySelector('.boot-text');
+
+    if (bootText) {
+        bootText.textContent = 'Initializing…';
+        setTimeout(() => {
+            if (modal.style.display === 'none') return;
+            bootText.textContent = 'Ready.';
+        }, 900);
+    }
+
+    if (loader) {
+        loader.style.display = 'inline-block';
+        setTimeout(() => {
+            if (modal.style.display === 'none') return;
+            // Keep it visible but subtle after the quick "boot" beat.
+            loader.style.opacity = '0.55';
+        }, 900);
+    }
+}
+
+function setupTicker() {
+    const tickerEl = document.getElementById('tickerText');
+    if (!tickerEl) return;
+
+    const messages = [
+        'Portal editor online. Keep calm and script on.',
+        'Tip: Ctrl+mousewheel zooms; toolbox zoom buttons are back.',
+        'Tip: Use Events → Rules → Actions like the game intended.',
+        'Reminder: Don\'t let empty sidebars cover your toolbox.',
+        'BF6 menus are the main menus now. Home is gone.',
+    ];
+
+    let i = 0;
+    tickerEl.textContent = messages[i];
+    setInterval(() => {
+        i = (i + 1) % messages.length;
+        tickerEl.textContent = messages[i];
+    }, 12000);
+}
+
+function normalizeToolboxConfig(toolbox) {
+    try {
+        if (!toolbox || toolbox.kind !== 'categoryToolbox' || !Array.isArray(toolbox.contents)) return toolbox;
+
+        // If the toolbox has a wrapper category like "BF6 Portal", flatten it so BF6 categories are the main menus.
+        const bf6Wrapper = toolbox.contents.find(
+            (c) => c && c.kind === 'category' && typeof c.name === 'string' && c.name.toLowerCase() === 'bf6 portal'
+        );
+
+        if (bf6Wrapper && Array.isArray(bf6Wrapper.contents)) {
+            return {
+                kind: 'categoryToolbox',
+                contents: bf6Wrapper.contents
+            };
+        }
+
+        // Otherwise, at least remove an outer "Home" wrapper if present.
+        return {
+            kind: 'categoryToolbox',
+            contents: toolbox.contents.filter(
+                (c) => !(c && c.kind === 'category' && typeof c.name === 'string' && c.name.toLowerCase() === 'home')
+            )
+        };
+    } catch (e) {
+        console.warn('[BF6] normalizeToolboxConfig failed; using original toolbox:', e);
+        return toolbox;
     }
 }
 
@@ -78,7 +179,7 @@ function fallbackInjection() {
     // Check TOOLBOX_CONFIG
     let toolbox = null;
     if (typeof TOOLBOX_CONFIG !== 'undefined') {
-        toolbox = TOOLBOX_CONFIG;
+        toolbox = normalizeToolboxConfig(TOOLBOX_CONFIG);
     } else {
         console.error("[BF6] TOOLBOX_CONFIG is undefined! Using emergency fallback.");
         toolbox = {
@@ -155,7 +256,7 @@ function fallbackInjection() {
             grid: {
                 spacing: 20,
                 length: 3,
-                colour: '#ccc',
+                colour: '#2c3236',
                 snap: true
             },
             zoom: {
