@@ -117,13 +117,28 @@ async function loadAboutQuotes() {
     // 1) An array of strings
     // 2) { rotateSeconds?: number, rotateMs?: number, quotes: string[] }
     try {
-        const res = await fetch('quotes.json', { cache: 'no-store' });
-        if (!res.ok) return { quotes: null, rotateMs: null };
-        const data = await res.json();
-        return normalizeQuotesPayload(data);
-    } catch (e) {
-        console.warn('[BF6] quotes.json not loaded (using fallback):', e);
+        // Try a local override first. This file should be ignored by git so users can
+        // keep personal/copyrighted quote sets locally without committing them.
+        const local = await tryFetchJson('quotes.local.json');
+        if (local) return normalizeQuotesPayload(local);
+
+        const shipped = await tryFetchJson('quotes.json');
+        if (shipped) return normalizeQuotesPayload(shipped);
+
         return { quotes: null, rotateMs: null };
+    } catch (e) {
+        console.warn('[BF6] Quotes not loaded (using fallback):', e);
+        return { quotes: null, rotateMs: null };
+    }
+}
+
+async function tryFetchJson(url) {
+    try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) return null;
+        return await res.json();
+    } catch {
+        return null;
     }
 }
 

@@ -1,0 +1,7 @@
+{
+  "rotateSeconds": 12,
+  "quotes": [
+    "Put your personal quote set here.\\nUse \\n to force a 2-line split.",
+    "This file is a template.\\nCopy it to quotes.local.json"
+  ]
+}

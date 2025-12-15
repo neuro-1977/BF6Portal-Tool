@@ -24,3 +24,6 @@ Thumbs.db
 # Project Specific
 .env
 =Resources=/
+
+# Local overrides (do not commit)
+web_ui/quotes.local.json

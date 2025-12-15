@@ -66,6 +66,7 @@ const config = {
         { from: 'assets', to: 'assets' },
         { from: 'blockly', to: 'blockly' },
         { from: 'quotes.json', to: 'quotes.json' },
+        { from: 'quotes.local.json', to: 'quotes.local.json', noErrorOnMissing: true },
         { from: 'main.js', to: 'main.js' },
         { from: 'toolbox.js', to: 'toolbox.js' },
         { from: 'block_definitions.js', to: 'block_definitions.js' },
