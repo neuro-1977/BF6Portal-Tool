@@ -65,6 +65,7 @@ const config = {
       patterns: [
         { from: 'assets', to: 'assets' },
         { from: 'blockly', to: 'blockly' },
+        { from: 'quotes.json', to: 'quotes.json' },
         { from: 'main.js', to: 'main.js' },
         { from: 'toolbox.js', to: 'toolbox.js' },
         { from: 'block_definitions.js', to: 'block_definitions.js' },

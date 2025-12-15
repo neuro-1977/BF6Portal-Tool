@@ -4,7 +4,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("[BF6] DOM Loaded. Initializing...");
 
-    setupAboutQuotes();
+    setupAboutQuotes().catch((e) => console.warn('[BF6] setupAboutQuotes failed:', e));
     setupAboutModal();
 
     // Prefer the simple injection path for stability.
@@ -76,24 +76,24 @@ function closeAboutModal() {
     modal.style.display = 'none';
 }
 
-function setupAboutQuotes() {
+async function setupAboutQuotes() {
     // Quotes are shown only inside the About modal.
     const line1El = document.getElementById('aboutQuoteLine1');
     const line2El = document.getElementById('aboutQuoteLine2');
     if (!line1El || !line2El) return;
 
-    // NOTE (copyright): I won't invent or fetch long copyrighted quotes.
-    // Paste your exact Firefly/Serenity/BTTF quotes here (you own your local copy).
-    // You can force a 2-line display by adding "\n".
-    const quotes = [
-        // First quote slot (River Tam) – paste the full quote here and keep the \n for 2-line layout.
-        'River Tam:\nDay is a vestigial form of time measurement…',
-
-        // Examples / safe short snippets (replace with your real set)
-        'BANANA IN DISK DRIVE ERROR\nInitiating flux capacitors…',
+    // NOTE (copyright): I can’t “google” and paste long copyrighted quotes into the repo.
+    // Instead, this reads from a local file shipped with the app: web_ui/quotes.json.
+    // Put your own quotes in there. You can force a 2-line display by including "\n".
+    const fallbackQuotes = [
+        'River Tam:\n(paste your quote in quotes.json)',
         'Portal logic armed.\nProceed with reckless creativity.',
         'If it\'s stupid but it works…\nIt\'s still probably portal scripting.',
     ];
+
+    const { quotes, rotateMs } = await loadAboutQuotes();
+    const effectiveQuotes = (Array.isArray(quotes) && quotes.length > 0) ? quotes : fallbackQuotes;
+    const effectiveRotateMs = (Number.isFinite(rotateMs) && rotateMs >= 1000) ? rotateMs : 12000;
 
     let idx = 0;
 
@@ -103,13 +103,51 @@ function setupAboutQuotes() {
         line2El.textContent = b;
     };
 
-    render(quotes[idx]);
+    render(effectiveQuotes[idx]);
 
-    // Rotate every 12s.
+    // Rotate.
     setInterval(() => {
-        idx = (idx + 1) % quotes.length;
-        render(quotes[idx]);
-    }, 12000);
+        idx = (idx + 1) % effectiveQuotes.length;
+        render(effectiveQuotes[idx]);
+    }, effectiveRotateMs);
+}
+
+async function loadAboutQuotes() {
+    // Supports either:
+    // 1) An array of strings
+    // 2) { rotateSeconds?: number, rotateMs?: number, quotes: string[] }
+    try {
+        const res = await fetch('quotes.json', { cache: 'no-store' });
+        if (!res.ok) return { quotes: null, rotateMs: null };
+        const data = await res.json();
+        return normalizeQuotesPayload(data);
+    } catch (e) {
+        console.warn('[BF6] quotes.json not loaded (using fallback):', e);
+        return { quotes: null, rotateMs: null };
+    }
+}
+
+function normalizeQuotesPayload(data) {
+    if (Array.isArray(data)) {
+        return {
+            quotes: data.filter((q) => typeof q === 'string' && q.trim().length > 0),
+            rotateMs: null,
+        };
+    }
+
+    if (data && typeof data === 'object') {
+        const rawQuotes = Array.isArray(data.quotes) ? data.quotes : [];
+        const quotes = rawQuotes
+            .filter((q) => typeof q === 'string' && q.trim().length > 0);
+
+        let rotateMs = null;
+        if (Number.isFinite(data.rotateMs)) rotateMs = Number(data.rotateMs);
+        if (Number.isFinite(data.rotateSeconds)) rotateMs = Number(data.rotateSeconds) * 1000;
+
+        return { quotes, rotateMs };
+    }
+
+    return { quotes: null, rotateMs: null };
 }
 
 function splitQuoteTwoLines(text, maxLineLen) {
