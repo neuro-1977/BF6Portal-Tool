@@ -102,6 +102,14 @@
       .blocklySvg {
         background: #181a1b !important;
       }
+
+      /* Force grid visibility (some theme/background combos make it too subtle) */
+      .blocklyGrid path,
+      .blocklyGrid line {
+        stroke: #3f4a52 !important;
+        stroke-opacity: 0.85 !important;
+        stroke-width: 1 !important;
+      }
       .blocklyFlyoutBackground {
         fill: #23272e !important;
         stroke: #333 !important;
@@ -128,15 +136,7 @@
     </style>
 
     <style>
-      /* Scrolling ticker (header + About modal) */
-      #ticker {
-        position: relative;
-      }
-      #tickerText {
-        display: inline-block;
-        padding-left: 100%;
-        animation: tickerScroll 18s linear infinite;
-      }
+      /* Scrolling ticker (About modal only) */
       .about-ticker {
         margin: 0 0 14px 0;
         padding: 6px 10px;
@@ -556,22 +556,6 @@
       <button class="menu-btn" id="saveBtn" style="color: #4fc3f7;">Save JSON</button>
       <button class="menu-btn" id="exportTsBtn" style="color: #baff80;">Export TS</button>
 
-      <div
-        id="ticker"
-        style="
-          margin-left: 16px;
-          flex: 1 1 auto;
-          overflow: hidden;
-          white-space: nowrap;
-          color: #baff80;
-          opacity: 0.95;
-          font-size: 0.95em;
-        "
-        aria-label="Status ticker"
-      >
-        <span id="tickerText"></span>
-      </div>
-
       <span id="title">BF6Portal Tool</span>
       <button class="menu-btn" id="aboutBtn">About</button>
     </div>
@@ -638,7 +622,14 @@
             Made by <span class="neuro-glitch">Neuro</span> &amp; <span class="ai-sparkle">"Mostly" A.I.</span>
           </div>
           <div style="margin-top: 10px; font-size: 1.05em;">
-            With thanks to <span class="rainbow-andy">ANDY6170</span> &amp; <span style="color:#baff80; font-weight: bold;">BattlefieldPortalHub</span> discord team.
+            With thanks to <span class="rainbow-andy">ANDY6170</span> &amp;
+            <a
+              href="https://discord.com/invite/battlefield-portal-community-870246147455877181"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="color:#baff80; font-weight: bold; text-decoration: underline;"
+            >BattlefieldPortalHub</a>
+            discord team.
           </div>
         </div>
       </div>

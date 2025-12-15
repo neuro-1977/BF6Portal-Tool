@@ -5,12 +5,12 @@ Blockly.Blocks['MOD_BLOCK'] = {
   init: function() {
     this.appendDummyInput()
         .appendField("MOD");
-        this.appendDummyInput().appendField("Mod Name:").appendField(new Blockly.FieldTextInput("MyGameMode"), "MOD_NAME");
-    this.appendDummyInput().appendField("Description:").appendField(new Blockly.FieldTextInput("Description"), "DESCRIPTION");
+    // Serenity-style: container-only block (no editable text fields).
+    // Holds Rule blocks and nothing else.
 
         this.setPreviousStatement(false, null);
     this.setNextStatement(false, null);
-    this.appendStatementInput("RULES_CONDITIONS_SUBROUTINES").setCheck(["Rule", "Condition", "Subroutine"]).appendField("Game Parameters:");
+    this.appendStatementInput("RULES").setCheck("Rule").appendField("RULES");
     this.setDeletable(false);
     this.setMovable(false);
 

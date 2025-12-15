@@ -4,7 +4,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("[BF6] DOM Loaded. Initializing...");
 
-    setupTicker();
+    setupAboutTicker();
     setupAboutModal();
 
     // Prefer the simple injection path for stability.
@@ -76,15 +76,22 @@ function closeAboutModal() {
     modal.style.display = 'none';
 }
 
-function setupTicker() {
-    const tickerEl = document.getElementById('tickerText');
-
-    const text = 'ticker text... ticker text scrolling.... ticker text';
-
-    if (tickerEl) tickerEl.textContent = text;
-
+function setupAboutTicker() {
+    // The ticker belongs in the About/help popup only.
     const aboutTickerEl = document.getElementById('aboutTickerText');
-    if (aboutTickerEl) aboutTickerEl.textContent = text;
+    if (!aboutTickerEl) return;
+
+    // If you want different lines, edit these strings.
+    const messages = [
+        'BF6 Portal Tool online — build, test, repeat.',
+        'Tip: RULES (purple) + CONDITIONS (blue) are the heart of it.',
+        'Tip: Use the MOD (grey) container to hold your RULE blocks.',
+        'Reminder: keep UI overlays out of Blockly\'s way.',
+        'Credits: Neuro, ANDY6170, BattlefieldPortalHub.',
+    ];
+
+    // Render as a single scrolling line with separators.
+    aboutTickerEl.textContent = messages.join('   •   ');
 }
 
 function normalizeToolboxConfig(toolbox) {
@@ -97,23 +104,45 @@ function normalizeToolboxConfig(toolbox) {
         );
 
         if (bf6Wrapper && Array.isArray(bf6Wrapper.contents)) {
+            const flattened = bf6Wrapper.contents;
             return {
                 kind: 'categoryToolbox',
-                contents: bf6Wrapper.contents
+                contents: reorderTopCategories(flattened)
             };
         }
 
         // Otherwise, at least remove an outer "Home" wrapper if present.
         return {
             kind: 'categoryToolbox',
-            contents: toolbox.contents.filter(
+            contents: reorderTopCategories(toolbox.contents.filter(
                 (c) => !(c && c.kind === 'category' && typeof c.name === 'string' && c.name.toLowerCase() === 'home')
-            )
+            ))
         };
     } catch (e) {
         console.warn('[BF6] normalizeToolboxConfig failed; using original toolbox:', e);
         return toolbox;
     }
+}
+
+function reorderTopCategories(contents) {
+    if (!Array.isArray(contents)) return contents;
+
+    const byName = new Map();
+    for (const c of contents) {
+        if (c && c.kind === 'category' && typeof c.name === 'string') {
+            byName.set(c.name.toLowerCase(), c);
+        }
+    }
+
+    // Desired order: RULES first, then MOD, then CONDITIONS.
+    const preferredNames = ['rules', 'mod', 'conditions'];
+    const preferred = preferredNames
+        .map((n) => byName.get(n))
+        .filter(Boolean);
+
+    const preferredSet = new Set(preferred);
+    const rest = contents.filter((c) => !preferredSet.has(c));
+    return [...preferred, ...rest];
 }
 
 function fallbackInjection() {
@@ -214,7 +243,8 @@ function fallbackInjection() {
             theme: bf6_theme,
             grid: {
                 spacing: 20,
-                length: 6,
+                // Make it look like real "grid lines" by drawing full-length pattern strokes.
+                length: 20,
                 colour: '#3f4a52',
                 snap: true
             },
