@@ -1454,3 +1454,1719 @@ bf6Generators['clear_custom_message'] = function(block: any, generator: any) {
   const code = `mod.ClearCustomMessage(${value0}, ${value1}, ${value2}, ${value3});\n`;
   return code;
 };
+
+bf6Generators['enable_player_deploy'] = function(block: any, generator: any) {
+  const player = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const enabled = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'false';
+  const code = `mod.EnablePlayerDeploy(${player}, ${enabled});\n`;
+  return code;
+};
+
+bf6Generators['set_player_max_health'] = function(block: any, generator: any) {
+  const player = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const health = generator.valueToCode(block, 'VALUE-1', Order.NONE) || '0';
+  const code = `mod.SetPlayerMaxHealth(${player}, ${health});\n`;
+  return code;
+};
+
+bf6Generators['set_player_soldier'] = function(block: any, generator: any) {
+  const player = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const soldier = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SetPlayerSoldier(${player}, ${soldier});\n`;
+  return code;
+};
+
+bf6Generators['undeploy_all_players'] = function(block: any, generator: any) {
+  const code = `mod.UndeployAllPlayers();\n`;
+  return code;
+};
+
+bf6Generators['undeploy_player'] = function(block: any, generator: any) {
+  const player = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.UndeployPlayer(${player});\n`;
+  return code;
+};
+
+// Auto-generated missing generators
+bf6Generators['abort'] = function(block: any, generator: any) {
+  const code = `mod.Abort();\n`;
+  return code;
+};
+
+bf6Generators['abort_if'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.AbortIf(${value0});\n`;
+  return code;
+};
+
+bf6Generators['absolute_value'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.AbsoluteValue(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['add'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.Add(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['and'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.And(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['angle_between_vectors'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.AngleBetweenVectors(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['angle_difference'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const code = `mod.AngleDifference(${value0}, ${value1}, ${value2}, ${value3})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['append_to_array'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.AppendToArray(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['apply_med_gadget'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.ApplyMedGadget(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['arccosine_in_degrees'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.ArccosineInDegrees(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['arccosine_in_radians'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.ArccosineInRadians(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['arcsine_in_degrees'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.ArcsineInDegrees(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['arcsine_in_radians'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.ArcsineInRadians(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['arctangent_in_degrees'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.ArctangentInDegrees(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['arctangent_in_radians'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.ArctangentInRadians(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['array_contains'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.ArrayContains(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['array_slice'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const value4 = generator.valueToCode(block, 'VALUE-4', Order.NONE) || 'null';
+  const code = `mod.ArraySlice(${value0}, ${value1}, ${value2}, ${value3}, ${value4})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['backward_vector'] = function(block: any, generator: any) {
+  const code = `mod.BackwardVector()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['bool'] = function(block: any, generator: any) {
+  const code = `mod.Bool();\n`;
+  return code;
+};
+
+bf6Generators['break'] = function(block: any, generator: any) {
+  const code = `mod.Break();\n`;
+  return code;
+};
+
+bf6Generators['capture_point_capturing_time'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.CapturePointCapturingTime(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['capture_point_neutralization_time'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.CapturePointNeutralizationTime(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['capture_points'] = function(block: any, generator: any) {
+  const code = `mod.CapturePoints()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['ceiling'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.Ceiling(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['closest_player_to'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const code = `mod.ClosestPlayerTo(${value0}, ${value1}, ${value2}, ${value3})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['compare_capture_point'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.CompareCapturePoint(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['compare_vehicle_name'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.CompareVehicleName(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['condition'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.CONDITION(${value0});\n`;
+  return code;
+};
+
+bf6Generators['continue'] = function(block: any, generator: any) {
+  const code = `mod.Continue();\n`;
+  return code;
+};
+
+bf6Generators['cosine_from_degrees'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.CosineFromDegrees(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['cosine_from_radians'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.CosineFromRadians(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['count_of'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.CountOf(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['create_vector'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const value4 = generator.valueToCode(block, 'VALUE-4', Order.NONE) || 'null';
+  const value5 = generator.valueToCode(block, 'VALUE-5', Order.NONE) || 'null';
+  const code = `mod.CreateVector(${value0}, ${value1}, ${value2}, ${value3}, ${value4}, ${value5})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['cross_product'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.CrossProduct(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['current_array_element'] = function(block: any, generator: any) {
+  const code = `mod.CurrentArrayElement()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['custom_message_slot'] = function(block: any, generator: any) {
+  const code = `mod.CustomMessageSlot()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['damage_types'] = function(block: any, generator: any) {
+  const code = `mod.DamageTypes()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['damage_vehicle'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.DamageVehicle(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['deal_damage'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const value4 = generator.valueToCode(block, 'VALUE-4', Order.NONE) || 'null';
+  const value5 = generator.valueToCode(block, 'VALUE-5', Order.NONE) || 'null';
+  const code = `mod.DealDamage(${value0}, ${value1}, ${value2}, ${value3}, ${value4}, ${value5});\n`;
+  return code;
+};
+
+bf6Generators['death_types'] = function(block: any, generator: any) {
+  const code = `mod.DeathTypes()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['degrees_to_radians'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.DegreesToRadians(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['deploy_all_players'] = function(block: any, generator: any) {
+  const code = `mod.DeployAllPlayers();\n`;
+  return code;
+};
+
+bf6Generators['deploy_player'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.DeployPlayer(${value0});\n`;
+  return code;
+};
+
+bf6Generators['destroy_vehicle'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.DestroyVehicle(${value0});\n`;
+  return code;
+};
+
+bf6Generators['direction_from_angles'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const code = `mod.DirectionFromAngles(${value0}, ${value1}, ${value2}, ${value3})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['direction_towards'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const code = `mod.DirectionTowards(${value0}, ${value1}, ${value2}, ${value3})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['display_custom_message'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const value4 = generator.valueToCode(block, 'VALUE-4', Order.NONE) || 'null';
+  const value5 = generator.valueToCode(block, 'VALUE-5', Order.NONE) || 'null';
+  const value6 = generator.valueToCode(block, 'VALUE-6', Order.NONE) || 'null';
+  const code = `mod.DisplayCustomMessage(${value0}, ${value1}, ${value2}, ${value3}, ${value4}, ${value5}, ${value6});\n`;
+  return code;
+};
+
+bf6Generators['display_game_mode_message'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.DisplayGameModeMessage(${value0}, ${value1}, ${value2});\n`;
+  return code;
+};
+
+bf6Generators['display_highlighted_world_log_message'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.DisplayHighlightedWorldLogMessage(${value0}, ${value1}, ${value2});\n`;
+  return code;
+};
+
+bf6Generators['display_notification_message'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.DisplayNotificationMessage(${value0}, ${value1}, ${value2});\n`;
+  return code;
+};
+
+bf6Generators['distance_between'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const code = `mod.DistanceBetween(${value0}, ${value1}, ${value2}, ${value3})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['divide'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.Divide(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['dot_product'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.DotProduct(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['down_vector'] = function(block: any, generator: any) {
+  const code = `mod.DownVector()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['else'] = function(block: any, generator: any) {
+  const code = `mod.Else();\n`;
+  return code;
+};
+
+bf6Generators['else_if'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.ElseIf(${value0});\n`;
+  return code;
+};
+
+bf6Generators['empty_array'] = function(block: any, generator: any) {
+  const code = `mod.EmptyArray()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['enable_all_input_restrictions'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.EnableAllInputRestrictions(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['enable_all_player_deploy'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.EnableAllPlayerDeploy(${value0});\n`;
+  return code;
+};
+
+bf6Generators['enable_capture_point_deploying'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.EnableCapturePointDeploying(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['enable_capturing'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.EnableCapturing(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['enable_hq'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const code = `mod.EnableHQ(${value0}, ${value1}, ${value2}, ${value3});\n`;
+  return code;
+};
+
+bf6Generators['enable_input_restriction'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.EnableInputRestriction(${value0}, ${value1}, ${value2});\n`;
+  return code;
+};
+
+bf6Generators['enable_ticket_bleed_acceleration'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.EnableTicketBleedAcceleration(${value0});\n`;
+  return code;
+};
+
+bf6Generators['enable_world_icon_image'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.EnableWorldIconImage(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['enable_world_icon_text'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.EnableWorldIconText(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['end_game_mode'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.EndGameMode(${value0});\n`;
+  return code;
+};
+
+bf6Generators['equals'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.Equals(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['event_capture_point'] = function(block: any, generator: any) {
+  const code = `mod.EventCapturePoint()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['event_damage_type'] = function(block: any, generator: any) {
+  const code = `mod.EventDamageType()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['event_death_type'] = function(block: any, generator: any) {
+  const code = `mod.EventDeathType()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['event_mcom'] = function(block: any, generator: any) {
+  const code = `mod.EventMCOM()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['event_other_player'] = function(block: any, generator: any) {
+  const code = `mod.EventOtherPlayer()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['event_player'] = function(block: any, generator: any) {
+  const code = `mod.EventPlayer()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['event_seat'] = function(block: any, generator: any) {
+  const code = `mod.EventSeat()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['event_team'] = function(block: any, generator: any) {
+  const code = `mod.EventTeam()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['event_vehicle'] = function(block: any, generator: any) {
+  const code = `mod.EventVehicle()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['event_weapon'] = function(block: any, generator: any) {
+  const code = `mod.EventWeapon()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['factions'] = function(block: any, generator: any) {
+  const code = `mod.Factions()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['farthest_player_from'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const code = `mod.FarthestPlayerFrom(${value0}, ${value1}, ${value2}, ${value3})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['filtered_array'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.FilteredArray(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['first_of'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.FirstOf(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['floor'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.Floor(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['force_all_exit_vehicle'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.ForceAllExitVehicle(${value0});\n`;
+  return code;
+};
+
+bf6Generators['force_mandown'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.ForceMandown(${value0});\n`;
+  return code;
+};
+
+bf6Generators['force_player_exit_vehicle'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.ForcePlayerExitVehicle(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['force_player_to_seat'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.ForcePlayerToSeat(${value0}, ${value1}, ${value2});\n`;
+  return code;
+};
+
+bf6Generators['force_revive'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.ForceRevive(${value0});\n`;
+  return code;
+};
+
+bf6Generators['force_switch_inventory'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.ForceSwitchInventory(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['forward_vector'] = function(block: any, generator: any) {
+  const code = `mod.ForwardVector()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_all_capture_points'] = function(block: any, generator: any) {
+  const code = `mod.GetAllCapturePoints()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_all_mco_ms'] = function(block: any, generator: any) {
+  const code = `mod.GetAllMCOMs()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_all_players_in_vehicle'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetAllPlayersInVehicle(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_all_vehicles'] = function(block: any, generator: any) {
+  const code = `mod.GetAllVehicles()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_capture_point_position'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetCapturePointPosition(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_capture_progress'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetCaptureProgress(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_current_owner_team_id'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetCurrentOwnerTeamID(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_game_mode_score'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetGameModeScore(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_game_mode_target_score'] = function(block: any, generator: any) {
+  const code = `mod.GetGameModeTargetScore()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_game_mode_time_elapsed'] = function(block: any, generator: any) {
+  const code = `mod.GetGameModeTimeElapsed()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_game_mode_time_limit'] = function(block: any, generator: any) {
+  const code = `mod.GetGameModeTimeLimit()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_game_mode_time_remaining'] = function(block: any, generator: any) {
+  const code = `mod.GetGameModeTimeRemaining()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_inventory_ammo'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.GetInventoryAmmo(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_inventory_magazine_ammo'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.GetInventoryMagazineAmmo(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_mcom_state'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.GetMCOMState(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_objective'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetObjective(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_owner_progress_team_id'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetOwnerProgressTeamID(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_player_deaths'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetPlayerDeaths(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_player_from_vehicle_seat'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.GetPlayerFromVehicleSeat(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_player_kills'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetPlayerKills(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_players'] = function(block: any, generator: any) {
+  const code = `mod.GetPlayers()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_players_on_point'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetPlayersOnPoint(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_player_state'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.GetPlayerState(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_player_vehicle_seat'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetPlayerVehicleSeat(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_previous_owner_team_id'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetPreviousOwnerTeamID(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_remaining_fuse_time'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetRemainingFuseTime(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_seat_count'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetSeatCount(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_subroutine_argument'] = function(block: any, generator: any) {
+  const code = `mod.GetSubroutineArgument()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_team_id'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetTeamId(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_variable'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetVariable(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_vehicle_from_player'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetVehicleFromPlayer(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_vehicle_state'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.GetVehicleState(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_vehicle_team_id'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetVehicleTeamId(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_x_component'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetXComponent(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_y_component'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetYComponent(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['get_z_component'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.GetZComponent(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['greater_than'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.GreaterThan(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['greater_than_equal_to'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.GreaterThanEqualTo(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['has_inventory'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.HasInventory(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['heal'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const value4 = generator.valueToCode(block, 'VALUE-4', Order.NONE) || 'null';
+  const value5 = generator.valueToCode(block, 'VALUE-5', Order.NONE) || 'null';
+  const code = `mod.Heal(${value0}, ${value1}, ${value2}, ${value3}, ${value4}, ${value5});\n`;
+  return code;
+};
+
+bf6Generators['if'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.If(${value0});\n`;
+  return code;
+};
+
+bf6Generators['if_then_else'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const value4 = generator.valueToCode(block, 'VALUE-4', Order.NONE) || 'null';
+  const code = `mod.IfThenElse(${value0}, ${value1}, ${value2}, ${value3}, ${value4})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['index_of_array_value'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.IndexOfArrayValue(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['input_restrictions'] = function(block: any, generator: any) {
+  const code = `mod.InputRestrictions()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['inventory_character_specialties'] = function(block: any, generator: any) {
+  const code = `mod.InventoryCharacterSpecialties()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['inventory_class_gadgets'] = function(block: any, generator: any) {
+  const code = `mod.InventoryClassGadgets()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['inventory_melee_weapons'] = function(block: any, generator: any) {
+  const code = `mod.InventoryMeleeWeapons()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['inventory_open_gadgets'] = function(block: any, generator: any) {
+  const code = `mod.InventoryOpenGadgets()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['inventory_primary_weapons'] = function(block: any, generator: any) {
+  const code = `mod.InventoryPrimaryWeapons()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['inventory_secondary_weapons'] = function(block: any, generator: any) {
+  const code = `mod.InventorySecondaryWeapons()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['inventory_throwables'] = function(block: any, generator: any) {
+  const code = `mod.InventoryThrowables()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['is_current_map'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.IsCurrentMap(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['is_faction'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.IsFaction(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['is_inventory_slot_active'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.IsInventorySlotActive(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['is_killer_weapon'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.IsKillerWeapon(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['is_player_using_soldier'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.IsPlayerUsingSoldier(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['is_player_valid'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.IsPlayerValid(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['is_true_for_all'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.IsTrueForAll(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['is_true_for_any'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.IsTrueForAny(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['is_type'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.IsType(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['is_vehicle_occupied'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.IsVehicleOccupied(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['is_vehicle_seat_occupied'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.IsVehicleSeatOccupied(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['is_victim_damage_type'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.IsVictimDamageType(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['is_victim_death_type'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.IsVictimDeathType(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['kill'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.Kill(${value0});\n`;
+  return code;
+};
+
+bf6Generators['last_of'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.LastOf(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['left_vector'] = function(block: any, generator: any) {
+  const code = `mod.LeftVector()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['less_than'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.LessThan(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['less_than_equal_to'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.LessThanEqualTo(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['local_to_world_position'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.LocalToWorldPosition(${value0}, ${value1}, ${value2})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['local_to_world_vector'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.LocalToWorldVector(${value0}, ${value1}, ${value2})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['locational_sounds'] = function(block: any, generator: any) {
+  const code = `mod.LocationalSounds()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['loop_variable'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const value4 = generator.valueToCode(block, 'VALUE-4', Order.NONE) || 'null';
+  const value5 = generator.valueToCode(block, 'VALUE-5', Order.NONE) || 'null';
+  const value6 = generator.valueToCode(block, 'VALUE-6', Order.NONE) || 'null';
+  const code = `mod.LoopVariable(${value0}, ${value1}, ${value2}, ${value3}, ${value4}, ${value5}, ${value6});\n`;
+  return code;
+};
+
+bf6Generators['mapped_array'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.MappedArray(${value0}, ${value1}, ${value2})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['maps'] = function(block: any, generator: any) {
+  const code = `mod.Maps()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['max'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.Max(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['mco_ms'] = function(block: any, generator: any) {
+  const code = `mod.MCOMs()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['mcom_state_bool'] = function(block: any, generator: any) {
+  const code = `mod.MCOMStateBool()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['med_gadget_types'] = function(block: any, generator: any) {
+  const code = `mod.MedGadgetTypes()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['message'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const value4 = generator.valueToCode(block, 'VALUE-4', Order.NONE) || 'null';
+  const value5 = generator.valueToCode(block, 'VALUE-5', Order.NONE) || 'null';
+  const value6 = generator.valueToCode(block, 'VALUE-6', Order.NONE) || 'null';
+  const code = `mod.Message(${value0}, ${value1}, ${value2}, ${value3}, ${value4}, ${value5}, ${value6})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['mod'] = function(block: any, generator: any) {
+  const code = `mod.MOD();\n`;
+  return code;
+};
+
+bf6Generators['modulo'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.Modulo(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['multiply'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.Multiply(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['normalize'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.Normalize(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['not'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.Not(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['not_equal_to'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.NotEqualTo(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['number'] = function(block: any, generator: any) {
+  const code = `mod.Number();\n`;
+  return code;
+};
+
+bf6Generators['or'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.Or(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['pause_game_mode_time'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.PauseGameModeTime(${value0});\n`;
+  return code;
+};
+
+bf6Generators['pi'] = function(block: any, generator: any) {
+  const code = `mod.Pi()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['player_inventory_slots'] = function(block: any, generator: any) {
+  const code = `mod.PlayerInventorySlots()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['player_soldiers'] = function(block: any, generator: any) {
+  const code = `mod.PlayerSoldiers()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['player_state_bool'] = function(block: any, generator: any) {
+  const code = `mod.PlayerStateBool()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['player_state_number'] = function(block: any, generator: any) {
+  const code = `mod.PlayerStateNumber()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['player_state_vector'] = function(block: any, generator: any) {
+  const code = `mod.PlayerStateVector()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['radians_to_degrees'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.RadiansToDegrees(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['raise_to_power'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const code = `mod.RaiseToPower(${value0}, ${value1}, ${value2}, ${value3})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['randomized_array'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.RandomizedArray(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['random_real'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const code = `mod.RandomReal(${value0}, ${value1}, ${value2}, ${value3})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['random_value_in_array'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.RandomValueInArray(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['remove_from_array'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.RemoveFromArray(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['remove_player_inventory'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.RemovePlayerInventory(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['remove_player_inventory_at_slot'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.RemovePlayerInventoryAtSlot(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['repair_vehicle'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.RepairVehicle(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['replace_player_inventory'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.ReplacePlayerInventory(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['reset_game_mode_time'] = function(block: any, generator: any) {
+  const code = `mod.ResetGameModeTime();\n`;
+  return code;
+};
+
+bf6Generators['resupply'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.Resupply(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['resupply_types'] = function(block: any, generator: any) {
+  const code = `mod.ResupplyTypes()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['right_vector'] = function(block: any, generator: any) {
+  const code = `mod.RightVector()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['round_to_integer'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.RoundToInteger(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['rule'] = function(block: any, generator: any) {
+  const code = `mod.RULE();\n`;
+  return code;
+};
+
+bf6Generators['send_error_report'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.SendErrorReport(${value0});\n`;
+  return code;
+};
+
+bf6Generators['set_capture_multiplier'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SetCaptureMultiplier(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['set_game_mode_score'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SetGameModeScore(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['set_game_mode_target_score'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.SetGameModeTargetScore(${value0});\n`;
+  return code;
+};
+
+bf6Generators['set_game_mode_time_limit'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.SetGameModeTimeLimit(${value0});\n`;
+  return code;
+};
+
+bf6Generators['set_inventory_ammo'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.SetInventoryAmmo(${value0}, ${value1}, ${value2});\n`;
+  return code;
+};
+
+bf6Generators['set_inventory_magazine_ammo'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.SetInventoryMagazineAmmo(${value0}, ${value1}, ${value2});\n`;
+  return code;
+};
+
+bf6Generators['set_mcom_fuse_time'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SetMCOMFuseTime(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['set_neutralization_time_multiplier'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SetNeutralizationTimeMultiplier(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['set_objective_owner'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SetObjectiveOwner(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['set_redeploy_time'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SetRedeployTime(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['set_team_id'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SetTeamId(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['set_variable'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SetVariable(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['set_variable_at_index'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const value4 = generator.valueToCode(block, 'VALUE-4', Order.NONE) || 'null';
+  const code = `mod.SetVariableAtIndex(${value0}, ${value1}, ${value2}, ${value3}, ${value4});\n`;
+  return code;
+};
+
+bf6Generators['set_vehicle_max_health_multiplier'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SetVehicleMaxHealthMultiplier(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['set_world_icon_image'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SetWorldIconImage(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['set_world_icon_owner'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SetWorldIconOwner(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['set_world_icon_position'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SetWorldIconPosition(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['set_world_icon_text'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SetWorldIconText(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['sine_from_degrees'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.SineFromDegrees(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['sine_from_radians'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.SineFromRadians(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['skip'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.Skip(${value0});\n`;
+  return code;
+};
+
+bf6Generators['skip_if'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SkipIf(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['skip_mandown'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.SkipMandown(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['sorted_array'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.SortedArray(${value0}, ${value1}, ${value2})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['sounds'] = function(block: any, generator: any) {
+  const code = `mod.Sounds()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['spot_target'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.SpotTarget(${value0}, ${value1}, ${value2});\n`;
+  return code;
+};
+
+bf6Generators['spot_target_for_player'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const value4 = generator.valueToCode(block, 'VALUE-4', Order.NONE) || 'null';
+  const value5 = generator.valueToCode(block, 'VALUE-5', Order.NONE) || 'null';
+  const code = `mod.SpotTargetForPlayer(${value0}, ${value1}, ${value2}, ${value3}, ${value4}, ${value5});\n`;
+  return code;
+};
+
+bf6Generators['square_root'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.SquareRoot(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['stop_tracking_variable'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.StopTrackingVariable(${value0});\n`;
+  return code;
+};
+
+bf6Generators['string'] = function(block: any, generator: any) {
+  const code = `mod.String();\n`;
+  return code;
+};
+
+bf6Generators['subroutine'] = function(block: any, generator: any) {
+  const code = `mod.SUBROUTINE();\n`;
+  return code;
+};
+
+bf6Generators['subroutine_instance_block'] = function(block: any, generator: any) {
+  const code = `mod.subroutineInstanceBlock();\n`;
+  return code;
+};
+
+bf6Generators['subtract'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.Subtract(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['tangent_from_degrees'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.TangentFromDegrees(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['tangent_from_radians'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.TangentFromRadians(${value0})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['teleport'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const value4 = generator.valueToCode(block, 'VALUE-4', Order.NONE) || 'null';
+  const code = `mod.Teleport(${value0}, ${value1}, ${value2}, ${value3}, ${value4});\n`;
+  return code;
+};
+
+bf6Generators['track_variable_at_rate'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const value4 = generator.valueToCode(block, 'VALUE-4', Order.NONE) || 'null';
+  const code = `mod.TrackVariableAtRate(${value0}, ${value1}, ${value2}, ${value3}, ${value4});\n`;
+  return code;
+};
+
+bf6Generators['track_variable_over_time'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const value4 = generator.valueToCode(block, 'VALUE-4', Order.NONE) || 'null';
+  const code = `mod.TrackVariableOverTime(${value0}, ${value1}, ${value2}, ${value3}, ${value4});\n`;
+  return code;
+};
+
+bf6Generators['trigger_audio'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.TriggerAudio(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['trigger_audio_at_location'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.TriggerAudioAtLocation(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['types'] = function(block: any, generator: any) {
+  const code = `mod.Types()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['unspot_target'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.UnspotTarget(${value0});\n`;
+  return code;
+};
+
+bf6Generators['up_vector'] = function(block: any, generator: any) {
+  const code = `mod.UpVector()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['value_in_array'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.ValueInArray(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['variable'] = function(block: any, generator: any) {
+  const code = `mod.Variable();\n`;
+  return code;
+};
+
+bf6Generators['vector_towards'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const code = `mod.VectorTowards(${value0}, ${value1}, ${value2}, ${value3})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['vehicles'] = function(block: any, generator: any) {
+  const code = `mod.Vehicles()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['vehicle_state_vector'] = function(block: any, generator: any) {
+  const code = `mod.VehicleStateVector()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['vehicle_types'] = function(block: any, generator: any) {
+  const code = `mod.VehicleTypes()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['voice_overs'] = function(block: any, generator: any) {
+  const code = `mod.VoiceOvers()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['wait'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.Wait(${value0});\n`;
+  return code;
+};
+
+bf6Generators['wait_until'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.WaitUntil(${value0}, ${value1});\n`;
+  return code;
+};
+
+bf6Generators['while'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const code = `mod.While(${value0});\n`;
+  return code;
+};
+
+bf6Generators['world_icon_images'] = function(block: any, generator: any) {
+  const code = `mod.WorldIconImages()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['world_icons'] = function(block: any, generator: any) {
+  const code = `mod.WorldIcons()`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['world_to_local_position'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.WorldToLocalPosition(${value0}, ${value1}, ${value2})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['world_to_local_vector'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.WorldToLocalVector(${value0}, ${value1}, ${value2})`;
+  return [code, Order.NONE];
+};
+
+bf6Generators['xor'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const code = `mod.Xor(${value0}, ${value1})`;
+  return [code, Order.NONE];
+};
