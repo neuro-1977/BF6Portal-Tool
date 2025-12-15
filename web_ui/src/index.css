@@ -1,0 +1,34 @@
+
+/* Blockly core and essential layout styles only */
+#blocklyDiv .blocklyMainBackground {
+  fill: #181818;
+}
+#blocklyDiv .blocklyGrid {
+  opacity: 0.7;
+  stroke: #888;
+  stroke-width: 1.5;
+  shape-rendering: crispEdges;
+}
+#blocklyDiv .blocklyZoom {
+  display: block;
+}
+#blocklyDiv {
+  width: 100vw;
+  height: 100vh;
+  background: #181818;
+  position: relative;
+  overflow: hidden;
+}
+body, html {
+  font-family: sans-serif;
+  background-color: #181818;
+  color: #fff;
+  margin: 0;
+  overflow: hidden !important;
+}
+
+/* Fix Blockly toolbox flyout help text offset */
+.blocklyFlyoutLabelText {
+  transform: translateX(8px); /* shift right so first word is visible */
+  /* Optionally adjust font or padding for clarity */
+}

@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BF6 Portal Tool</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        background: #181a1b;
+        color: #e0e0e0;
+        font-family: "Segoe UI", "Consolas", "monospace", sans-serif;
+      }
+      #header {
+        width: 100vw;
+        height: 48px;
+        background: #23272e;
+        color: #baff80;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        box-shadow: 0 2px 8px #000a;
+        font-size: 1.1em;
+        font-family: "Segoe UI", "Consolas", "monospace", sans-serif;
+        z-index: 3000;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        border-bottom: 1.5px solid #181a1b;
+        user-select: none;
+      }
+      .menu-btn {
+        background: none;
+        border: none;
+        color: #baff80;
+        font-weight: bold;
+        font-size: 1em;
+        margin: 0 18px 0 0;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+      }
+      .menu-btn:hover {
+        background: #39ff1420;
+        color: #39ff14;
+      }
+      #blocklyDiv {
+        flex: 1 1 auto;
+        min-height: 100px;
+        background: #181a1b !important;
+        border-radius: 8px;
+        box-shadow: 0 0 32px #000a;
+        z-index: 1;
+      }
+      .blocklyMainBackground {
+        fill: #181a1b !important;
+      }
+      .blocklySvg {
+        background: #181a1b !important;
+      }
+      .blocklyFlyoutBackground {
+        fill: #23272e !important;
+        stroke: #333 !important;
+      }
+      .blocklyToolboxDiv {
+        background: #23272e !important;
+        color: #baff80 !important;
+        border-right: 2px solid #181a1b !important;
+      }
+      .blocklyTreeLabel {
+        color: #baff80 !important;
+      }
+      .blocklyTrash,
+      .blocklyZoom,
+      .blocklyScrollbarHorizontal,
+      .blocklyScrollbarVertical {
+        display: none !important;
+      }
+    </style>
+    <style>
+      /* Sidebar styles */
+      #sidebar {
+        background: #23272e;
+        border-right: 2px solid #181a1b;
+        box-shadow: 2px 0 12px #000a;
+        min-width: 220px;
+        max-width: 320px;
+        width: 260px;
+        display: flex;
+        flex-direction: column;
+        z-index: 2500;
+        position: fixed;
+        top: 48px;
+        left: 0;
+        height: calc(100vh - 48px);
+        overflow: hidden;
+      }
+      #sidebarCategories {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        flex: 1 1 auto;
+        overflow-y: auto;
+        max-height: calc(100vh - 180px);
+      }
+      @media (max-width: 700px) {
+        #sidebar {
+          min-width: 120px;
+          width: 120px;
+          font-size: 0.92em;
+        }
+        #sidebarCategories .sidebar-category {
+          padding: 10px 8px;
+          font-size: 0.95em;
+        }
+      }
+      #sidebarSearchContainer {
+        padding: 16px 12px 8px 12px;
+        background: #23272e;
+        border-bottom: 1px solid #181a1b;
+      }
+      #sidebarSearch {
+        width: 100%;
+        padding: 7px 10px;
+        background: #181a1b;
+        color: #e0e0e0;
+        border: 1px solid #333;
+        border-radius: 5px;
+        font-size: 1em;
+        outline: none;
+        transition: border 0.2s;
+      }
+      #sidebarSearch:focus {
+        border: 1.5px solid #4fc3f7;
+      }
+      #sidebarCategories {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        flex: 1 1 auto;
+        overflow-y: auto;
+      }
+      .sidebar-category {
+        padding: 12px 18px;
+        color: #b5a045;
+        font-weight: bold;
+        cursor: pointer;
+        border-left: 4px solid transparent;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
+        user-select: none;
+      }
+      .sidebar-category.selected,
+      .sidebar-category:hover {
+        background: #181a1b;
+        border-left: 4px solid #4fc3f7;
+        color: #4fc3f7;
+      }
+      #sidebarCodeMenu {
+        padding: 10px 12px;
+        background: #181a1b;
+        border-top: 1px solid #23272e;
+        min-height: 48px;
+        color: #4fc3f7;
+        font-size: 1.08em;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+      }
+      #sidebarCodeMenu span {
+        font-weight: bold;
+      }
+    </style>
+    <div
+      id="splashScreen"
+      style="
+        display: none !important;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #181a1b;
+        z-index: 99999;
+        transition: opacity 0.5s;
+      "
+    >
+      <div
+        id="splashBox"
+        style="
+          background: #0a2e12;
+          border-radius: 22px;
+          box-shadow: 0 8px 48px #000b, 0 0 0 4px #39ff1460;
+          padding: 38px 44px 28px 44px;
+          min-width: 420px;
+          max-width: 98vw;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        "
+      >
+        <div id="splashLogo" style="margin-bottom: 12px">
+          <img
+            src="assets/img/app_logo.png"
+            alt="BF6Portal Tool Logo"
+            style="
+              width: 82px;
+              height: 82px;
+              border-radius: 16px;
+              box-shadow: 0 2px 18px #000a;
+            "
+          />
+        </div>
+        <div
+          id="splashTitle"
+          style="
+            font-size: 2.3em;
+            color: #b0ffb0;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 8px #000a;
+            margin-bottom: 6px;
+          "
+        >
+          BF6Portal Tool
+        </div>
+        <div
+          id="splashCredits"
+          style="
+            color: #39ff14;
+            font-size: 1.13em;
+            margin-bottom: 8px;
+            text-align: center;
+          "
+        >
+          Made by <span class="credit-name neuro-glitch">Neuro</span> &amp;
+          <span class="credit-name ai-sparkle">Mostly A.I.</span><br />
+          <span style="color: #baff80"
+            >Special thanks:
+            <span class="credit-name rainbow-andy">ANDY6170</span> &amp;
+            <a
+              href="https://discord.gg/z4PXNEsN"
+              target="_blank"
+              style="color: #4fc3f7; text-decoration: underline"
+              >BattlefieldPortalHub</a
+            ></span
+          >
+        </div>
+        <div
+          id="splashError"
+          style="
+            color: #ffb300;
+            font-size: 1.05em;
+            text-align: center;
+            margin-bottom: 8px;
+          "
+        ></div>
+        <div
+          id="splashMsg"
+          style="
+            color: #4fc3f7;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            text-align: center;
+          "
+        ></div>
+        <div id="splashWorking" style="margin-bottom: 8px">
+          <span
+            class="splash-spinner"
+            style="
+              display: inline-block;
+              width: 32px;
+              height: 32px;
+              vertical-align: middle;
+              margin-right: 8px;
+            "
+          >
+            <svg viewBox="0 0 50 50" style="width: 32px; height: 32px">
+              <circle
+                cx="25"
+                cy="25"
+                r="20"
+                fill="none"
+                stroke="#4fc3f7"
+                stroke-width="5"
+                stroke-linecap="round"
+                stroke-dasharray="31.4 31.4"
+                transform="rotate(-90 25 25)"
+              >
+                <animateTransform
+                  attributeName="transform"
+                  type="rotate"
+                  from="0 25 25"
+                  to="360 25 25"
+                  dur="1s"
+                  repeatCount="indefinite"
+                />
+              </circle>
+            </svg>
+          </span>
+          <span
+            id="splashWorkingMsg"
+            style="
+              color: #baff80;
+              font-size: 1.08em;
+              vertical-align: middle;
+              max-width: 320px;
+              display: inline-block;
+            "
+          ></span>
+        </div>
+        <div
+          id="animatedLoadingBar"
+          style="
+            width: 100%;
+            height: 8px;
+            background: #003a10;
+            border-radius: 4px;
+            margin: 10px 0 8px 0;
+            overflow: hidden;
+            position: relative;
+          "
+        >
+          <div
+            id="animatedLoadingBarAnim"
+            style="
+              position: absolute;
+              left: 0;
+              top: 0;
+              height: 100%;
+              width: 20%;
+              background: linear-gradient(90deg, #39ff14 0%, #baff80 100%);
+              box-shadow: 0 0 16px 4px #39ff1460;
+            "
+          ></div>
+          <!-- Notches for load state -->
+          <div
+            class="notch"
+            id="notch1"
+            style="
+              position: absolute;
+              left: 12%;
+              top: -4px;
+              width: 8px;
+              height: 16px;
+              background: #baff80;
+              border-radius: 4px;
+              opacity: 0.4;
+            "
+          ></div>
+          <div
+            class="notch"
+            id="notch2"
+            style="
+              position: absolute;
+              left: 48%;
+              top: -4px;
+              width: 8px;
+              height: 16px;
+              background: #baff80;
+              border-radius: 4px;
+              opacity: 0.4;
+            "
+          ></div>
+          <div
+            class="notch"
+            id="notch3"
+            style="
+              position: absolute;
+              left: 84%;
+              top: -4px;
+              width: 8px;
+              height: 16px;
+              background: #baff80;
+              border-radius: 4px;
+              opacity: 0.4;
+            "
+          ></div>
+          <!-- Notch labels -->
+          <div
+            style="
+              position: absolute;
+              left: 0;
+              top: 16px;
+              width: 100%;
+              display: flex;
+              justify-content: space-between;
+              font-size: 0.95em;
+              color: #baff80;
+              opacity: 0.85;
+              pointer-events: none;
+            "
+          >
+            <span style="margin-left: 2%">| starting</span>
+            <span style="margin-left: -8px">| loading Blocks</span>
+            <span style="margin-right: 2%">| checking things work</span>
+          </div>
+        </div>
+        <div
+          id="splashTicker"
+          style="
+            width: 100%;
+            color: #39ff14;
+            font-size: 1.13em;
+            text-align: center;
+            margin-top: 2px;
+            min-height: 1.5em;
+            letter-spacing: 0.5px;
+            background: #222;
+            z-index: 2147483647;
+            position: relative;
+            border: 1px dashed #4fc3f7;
+            font-weight: bold;
+            text-shadow: 0 0 8px #39ff14, 0 0 16px #baff80;
+          "
+        ></div>
+        <div
+          id="splashErrorFrame"
+          style="
+            width: 100%;
+            color: #ffb300;
+            background: #2a1a00;
+            font-size: 1.05em;
+            text-align: center;
+            margin-top: 4px;
+            min-height: 1.5em;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px #0004;
+            z-index: 100000;
+          "
+        ></div>
+      </div>
+    </div>
+    <style>
+      /* Diagnostics for animated loading bar */
+      #animatedLoadingBarAnim {
+        background: linear-gradient(90deg, #39ff14 0%, #baff80 100%) !important;
+        box-shadow: 0 0 16px 4px #39ff1460;
+        min-width: 40px;
+        border: 2px dashed #ffb300;
+        animation: animatedLoadingBarMove 1.6s linear infinite;
+      }
+
+      @keyframes animatedLoadingBarMove {
+        0% {
+          left: 0;
+          width: 20%;
+        }
+        50% {
+          left: 80%;
+          width: 20%;
+        }
+        100% {
+          left: 0;
+          width: 20%;
+        }
+      }
+      /* Neuro glitch effect */
+      .neuro-glitch {
+        color: #39ff14;
+        font-weight: bold;
+        position: relative;
+        text-shadow: 0 0 2px #39ff14, 0 0 8px #39ff14, 0 0 2px #fff;
+        animation: neuroGlitch 1.2s infinite alternate;
+      }
+      @keyframes neuroGlitch {
+        0% {
+          text-shadow: 0 0 2px #39ff14, 0 0 8px #39ff14, 0 0 2px #fff;
+        }
+        50% {
+          text-shadow: 2px 0 8px #baff80, -2px 0 8px #39ff14, 0 0 2px #fff;
+        }
+        100% {
+          text-shadow: 0 0 2px #39ff14, 0 0 8px #39ff14, 0 0 2px #fff;
+        }
+      }
+      /* AI sparkles */
+      .ai-sparkle {
+        color: #baff80;
+        font-weight: bold;
+        position: relative;
+        animation: aiSparkle 2.2s infinite linear;
+      }
+      @keyframes aiSparkle {
+        0%,
+        100% {
+          text-shadow: 0 0 6px #fff, 0 0 12px #baff80;
+        }
+        50% {
+          text-shadow: 0 0 16px #fff, 0 0 24px #baff80;
+        }
+      }
+      /* Andy6170 rainbow */
+      .rainbow-andy {
+        background: linear-gradient(
+          90deg,
+          #ff5252,
+          #ffb300,
+          #39ff14,
+          #4fc3f7,
+          #b388ff,
+          #ff5252
+        );
+        background-size: 400% 100%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: rainbowAndy 2.5s linear infinite;
+        font-weight: bold;
+      }
+      @keyframes rainbowAndy {
+        0% {
+          background-position: 0% 50%;
+        }
+        100% {
+          background-position: 100% 50%;
+        }
+      }
+      /* Ticker is restored and cycles quirky comments every 12s before Blockly loads */
+      /* (Animated loading bar is now controlled by JS, no animation keyframes needed) */
+    </style>
+    <style>
+      #title {
+        font-weight: bold;
+        font-size: 20px;
+        margin-right: 24px;
+        color: #b0e0ff;
+        letter-spacing: 1.5px;
+        text-shadow: 0 1px 2px #000a;
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+      #title:before {
+        content: "";
+        display: inline-block;
+        width: 38px;
+        height: 38px;
+        margin-right: 12px;
+        background: url("assets/img/app_logo.png") no-repeat center/contain;
+        border-radius: 7px;
+        box-shadow: 0 2px 8px #000a;
+        vertical-align: middle;
+      }
+    </style>
+    <style>
+            html, body {
+              height: 100%;
+              margin: 0;
+              background: #181a1b;
+              color: #e0e0e0;
+              font-family: 'Segoe UI', 'Consolas', 'monospace', sans-serif;
+              overflow: hidden;
+            }
+            #main {
+              height: calc(100vh - 44px);
+              overflow: hidden;
+            }
+            #editorContainer {
+              height: 100%;
+
+              #recenterBtn {
+                top: 80px !important;
+              }
+            }
+        .onboarding-modal {
+          display: none;
+          position: fixed;
+          z-index: 2000;
+          left: 0;
+          top: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0,0,0,0.8);
+          align-items: center;
+          justify-content: center;
+        }
+        .onboarding-content {
+          background: #23272e;
+          color: #eee;
+          padding: 32px 40px;
+          border-radius: 12px;
+          box-shadow: 0 4px 24px #000a;
+          max-width: 480px;
+          margin: auto;
+          text-align: center;
+        }
+        .onboarding-content h2 {
+          color: #4fc3f7;
+          margin-bottom: 16px;
+        }
+        .onboarding-content ul {
+          text-align: left;
+          margin: 18px 0 24px 0;
+          padding-left: 20px;
+        }
+        .onboarding-content button {
+          background: #4fc3f7;
+          color: #181a1b;
+          border: none;
+
+      <style>
+        html, body {
+          height: 100%;
+          margin: 0;
+          background: #181a1b;
+          color: #e0e0e0;
+          font-family: 'Segoe UI', 'Consolas', 'monospace', sans-serif;
+          overflow: hidden;
+        }
+        #main {
+          height: calc(100vh - 44px);
+          overflow: hidden;
+        }
+        #editorContainer {
+          height: 100%;
+          overflow: hidden;
+        }
+        #blocklyDiv {
+          height: 100%;
+          width: 100%;
+          overflow: hidden !important;
+        }
+        .onboarding-modal {
+          display: none;
+          position: fixed;
+          z-index: 2000;
+          left: 0;
+          top: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0,0,0,0.8);
+          align-items: center;
+          justify-content: center;
+        }
+        .onboarding-content {
+          background: #23272e;
+          color: #eee;
+          padding: 32px 40px;
+          border-radius: 12px;
+          box-shadow: 0 4px 24px #000a;
+          max-width: 480px;
+          margin: auto;
+          text-align: center;
+        }
+        .onboarding-content h2 {
+          color: #4fc3f7;
+          margin-bottom: 16px;
+        }
+        .onboarding-content ul {
+          text-align: left;
+          margin: 18px 0 24px 0;
+          padding-left: 20px;
+        }
+        .onboarding-content button {
+          background: #4fc3f7;
+          color: #181a1b;
+          border: none;
+          border-radius: 6px;
+          padding: 10px 24px;
+          font-size: 16px;
+          font-weight: bold;
+          cursor: pointer;
+          margin-top: 12px;
+        }
+        /* Neon/animated styles for About modal names */
+        .credit-name {
+          color: #e0e0e0;
+          font-weight: bold;
+          font-size: 1.13em;
+          letter-spacing: 0.04em;
+          text-shadow: 0 1px 2px #000a;
+        }
+    </style>
+  </head>
+
+  <body>
+    <!-- Live Diagnostics Console Overlay -->
+    <div
+      id="liveConsole"
+      style="
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        width: 520px;
+        max-width: 98vw;
+        height: 180px;
+        z-index: 999999;
+        background: #181a1be0;
+        color: #baff80;
+        font-family: monospace;
+        font-size: 0.98em;
+        border-top-left-radius: 10px;
+        box-shadow: 0 0 16px #000a;
+        overflow-y: auto;
+        display: none;
+        flex-direction: column;
+      "
+    >
+      <div
+        style="
+          background: #23272e;
+          padding: 4px 12px;
+          font-weight: bold;
+          color: #4fc3f7;
+          border-top-left-radius: 10px;
+        "
+      >
+        Live Diagnostics Console
+        <span
+          id="liveConsoleToggle"
+          style="float: right; cursor: pointer; color: #baff80"
+          >[hide]</span
+        >
+      </div>
+      <div
+        id="liveConsoleContent"
+        style="
+          flex: 1 1 auto;
+          padding: 8px 12px;
+          overflow-y: auto;
+          max-height: 140px;
+        "
+      ></div>
+    </div>
+    <!-- Top menu bar (fixed, always on top) -->
+    <div id="header">
+      <button class="menu-btn" id="fileMenuBtn">File</button>
+      <button class="menu-btn" id="editMenuBtn">Edit</button>
+      <button class="menu-btn" id="viewMenuBtn">View</button>
+      <button class="menu-btn" id="helpMenuBtn">Help</button>
+      <span
+        style="
+          margin-left: 24px;
+          font-weight: bold;
+          letter-spacing: 1.5px;
+          color: #4fc3f7;
+        "
+        >BF6Portal Tool</span
+      >
+    </div>
+
+    <!-- About Modal (fixed overlay, always on top) -->
+    <div
+      id="aboutModal"
+      class="modal"
+      style="
+        display: none;
+        position: fixed;
+        z-index: 4000;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.82);
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        class="modal-content"
+        style="
+          max-width: 480px;
+          margin: auto;
+          background: #23272e;
+          color: #fff;
+          border-radius: 14px;
+          box-shadow: 0 4px 32px #000a;
+          padding: 32px 32px 18px 32px;
+          position: relative;
+        "
+      >
+        <span
+          class="close"
+          id="closeAboutModal"
+          style="
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 2em;
+            cursor: pointer;
+          "
+          >&times;</span
+        >
+        <h2>About BF6Portal Tool</h2>
+        <div style="margin-bottom: 12px; font-size: 1.1em; color: #4fc3f7">
+          A modern, user-friendly block editor for Battlefield Portal scripting.
+        </div>
+        <div style="margin-bottom: 10px">
+          Author: <span class="neon-neuro">Neuro</span>
+          <span style="font-size: 1.13em; vertical-align: middle"
+            ><span class="gemini-animated">&amp; Gemini Code</span
+            ><span class="mostly-playful">... Mostly :P</span></span
+          >
+        </div>
+        <div style="margin-bottom: 10px">
+          Contributors:
+          <b><span class="rainbow-andy">ANDY6170</span></b> (special thanks!)
+        </div>
+        <div style="margin-bottom: 10px">
+          Tech: Blockly, JavaScript, Python, and a lot of coffee.
+        </div>
+        <div style="margin-bottom: 10px">
+          GitHub:
+          <a
+            href="https://github.com/neuro-1977/BF6Portal-Tool"
+            target="_blank"
+            style="color: #4fc3f7"
+            >BF6Portal-Tool</a
+          >
+        </div>
+        <div
+          style="
+            margin: 18px 0 8px 0;
+            font-size: 1.05em;
+            color: #fff;
+            text-align: center;
+          "
+        >
+          <span style="display: block; margin-bottom: 4px; letter-spacing: 1px"
+            >Made by</span
+          >
+          <span style="display: block; margin-top: 8px; font-size: 1.1em"
+            >With thanks to
+            <span class="rainbow-andy" id="andy-6170">ANDY6170</span> &amp;
+            <a
+              href="https://discord.gg/z4PXNEsN"
+              target="_blank"
+              style="color: #baff80; text-decoration: underline"
+              >BattlefieldPortalHub</a
+            >
+            discord team.</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div id="main" style="display: flex; height: calc(100vh - 44px)">
+      <div
+        id="sidebar"
+        style="
+          width: 260px;
+          min-width: 220px;
+          max-width: 320px;
+          background: #23272e;
+          border-right: 2px solid #181a1b;
+          display: flex;
+          flex-direction: column;
+          z-index: 2;
+          box-shadow: 2px 0 12px #000a;
+        "
+      ></div>
+      <div
+        id="editorContainer"
+        style="
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          min-height: 0;
+          min-width: 0;
+          background: #181a1b;
+          overflow: hidden !important;
+          position: relative;
+        "
+      >
+        <!-- Central error/status box -->
+        <div
+          id="errorBox"
+          style="
+            display: none;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3000;
+            min-width: 340px;
+            max-width: 520px;
+            background: #23272e;
+            color: #fff;
+            border: 2px solid #4fc3f7;
+            border-radius: 14px;
+            box-shadow: 0 4px 32px #000a;
+            padding: 28px 32px 18px 32px;
+            text-align: center;
+            font-size: 1.13em;
+            font-family: 'Segoe UI', 'Consolas', monospace, sans-serif;
+          "
+        >
+          <div
+            id="errorBoxTitle"
+            style="
+              font-size: 1.25em;
+              font-weight: bold;
+              color: #4fc3f7;
+              margin-bottom: 10px;
+              letter-spacing: 1.5px;
+              text-shadow: 0 2px 8px #000a;
+            "
+          >
+            PORTAL STATUS
+          </div>
+          <div
+            id="errorBoxMessages"
+            style="
+              max-height: 180px;
+              overflow-y: auto;
+              text-align: left;
+              font-size: 1em;
+              line-height: 1.5;
+              margin-bottom: 8px;
+            "
+          ></div>
+          <div
+            id="errorBoxClose"
+            style="
+              margin-top: 8px;
+              color: #baff80;
+              font-size: 0.98em;
+              cursor: pointer;
+              text-decoration: underline;
+              display: none;
+            "
+          >
+            Dismiss
+          </div>
+        </div>
+        <div id="blocklyDiv" style="flex: 1 1 auto; min-height: 100px"></div>
+        <div
+          id="dragDivider"
+          style="
+            height: 8px;
+            background: #23272e;
+            cursor: row-resize;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+          "
+        >
+          <div
+            style="
+              width: 60px;
+              height: 4px;
+              background: #444;
+              border-radius: 2px;
+              margin: 2px auto;
+            "
+          ></div>
+        </div>
+        <div
+          id="codeDiv"
+          style="
+            display: none;
+            height: 200px;
+            background: #1e1e1e;
+            border-top: 1px solid #333;
+            padding: 10px;
+            box-sizing: border-box;
+          "
+        >
+          <div style="color: #ccc; margin-bottom: 5px; font-size: 12px">
+            JSON Source View
+          </div>
+          <textarea
+            id="codeOutput"
+            style="
+              width: 100%;
+              height: calc(100% - 25px);
+              background: #252526;
+              color: #d4d4d4;
+              border: 1px solid #333;
+              font-family: monospace;
+              resize: none;
+            "
+            readonly
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div
+      id="helpModal"
+      class="modal"
+      style="
+        display: none;
+        position: fixed;
+        z-index: 4000;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.82);
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        class="modal-content"
+        style="
+          max-width: 480px;
+          margin: auto;
+          background: #23272e;
+          color: #fff;
+          border-radius: 14px;
+          box-shadow: 0 4px 32px #000a;
+          padding: 32px 32px 18px 32px;
+          position: relative;
+        "
+      >
+        <span
+          class="close"
+          style="
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 2em;
+            cursor: pointer;
+          "
+          >&times;</span
+        >
+        <h2 id="helpTitle">Block Help</h2>
+        <div id="helpBody"></div>
+      </div>
+    </div>
+
+    <script src="blockly/blockly_compressed.js?v=1"></script>
+    <script src="blockly/blocks_compressed.js?v=1"></script>
+    <script src="blockly/javascript_compressed.js?v=1"></script>
+    <script src="blockly/en.js?v=2"></script>
+    <!-- Terminal Drawer -->
+    <div id="terminal-drawer"></div>
+    <button id="terminal-toggle" style="position: fixed; bottom: 20px; right: 20px; z-index: 2000; padding: 10px; border-radius: 50%; border: none; background: #007acc; color: white; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">💻</button>
+
+    <script src="block_definitions.js"></script>
+    <script src="toolbox.js"></script>
+    <script src="main.js"></script>
+    <!-- xterm.js and addon-fit will be loaded via require in main.js or injected -->
+  </body>
+</html>
