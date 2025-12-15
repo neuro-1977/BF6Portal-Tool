@@ -8,6 +8,13 @@ const config = {
     index: path.resolve(__dirname, 'src', 'index.ts'),
     'view-data': path.resolve(__dirname, 'src', 'view-data.ts'),
   },
+  // The UI intentionally ships several already-minified vendor assets (Blockly, etc.)
+  // via CopyWebpackPlugin. Webpack's default production minimizer will attempt to
+  // re-minify those files and can fail depending on the syntax level used.
+  // We disable minimization here to keep the build deterministic.
+  optimization: {
+    minimize: false,
+  },
   output: {
     // Compile the source files into a bundle.
     filename: '[name].[contenthash].bundle.js',
