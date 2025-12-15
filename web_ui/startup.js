@@ -79,7 +79,6 @@ class StartupSequence {
 
     async stepInitializeUI() {
         console.log("Step: Initialize UI");
-        // Placeholder for UI initialization (e.g., setting up event listeners)
         const header = document.getElementById('header');
         if (!header) {
             throw new Error("Header element not found.");

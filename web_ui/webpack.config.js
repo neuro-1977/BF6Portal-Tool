@@ -42,11 +42,12 @@ const config = {
   },
   plugins: [
     // Generate the HTML index page based on our template.
-    // This will output the same index page with the bundle we
-    // created above added in a script tag.
+    // We use the root index.html ("Awesome UI") and exclude the webpack bundle
+    // because this UI uses its own script tags and logic.
     new HtmlWebpackPlugin({
-      template: 'src/index.html',
-      chunks: ['index'],
+      template: 'index.html',
+      chunks: [], // Do not inject the 'index' bundle
+      inject: false // Do not inject anything
     }),
     new HtmlWebpackPlugin({
       template: 'src/view-data.html',
@@ -56,6 +57,13 @@ const config = {
     new CopyWebpackPlugin({
       patterns: [
         { from: 'assets', to: 'assets' },
+        { from: 'blockly', to: 'blockly' },
+        { from: 'main.js', to: 'main.js' },
+        { from: 'toolbox.js', to: 'toolbox.js' },
+        { from: 'block_definitions.js', to: 'block_definitions.js' },
+        { from: 'block_definitions_gen.js', to: 'block_definitions_gen.js' },
+        { from: 'startup.js', to: 'startup.js' },
+        { from: 'terminal-drawer.js', to: 'terminal-drawer.js' },
       ],
     }),
   ],

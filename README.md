@@ -1,7 +1,9 @@
 # BF6 Portal Tool
 
-![Version](https://img.shields.io/badge/version-1.2.4-blue.svg)
+![Version](https://img.shields.io/badge/version-1.2.5-blue.svg)
 ![License](https://img.shields.io/badge/license-ISC-green.svg)
+
+Release notes: see `docs/RELEASE_NOTES_1.2.5.md`.
 
 **BF6 Portal Tool** is a powerful, standalone visual logic editor for **Battlefield 6 Portal**, built using **Electron** and **Google Blockly**. It replicates the official Rules Editor experience in a desktop application, allowing fo
 r offline development, easier management of complex logic, and custom extensions.
@@ -19,7 +21,7 @@ r offline development, easier management of complex logic, and custom extensions
 ### Prerequisites
 
 *   **Node.js** (v18 or higher)
-*   **Python 3.8+** (required only for running maintenance scripts in 	ools/)
+*   **Python 3.8+** (required only for running maintenance scripts in 	tools/)
 
 ### Getting Started
 

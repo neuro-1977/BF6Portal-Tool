@@ -1,4 +1,4 @@
-var TOOLBOX_CONFIG = {
+window.TOOLBOX_CONFIG = {
   "kind": "categoryToolbox",
   "contents": [
     {

@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <title>BF6 Portal Tool</title>
     <style>
       html,
@@ -11,6 +12,8 @@
         background: #181a1b;
         color: #e0e0e0;
         font-family: "Segoe UI", "Consolas", "monospace", sans-serif;
+        display: flex;
+        flex-direction: column;
       }
       /* Boot Screen Styles */
       #boot-screen {
@@ -21,7 +24,7 @@
         height: 100%;
         background: #000;
         z-index: 9999;
-        display: flex;
+        display: none; /* Hidden by default */
         flex-direction: column;
         align-items: center;
         justify-content: center;
@@ -65,10 +68,7 @@
         font-size: 1.1em;
         font-family: "Segoe UI", "Consolas", "monospace", sans-serif;
         z-index: 3000;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
+        position: relative;
         border-bottom: 1.5px solid #181a1b;
         user-select: none;
       }
@@ -90,11 +90,11 @@
       }
       #blocklyDiv {
         flex: 1 1 auto;
-        min-height: 100px;
-        background: #181a1b !important;
-        border-radius: 8px;
-        box-shadow: 0 0 32px #000a;
+        height: calc(100vh - 48px); /* FORCE HEIGHT IN CSS */
+        width: 100%;
+        background: #1e1e1e; /* Match Dark Theme */
         z-index: 1;
+        display: block; /* Ensure visible */
       }
       .blocklyMainBackground {
         fill: #181a1b !important;
@@ -106,12 +106,16 @@
         fill: #23272e !important;
         stroke: #333 !important;
       }
-      .blocklyToolboxDiv {
+      /* Blockly toolbox element class varies by build/version.
+         Support both the legacy '.blocklyToolboxDiv' and the modern '.blocklyToolbox'. */
+      .blocklyToolboxDiv,
+      .blocklyToolbox {
         background: #23272e !important;
         color: #baff80 !important;
         border-right: 2px solid #181a1b !important;
       }
-      .blocklyTreeLabel {
+      .blocklyTreeLabel,
+      .blocklyToolboxCategoryLabel {
         color: #baff80 !important;
       }
       .blocklyTrash,
@@ -123,6 +127,8 @@
     </style>
     <style>
       /* Sidebar styles */
+      /* Gemini left an empty fixed sidebar that can cover the real Blockly toolbox.
+         Hide it unless/until we re-enable custom sidebar population. */
       #sidebar {
         background: #23272e;
         border-right: 2px solid #181a1b;
@@ -130,7 +136,7 @@
         min-width: 220px;
         max-width: 320px;
         width: 260px;
-        display: flex;
+        display: none;
         flex-direction: column;
         z-index: 2500;
         position: fixed;
@@ -214,269 +220,56 @@
         font-weight: bold;
       }
     </style>
+    <!-- Splash Screen REMOVED -->
+    <!-- About Modal (Restored standard modal) -->
     <div
-      id="splashScreen"
+      id="aboutModal"
+      class="modal"
       style="
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: none;
         position: fixed;
-        top: 0;
+        z-index: 4000;
         left: 0;
+        top: 0;
         width: 100vw;
         height: 100vh;
-        background: #181a1b;
-        z-index: 99999;
-        transition: opacity 0.5s;
+        background: rgba(0, 0, 0, 0.82);
+        align-items: center;
+        justify-content: center;
       "
     >
       <div
-        id="splashBox"
+        class="modal-content"
         style="
-          background: #0a2e12;
-          border-radius: 22px;
-          box-shadow: 0 8px 48px #000b, 0 0 0 4px #39ff1460;
-          padding: 38px 44px 28px 44px;
-          min-width: 420px;
-          max-width: 98vw;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
+          max-width: 480px;
+          margin: auto;
+          background: #23272e;
+          color: #fff;
+          border-radius: 14px;
+          box-shadow: 0 4px 32px #000a;
+          padding: 32px 32px 18px 32px;
+          position: relative;
         "
       >
-        <div id="splashLogo" style="margin-bottom: 12px">
-          <div style="font-size: 3em; font-weight: bold; color: #baff80; text-shadow: 0 0 20px #39ff14; letter-spacing: 4px;">BF2042 PORTAL</div>
-        </div>
-        <div class="boot-loader" style="width: 50px; height: 50px; border: 5px solid #23272e; border-top: 5px solid #39ff14; border-radius: 50%; animation: spin 1s linear infinite; margin: 20px 0;"></div>
-        <div class="boot-text" style="color: #888; font-size: 0.9em;">INITIALIZING SYSTEMS...</div>
-      </div>
-    </div>
-            style="
-              width: 82px;
-              height: 82px;
-              border-radius: 16px;
-              box-shadow: 0 2px 18px #000a;
-            "
-          />
-        </div>
-        <div
-          id="splashTitle"
+        <span
+          class="close"
+          id="closeAboutModal"
           style="
-            font-size: 2.3em;
-            color: #b0ffb0;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-shadow: 0 2px 8px #000a;
-            margin-bottom: 6px;
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 2em;
+            cursor: pointer;
           "
+          >&times;</span
         >
-          BF6Portal Tool
+        <h2>About BF6Portal Tool</h2>
+        <div style="margin-bottom: 12px; font-size: 1.1em; color: #4fc3f7">
+          A modern, user-friendly block editor for Battlefield Portal scripting.
         </div>
-        <div
-          id="splashCredits"
-          style="
-            color: #39ff14;
-            font-size: 1.13em;
-            margin-bottom: 8px;
-            text-align: center;
-          "
-        >
-          Made by <span class="credit-name neuro-glitch">Neuro</span> &amp;
-          <span class="credit-name ai-sparkle">Mostly A.I.</span><br />
-          <span style="color: #baff80"
-            >Special thanks:
-            <span class="credit-name rainbow-andy">ANDY6170</span> &amp;
-            <a
-              href="https://discord.gg/z4PXNEsN"
-              target="_blank"
-              style="color: #4fc3f7; text-decoration: underline"
-              >BattlefieldPortalHub</a
-            ></span
-          >
+        <div style="margin-bottom: 10px">
+          Author: <span class="neon-neuro">Neuro</span>
         </div>
-        <div
-          id="splashError"
-          style="
-            color: #ffb300;
-            font-size: 1.05em;
-            text-align: center;
-            margin-bottom: 8px;
-          "
-        ></div>
-        <div
-          id="splashMsg"
-          style="
-            color: #4fc3f7;
-            font-size: 1.1em;
-            margin-bottom: 8px;
-            text-align: center;
-          "
-        ></div>
-        <div id="splashWorking" style="margin-bottom: 8px">
-          <span
-            class="splash-spinner"
-            style="
-              display: inline-block;
-              width: 32px;
-              height: 32px;
-              vertical-align: middle;
-              margin-right: 8px;
-            "
-          >
-            <svg viewBox="0 0 50 50" style="width: 32px; height: 32px">
-              <circle
-                cx="25"
-                cy="25"
-                r="20"
-                fill="none"
-                stroke="#4fc3f7"
-                stroke-width="5"
-                stroke-linecap="round"
-                stroke-dasharray="31.4 31.4"
-                transform="rotate(-90 25 25)"
-              >
-                <animateTransform
-                  attributeName="transform"
-                  type="rotate"
-                  from="0 25 25"
-                  to="360 25 25"
-                  dur="1s"
-                  repeatCount="indefinite"
-                />
-              </circle>
-            </svg>
-          </span>
-          <span
-            id="splashWorkingMsg"
-            style="
-              color: #baff80;
-              font-size: 1.08em;
-              vertical-align: middle;
-              max-width: 320px;
-              display: inline-block;
-            "
-          ></span>
-        </div>
-        <div
-          id="animatedLoadingBar"
-          style="
-            width: 100%;
-            height: 8px;
-            background: #003a10;
-            border-radius: 4px;
-            margin: 10px 0 8px 0;
-            overflow: hidden;
-            position: relative;
-          "
-        >
-          <div
-            id="animatedLoadingBarAnim"
-            style="
-              position: absolute;
-              left: 0;
-              top: 0;
-              height: 100%;
-              width: 20%;
-              background: linear-gradient(90deg, #39ff14 0%, #baff80 100%);
-              box-shadow: 0 0 16px 4px #39ff1460;
-            "
-          ></div>
-          <!-- Notches for load state -->
-          <div
-            class="notch"
-            id="notch1"
-            style="
-              position: absolute;
-              left: 12%;
-              top: -4px;
-              width: 8px;
-              height: 16px;
-              background: #baff80;
-              border-radius: 4px;
-              opacity: 0.4;
-            "
-          ></div>
-          <div
-            class="notch"
-            id="notch2"
-            style="
-              position: absolute;
-              left: 48%;
-              top: -4px;
-              width: 8px;
-              height: 16px;
-              background: #baff80;
-              border-radius: 4px;
-              opacity: 0.4;
-            "
-          ></div>
-          <div
-            class="notch"
-            id="notch3"
-            style="
-              position: absolute;
-              left: 84%;
-              top: -4px;
-              width: 8px;
-              height: 16px;
-              background: #baff80;
-              border-radius: 4px;
-              opacity: 0.4;
-            "
-          ></div>
-          <!-- Notch labels -->
-          <div
-            style="
-              position: absolute;
-              left: 0;
-              top: 16px;
-              width: 100%;
-              display: flex;
-              justify-content: space-between;
-              font-size: 0.95em;
-              color: #baff80;
-              opacity: 0.85;
-              pointer-events: none;
-            "
-          >
-            <span style="margin-left: 2%">| starting</span>
-            <span style="margin-left: -8px">| loading Blocks</span>
-            <span style="margin-right: 2%">| checking things work</span>
-          </div>
-        </div>
-        <div
-          id="splashTicker"
-          style="
-            width: 100%;
-            color: #39ff14;
-            font-size: 1.13em;
-            text-align: center;
-            margin-top: 2px;
-            min-height: 1.5em;
-            letter-spacing: 0.5px;
-            background: #222;
-            z-index: 2147483647;
-            position: relative;
-            border: 1px dashed #4fc3f7;
-            font-weight: bold;
-            text-shadow: 0 0 8px #39ff14, 0 0 16px #baff80;
-          "
-        ></div>
-        <div
-          id="splashErrorFrame"
-          style="
-            width: 100%;
-            color: #ffb300;
-            background: #2a1a00;
-            font-size: 1.05em;
-            text-align: center;
-            margin-top: 4px;
-            min-height: 1.5em;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px #0004;
-            z-index: 100000;
-          "
-        ></div>
       </div>
     </div>
     <style>
@@ -776,6 +569,10 @@
       <button class="menu-btn" id="editMenuBtn">Edit</button>
       <button class="menu-btn" id="viewMenuBtn">View</button>
       <button class="menu-btn" id="helpMenuBtn">Help</button>
+      <div style="width: 20px;"></div>
+      <button class="menu-btn" id="loadBtn" style="color: #4fc3f7;">Load JSON</button>
+      <button class="menu-btn" id="saveBtn" style="color: #4fc3f7;">Save JSON</button>
+      <button class="menu-btn" id="exportTsBtn" style="color: #baff80;">Export TS</button>
       <span
         style="
           margin-left: 24px;
@@ -871,13 +668,16 @@
             >With thanks to
             <span class="rainbow-andy" id="andy-6170">ANDY6170</span> &amp;
             <a
-              href="https://discord.gg/z4PXNEsN"
+              href="https://discord.com/invite/battlefield-portal-community-870246147455877181"
               target="_blank"
               style="color: #baff80; text-decoration: underline"
               >BattlefieldPortalHub</a
             >
             discord team.</span
           >
+        </div>
+        <div style="text-align: center; margin-top: 20px;">
+            <button id="replayIntroBtn" style="background: #333; color: #baff80; border: 1px solid #baff80; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-family: inherit;">Replay Intro</button>
         </div>
       </div>
     </div>
@@ -891,7 +691,7 @@
           max-width: 320px;
           background: #23272e;
           border-right: 2px solid #181a1b;
-          display: flex;
+          display: none;
           flex-direction: column;
           z-index: 2;
           box-shadow: 2px 0 12px #000a;
@@ -1071,17 +871,72 @@
       </div>
     </div>
 
-    <script src="blockly/blockly_compressed.js?v=1"></script>
-    <script src="blockly/blocks_compressed.js?v=1"></script>
-    <script src="blockly/javascript_compressed.js?v=1"></script>
-    <script src="blockly/en.js?v=2"></script>
+    <!-- FORCE BLOCKLY TO GLOBAL SCOPE -->
+    <script>
+      window.global = window;
+      // Save Node.js globals
+      var _savedModule = typeof module !== 'undefined' ? module : undefined;
+      var _savedExports = typeof exports !== 'undefined' ? exports : undefined;
+      var _savedDefine = typeof define !== 'undefined' ? define : undefined;
+      
+      // Hide them from Blockly
+      module = undefined;
+      exports = undefined;
+      define = undefined;
+    </script>
+
+    <script src="blockly/blockly_compressed.js"></script>
+    <script src="blockly/blocks_compressed.js"></script>
+    <script src="blockly/javascript_compressed.js"></script>
+    <script src="blockly/en.js"></script>
+
+    <script>
+      // Restore Node.js globals
+      if (_savedModule) module = _savedModule;
+      if (_savedExports) exports = _savedExports;
+      if (_savedDefine) define = _savedDefine;
+    </script>
     <!-- Terminal Drawer -->
     <div id="terminal-drawer"></div>
     <button id="terminal-toggle" style="position: fixed; bottom: 20px; right: 20px; z-index: 2000; padding: 10px; border-radius: 50%; border: none; background: #007acc; color: white; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">💻</button>
 
+    <!-- Hidden file input for loading -->
+    <input type="file" id="loadInput" style="display: none;" />
+
     <script src="block_definitions.js"></script>
+    <script src="block_definitions_gen.js"></script>
     <script src="toolbox.js"></script>
+    <script src="startup.js"></script>
     <script src="main.js"></script>
     <!-- xterm.js and addon-fit will be loaded via require in main.js or injected -->
+    <script>
+      // Boot Screen Logic
+      function playBootSequence() {
+        const bootScreen = document.getElementById('boot-screen');
+        if (!bootScreen) return;
+        
+        bootScreen.style.display = 'flex';
+        bootScreen.style.opacity = '1';
+        
+        // Simulate loading sequence
+        setTimeout(() => {
+          bootScreen.style.opacity = '0';
+          setTimeout(() => {
+            bootScreen.style.display = 'none';
+          }, 500);
+        }, 3000); // 3 seconds animation
+      }
+
+      // Bind to About Modal button (to be added)
+      document.addEventListener('DOMContentLoaded', () => {
+        const replayBtn = document.getElementById('replayIntroBtn');
+        if (replayBtn) {
+          replayBtn.addEventListener('click', () => {
+            document.getElementById('aboutModal').style.display = 'none';
+            playBootSequence();
+          });
+        }
+      });
+    </script>
   </body>
 </html>
