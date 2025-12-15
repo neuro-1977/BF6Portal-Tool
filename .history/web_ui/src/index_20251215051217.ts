@@ -386,19 +386,6 @@ try {
     // load(ws); // Removed
     runCode();
 
-    // Initial zoom to fit
-    setTimeout(() => {
-        (ws as any).zoomToFit();
-    }, 100);
-
-    // Prevent flyout from zooming with workspace
-    const flyout = ws.getFlyout();
-    if (flyout) {
-        (flyout as any).getFlyoutScale = function() {
-            return 1;
-        };
-    }
-
     // Every time the workspace changes state, save the changes to storage.
     ws.addChangeListener((e: Blockly.Events.Abstract) => {
       // UI events are things like scrolling, zooming, etc.

@@ -339,9 +339,6 @@ try {
     <block type="MOD_BLOCK" id="mod_block_id" x="100" y="100">
       <statement name="RULES">
         <block type="RULE_HEADER" id="rule_header_id">
-          <field name="RULE_NAME">New Rule</field>
-          <field name="EVENT_TYPE">ONGOING</field>
-          <field name="SCOPE_TYPE">GLOBAL</field>
           <value name="CONDITIONS">
             <block type="CONDITION_BLOCK" id="condition_block_id">
               <value name="INPUT_CONDITION">
@@ -385,19 +382,6 @@ try {
 
     // load(ws); // Removed
     runCode();
-
-    // Initial zoom to fit
-    setTimeout(() => {
-        (ws as any).zoomToFit();
-    }, 100);
-
-    // Prevent flyout from zooming with workspace
-    const flyout = ws.getFlyout();
-    if (flyout) {
-        (flyout as any).getFlyoutScale = function() {
-            return 1;
-        };
-    }
 
     // Every time the workspace changes state, save the changes to storage.
     ws.addChangeListener((e: Blockly.Events.Abstract) => {
