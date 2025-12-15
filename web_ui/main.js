@@ -4,7 +4,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("[BF6] DOM Loaded. Initializing...");
 
-    setupAboutTicker();
+    setupAboutQuotes();
     setupAboutModal();
 
     // Prefer the simple injection path for stability.
@@ -76,22 +76,60 @@ function closeAboutModal() {
     modal.style.display = 'none';
 }
 
-function setupAboutTicker() {
-    // The ticker belongs in the About/help popup only.
-    const aboutTickerEl = document.getElementById('aboutTickerText');
-    if (!aboutTickerEl) return;
+function setupAboutQuotes() {
+    // Quotes are shown only inside the About modal.
+    const line1El = document.getElementById('aboutQuoteLine1');
+    const line2El = document.getElementById('aboutQuoteLine2');
+    if (!line1El || !line2El) return;
 
-    // If you want different lines, edit these strings.
-    const messages = [
-        'BF6 Portal Tool online — build, test, repeat.',
-        'Tip: RULES (purple) + CONDITIONS (blue) are the heart of it.',
-        'Tip: Use the MOD (grey) container to hold your RULE blocks.',
-        'Reminder: keep UI overlays out of Blockly\'s way.',
-        'Credits: Neuro, ANDY6170, BattlefieldPortalHub.',
+    // NOTE (copyright): I won't invent or fetch long copyrighted quotes.
+    // Paste your exact Firefly/Serenity/BTTF quotes here (you own your local copy).
+    // You can force a 2-line display by adding "\n".
+    const quotes = [
+        // First quote slot (River Tam) – paste the full quote here and keep the \n for 2-line layout.
+        'River Tam:\nDay is a vestigial form of time measurement…',
+
+        // Examples / safe short snippets (replace with your real set)
+        'BANANA IN DISK DRIVE ERROR\nInitiating flux capacitors…',
+        'Portal logic armed.\nProceed with reckless creativity.',
+        'If it\'s stupid but it works…\nIt\'s still probably portal scripting.',
     ];
 
-    // Render as a single scrolling line with separators.
-    aboutTickerEl.textContent = messages.join('   •   ');
+    let idx = 0;
+
+    const render = (q) => {
+        const [a, b] = splitQuoteTwoLines(String(q || ''), 64);
+        line1El.textContent = a;
+        line2El.textContent = b;
+    };
+
+    render(quotes[idx]);
+
+    // Rotate every 12s.
+    setInterval(() => {
+        idx = (idx + 1) % quotes.length;
+        render(quotes[idx]);
+    }, 12000);
+}
+
+function splitQuoteTwoLines(text, maxLineLen) {
+    // Manual split wins.
+    if (text.includes('\n')) {
+        const parts = text.split('\n');
+        const a = (parts[0] || '').trim();
+        const b = (parts.slice(1).join(' ') || '').trim();
+        return [a, b];
+    }
+
+    const t = (text || '').trim();
+    if (t.length <= maxLineLen) return [t, ''];
+
+    // Try to split on a space near the midpoint.
+    const target = Math.min(Math.floor(t.length / 2), maxLineLen);
+    let splitAt = t.lastIndexOf(' ', target);
+    if (splitAt < 0) splitAt = t.indexOf(' ', target);
+    if (splitAt < 0) return [t.slice(0, maxLineLen).trim(), t.slice(maxLineLen).trim()];
+    return [t.slice(0, splitAt).trim(), t.slice(splitAt + 1).trim()];
 }
 
 function normalizeToolboxConfig(toolbox) {
@@ -245,7 +283,8 @@ function fallbackInjection() {
                 spacing: 20,
                 // Make it look like real "grid lines" by drawing full-length pattern strokes.
                 length: 20,
-                colour: '#3f4a52',
+                // Make it very obvious (you can tone this down later).
+                colour: '#4fc3f7',
                 snap: true
             },
             zoom: {

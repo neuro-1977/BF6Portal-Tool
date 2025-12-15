@@ -136,7 +136,7 @@
     </style>
 
     <style>
-      /* Scrolling ticker (About modal only) */
+      /* About modal quote ticker (2-line) */
       .about-ticker {
         margin: 0 0 14px 0;
         padding: 6px 10px;
@@ -144,23 +144,21 @@
         background: #181a1b;
         border: 1px solid #2a2f33;
         overflow: hidden;
-        white-space: nowrap;
         color: #baff80;
-        font-size: 0.95em;
+        font-size: 0.98em;
+        line-height: 1.25;
       }
-      .about-ticker-text {
-        display: inline-block;
-        padding-left: 100%;
-        animation: tickerScroll 18s linear infinite;
+      .about-quote-line {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
-
-      @keyframes tickerScroll {
-        0% {
-          transform: translateX(0);
-        }
-        100% {
-          transform: translateX(-100%);
-        }
+      .about-quote-line.line1 {
+        color: #baff80;
+      }
+      .about-quote-line.line2 {
+        color: #b0e0ff;
+        opacity: 0.95;
       }
     </style>
     <style>
@@ -602,8 +600,9 @@
           "
           >&times;</span
         >
-        <div class="about-ticker" aria-label="Ticker">
-          <span class="about-ticker-text" id="aboutTickerText"></span>
+        <div class="about-ticker" aria-label="Quotes">
+          <div class="about-quote-line line1" id="aboutQuoteLine1"></div>
+          <div class="about-quote-line line2" id="aboutQuoteLine2"></div>
         </div>
 
         <div style="text-align: center; margin: 6px 0 16px 0;">
