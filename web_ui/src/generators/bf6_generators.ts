@@ -1437,3 +1437,20 @@ bf6Generators['enable_vo_messaging'] = function(block: any, generator: any) {
   const code = `mod.EnableVOMessaging(${value0});\n`;
   return code;
 };
+
+bf6Generators['clear_all_custom_messages'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const code = `mod.ClearAllCustomMessages(${value0}, ${value1}, ${value2});\n`;
+  return code;
+};
+
+bf6Generators['clear_custom_message'] = function(block: any, generator: any) {
+  const value0 = generator.valueToCode(block, 'VALUE-0', Order.NONE) || 'null';
+  const value1 = generator.valueToCode(block, 'VALUE-1', Order.NONE) || 'null';
+  const value2 = generator.valueToCode(block, 'VALUE-2', Order.NONE) || 'null';
+  const value3 = generator.valueToCode(block, 'VALUE-3', Order.NONE) || 'null';
+  const code = `mod.ClearCustomMessage(${value0}, ${value1}, ${value2}, ${value3});\n`;
+  return code;
+};

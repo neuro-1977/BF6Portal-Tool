@@ -365,10 +365,14 @@ try {
   // generated code from the workspace, and evals the code.
   // In a real application, you probably shouldn't use `eval`.
   const runCode = () => {
-    const code = javascriptGenerator.workspaceToCode(ws as Blockly.Workspace);
-    if (codeDiv) codeDiv.textContent = code;
-
-    if (outputDiv) outputDiv.innerHTML = '';
+    try {
+      const code = javascriptGenerator.workspaceToCode(ws as Blockly.Workspace);
+      if (codeDiv) codeDiv.textContent = code;
+      if (outputDiv) outputDiv.innerHTML = '';
+    } catch (e: any) {
+      console.error("Error generating code:", e);
+      if (codeDiv) codeDiv.textContent = `Error generating code: ${e.message}`;
+    }
   };
 
   if (ws) {
@@ -411,11 +415,9 @@ try {
     ws.addChangeListener((e: Blockly.Events.Abstract) => {
       // Don't run the code when the workspace finishes loading; we're
       // already running it once when the application starts.
-      // Don't run the code during drags; we might have invalid state.
       if (
         e.isUiEvent ||
-        e.type == Blockly.Events.FINISHED_LOADING ||
-        ws.isDragging()
+        e.type == Blockly.Events.FINISHED_LOADING
       ) {
         return;
       }
