@@ -13,7 +13,7 @@
   "description": "",
   "dependencies": {
     "blockly": "^12.3.1",
-    "@blockly/theme-dark": "^7.0.12",
+    "@blockly/theme-dark": "^8.0.1",
     "@svgdotjs/svg.js": "^3.2.5"
   },
   "devDependencies": {
