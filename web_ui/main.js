@@ -28,10 +28,6 @@ function setupButtonListeners() {
         'exportTsBtn': () => exportToTypeScript(),
         'closeAboutModal': () => {
             closeAboutModal();
-        },
-        'replayIntroBtn': () => {
-            // Keep the "boot" vibe, but only inside the About popup.
-            runAboutBootAnimation();
         }
     };
 
@@ -72,7 +68,6 @@ function openAboutModal() {
     const modal = document.getElementById('aboutModal');
     if (!modal) return;
     modal.style.display = 'flex';
-    runAboutBootAnimation();
 }
 
 function closeAboutModal() {
@@ -81,51 +76,15 @@ function closeAboutModal() {
     modal.style.display = 'none';
 }
 
-function runAboutBootAnimation() {
-    // We keep this intentionally lightweight: no full-screen overlay, no resizing Blockly.
-    const modal = document.getElementById('aboutModal');
-    if (!modal || modal.style.display === 'none') return;
-
-    // If the About modal contains a loader, briefly animate it.
-    const loader = modal.querySelector('.boot-loader');
-    const bootText = modal.querySelector('.boot-text');
-
-    if (bootText) {
-        bootText.textContent = 'Initializing…';
-        setTimeout(() => {
-            if (modal.style.display === 'none') return;
-            bootText.textContent = 'Ready.';
-        }, 900);
-    }
-
-    if (loader) {
-        loader.style.display = 'inline-block';
-        setTimeout(() => {
-            if (modal.style.display === 'none') return;
-            // Keep it visible but subtle after the quick "boot" beat.
-            loader.style.opacity = '0.55';
-        }, 900);
-    }
-}
-
 function setupTicker() {
     const tickerEl = document.getElementById('tickerText');
-    if (!tickerEl) return;
 
-    const messages = [
-        'Portal editor online. Keep calm and script on.',
-        'Tip: Ctrl+mousewheel zooms; toolbox zoom buttons are back.',
-        'Tip: Use Events → Rules → Actions like the game intended.',
-        'Reminder: Don\'t let empty sidebars cover your toolbox.',
-        'BF6 menus are the main menus now. Home is gone.',
-    ];
+    const text = 'ticker text... ticker text scrolling.... ticker text';
 
-    let i = 0;
-    tickerEl.textContent = messages[i];
-    setInterval(() => {
-        i = (i + 1) % messages.length;
-        tickerEl.textContent = messages[i];
-    }, 12000);
+    if (tickerEl) tickerEl.textContent = text;
+
+    const aboutTickerEl = document.getElementById('aboutTickerText');
+    if (aboutTickerEl) aboutTickerEl.textContent = text;
 }
 
 function normalizeToolboxConfig(toolbox) {
@@ -255,8 +214,8 @@ function fallbackInjection() {
             theme: bf6_theme,
             grid: {
                 spacing: 20,
-                length: 3,
-                colour: '#2c3236',
+                length: 6,
+                colour: '#3f4a52',
                 snap: true
             },
             zoom: {

@@ -118,11 +118,49 @@
       .blocklyToolboxCategoryLabel {
         color: #baff80 !important;
       }
-      .blocklyTrash,
+
+      /* Keep zoom controls + scrollbars visible (we use Blockly's built-in UI) */
       .blocklyZoom,
       .blocklyScrollbarHorizontal,
       .blocklyScrollbarVertical {
-        display: initial !important;
+        display: block !important;
+      }
+    </style>
+
+    <style>
+      /* Scrolling ticker (header + About modal) */
+      #ticker {
+        position: relative;
+      }
+      #tickerText {
+        display: inline-block;
+        padding-left: 100%;
+        animation: tickerScroll 18s linear infinite;
+      }
+      .about-ticker {
+        margin: 0 0 14px 0;
+        padding: 6px 10px;
+        border-radius: 10px;
+        background: #181a1b;
+        border: 1px solid #2a2f33;
+        overflow: hidden;
+        white-space: nowrap;
+        color: #baff80;
+        font-size: 0.95em;
+      }
+      .about-ticker-text {
+        display: inline-block;
+        padding-left: 100%;
+        animation: tickerScroll 18s linear infinite;
+      }
+
+      @keyframes tickerScroll {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-100%);
+        }
       }
     </style>
     <style>
@@ -558,7 +596,7 @@
       <div
         class="modal-content"
         style="
-          max-width: 480px;
+          max-width: 640px;
           margin: auto;
           background: #23272e;
           color: #fff;
@@ -580,63 +618,28 @@
           "
           >&times;</span
         >
+        <div class="about-ticker" aria-label="Ticker">
+          <span class="about-ticker-text" id="aboutTickerText"></span>
+        </div>
+
+        <div style="text-align: center; margin: 6px 0 16px 0;">
+          <div class="boot-logo" style="font-size: 2.3em; margin: 0;">BF6 PORTAL TOOL</div>
+        </div>
+
         <div style="text-align: center; margin-bottom: 14px;">
-          <div class="boot-logo" style="font-size: 2.2em; margin-bottom: 8px;">BF6 PORTAL TOOL</div>
-          <div class="boot-loader" style="display: inline-block; margin: 6px auto 0 auto;"></div>
-          <div class="boot-text" style="margin-top: 10px;">Ready.</div>
-        </div>
-        <h2 style="margin-top: 0;">About BF6Portal Tool</h2>
-        <div style="margin-bottom: 12px; font-size: 1.1em; color: #4fc3f7">
-          A modern, user-friendly block editor for Battlefield Portal scripting.
-        </div>
-        <div style="margin-bottom: 10px">
-          Author: <span class="neon-neuro">Neuro</span>
-          <span style="font-size: 1.13em; vertical-align: middle"
-            ><span class="gemini-animated">&amp; Gemini Code</span
-            ><span class="mostly-playful">... Mostly :P</span></span
-          >
-        </div>
-        <div style="margin-bottom: 10px">
-          Contributors:
-          <b><span class="rainbow-andy">ANDY6170</span></b> (special thanks!)
-        </div>
-        <div style="margin-bottom: 10px">
-          Tech: Blockly, JavaScript, Python, and a lot of coffee.
-        </div>
-        <div style="margin-bottom: 10px">
-          GitHub:
-          <a
-            href="https://github.com/neuro-1977/BF6Portal-Tool"
-            target="_blank"
-            style="color: #4fc3f7"
-            >BF6Portal-Tool</a
-          >
-        </div>
-        <div
-          style="
-            margin: 18px 0 8px 0;
-            font-size: 1.05em;
-            color: #fff;
-            text-align: center;
-          "
-        >
-          <span style="display: block; margin-bottom: 4px; letter-spacing: 1px"
-            >Made by</span
-          >
-          <span style="display: block; margin-top: 8px; font-size: 1.1em"
-            >With thanks to
-            <span class="rainbow-andy" id="andy-6170">ANDY6170</span> &amp;
-            <a
-              href="https://discord.com/invite/battlefield-portal-community-870246147455877181"
-              target="_blank"
-              style="color: #baff80; text-decoration: underline"
-              >BattlefieldPortalHub</a
-            >
-            discord team.</span
-          >
-        </div>
-        <div style="text-align: center; margin-top: 20px;">
-            <button id="replayIntroBtn" style="background: #333; color: #baff80; border: 1px solid #baff80; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-family: inherit;">Replay Intro</button>
+          <div style="margin-bottom: 10px; font-size: 1.1em; color: #ffffff;">
+            A modern, user-friendly block editor for Battlefield Portal scripting.
+          </div>
+          <div style="margin-bottom: 16px; font-size: 1.02em; color: #b0e0ff;">
+            Tech: Blockly, JavaScript, Python, and a lot of coffee.
+          </div>
+
+          <div style="margin: 10px 0 6px 0; font-size: 1.08em;">
+            Made by <span class="neuro-glitch">Neuro</span> &amp; <span class="ai-sparkle">"Mostly" A.I.</span>
+          </div>
+          <div style="margin-top: 10px; font-size: 1.05em;">
+            With thanks to <span class="rainbow-andy">ANDY6170</span> &amp; <span style="color:#baff80; font-weight: bold;">BattlefieldPortalHub</span> discord team.
+          </div>
         </div>
       </div>
     </div>
