@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+      - "*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows installer
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install root deps
+        run: npm ci
+
+      - name: Install web_ui deps
+        run: npm ci --prefix web_ui
+
+      - name: Build web_ui
+        run: npm run build --prefix web_ui
+
+      - name: Build Electron (Windows)
+        run: npm run dist -- --win
+
+      - name: Normalize artifact names
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          # Find the NSIS installer (file name may contain spaces)
+          $setup = Get-ChildItem -Path dist -Filter "*Setup*.exe" -File | Select-Object -First 1
+          if (-not $setup) {
+            throw "Could not find installer in dist/ (expected *Setup*.exe)."
+          }
+
+          $setupOut = Join-Path (Resolve-Path dist) 'BF6Portal-Tool-Setup.exe'
+          Copy-Item -Force $setup.FullName $setupOut
+
+          # Zip win-unpacked (optional)
+          $unpacked = Join-Path (Resolve-Path dist) 'win-unpacked'
+          if (Test-Path $unpacked) {
+            $zipOut = Join-Path (Resolve-Path dist) 'BF6Portal-Tool-win-unpacked.zip'
+            if (Test-Path $zipOut) { Remove-Item -Force $zipOut }
+            Compress-Archive -Path (Join-Path $unpacked '*') -DestinationPath $zipOut
+          }
+
+          "SETUP_PATH=$setupOut" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Prepare release notes
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = "${{ github.ref_name }}"
+          $version = $tag
+          if ($version.StartsWith('v')) { $version = $version.Substring(1) }
+
+          $notesPath = "docs/RELEASE_NOTES_$version.md"
+          if (Test-Path $notesPath) {
+            Copy-Item -Force $notesPath release_body.md
+          } else {
+            @(
+              "# Release $tag",
+              "",
+              "Automated GitHub release for tag **$tag**.",
+              "",
+              "If you maintain versioned notes, add `docs/RELEASE_NOTES_$version.md` to populate this automatically."
+            ) | Set-Content -Encoding UTF8 release_body.md
+          }
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release_body.md
+          files: |
+            dist/BF6Portal-Tool-Setup.exe
+            dist/BF6Portal-Tool-win-unpacked.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
