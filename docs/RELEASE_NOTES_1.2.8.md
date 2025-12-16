@@ -2,7 +2,7 @@
 
 ## Screenshot
 
-![BF6Portal Tool editor screenshot](screenshots/editor.png)
+<img src="screenshots/editor.png" alt="BF6Portal Tool editor screenshot" width="1100" />
 
 ## Features & Improvements
 - **Refined Toolbox Structure:** The Blockly toolbox has been reorganized to better match the official Battlefield Portal Rules Editor layout.
@@ -18,6 +18,10 @@
 - **Toolbox Loading:** Fixed a critical issue where the toolbox would fail to load ("missing toolbox error") by ensuring the application bundle is correctly injected into the HTML.
 - **Scrollbar Styling:** Applied CSS fixes to suppress unwanted scrollbars on the toolbox container (work in progress).
 - **Presets dropdown restored:** Built-in presets (Rush/Conquest/Breakthrough) are visible again and **locked** from deletion; user presets can be saved/deleted normally.
+
+## Credits
+- Portal data and block help/tooltips are derived from **Portal Docs** by the Battlefield Portal Community:
+    - https://github.com/battlefield-portal-community/portal-docs
 
 ## Known Issues
 - A persistent vertical scrollbar may still appear next to the toolbox flyout in certain states. This is tracked for a future fix.

@@ -4,3 +4,9 @@
     - **Location:** Left side of the screen, adjacent to the Blockly toolbox category list.
     - **Current State:** CSS attempts to hide scrollbars on `.blocklyToolboxDiv`, `.blocklyToolbox`, and `.blocklyFlyout` have reduced but not fully eliminated the artifact in some states.
     - **Potential Cause:** Electron/Chromium native scrollbar rendering on a dynamic container created by Blockly or the custom search bar injection.
+
+## Upcoming (target: v1.2.9)
+
+- [ ] **Selection Lists:** dropdowns can get stuck on “(loading selection lists…)” in some builds; improve runtime asset loading for Electron `file://`.
+- [ ] **Presets:** saving after editing a loaded preset should always work (save-as copy / overwrite flow).
+- [ ] **Credits:** add explicit credit/link for Portal Docs data source in About modal and repo README.

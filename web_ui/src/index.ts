@@ -30,6 +30,15 @@ import './components/MenuBar.css';
 // Expose toolbox globally for legacy scripts
 (window as any).TOOLBOX_CONFIG = toolbox;
 
+// This repo's shipped `web_ui/dist/index.html` currently loads both:
+// - legacy global Blockly via <script src="blockly/...">
+// - this webpack bundle which imports Blockly from node_modules
+// To avoid subtle mismatches (e.g., code preview / save using a different Blockly instance
+// than the workspace was created with), we deliberately point the global `window.Blockly`
+// at the same instance used by this bundle.
+(window as any).Blockly = Blockly;
+(window as any).__bf6_blockly = Blockly;
+
 let menuBar: MenuBar | undefined;
 
 // Initialize Menu Bar
@@ -151,6 +160,17 @@ try {
   
   // Expose workspace globally
   (window as any).workspace = ws;
+
+  // Legacy `web_ui/main.js` owns the Code Preview drawer implementation.
+  // When the workspace is created by this bundle, explicitly kick the preview on.
+  try {
+    const g: any = window as any;
+    if (typeof g.initLiveCodePreview === 'function') {
+      g.initLiveCodePreview();
+    }
+  } catch (e) {
+    console.warn('[BF6] Failed to init live code preview:', e);
+  }
 
     // Presets dropdown (3 locked built-ins + user save/delete).
     // NOTE: We bind in capture phase to prevent legacy `web_ui/main.js` handlers

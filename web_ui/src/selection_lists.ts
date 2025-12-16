@@ -75,9 +75,30 @@ function parseSelectionListsMarkdown(md: string): SelectionListMap {
 }
 
 async function fetchText(url: string): Promise<string> {
-  const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  return await res.text();
+  // Primary path: browser/Electron fetch.
+  try {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+    return await res.text();
+  } catch (e) {
+    // Electron file:// can be flaky with fetch for local assets. Since this app
+    // runs with Node integration enabled, fall back to fs when available.
+    try {
+      const g: any = globalThis as any;
+      const req = g?.require;
+      if (typeof req !== 'function') throw e;
+
+      const fs = req('fs') as typeof import('fs');
+      const path = req('path') as typeof import('path');
+      const { fileURLToPath } = req('url') as typeof import('url');
+
+      const assetUrl = new URL(url, window.location.href);
+      const assetPath = fileURLToPath(assetUrl);
+      return fs.readFileSync(path.resolve(assetPath), 'utf8');
+    } catch {
+      throw e;
+    }
+  }
 }
 
 export async function preloadSelectionLists(): Promise<void> {

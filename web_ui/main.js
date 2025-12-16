@@ -148,7 +148,9 @@ function scheduleCodePreviewRefresh() {
 }
 
 function initLiveCodePreview() {
+    if (window.__bf6LiveCodePreviewBound) return;
     if (!window.workspace || typeof window.workspace.addChangeListener !== 'function') return;
+    window.__bf6LiveCodePreviewBound = true;
     // Initial render
     scheduleCodePreviewRefresh();
     window.workspace.addChangeListener(() => {

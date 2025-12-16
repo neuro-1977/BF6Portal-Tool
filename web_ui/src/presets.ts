@@ -573,15 +573,15 @@ function saveCurrentWorkspaceAsPreset(workspace: AnyWorkspace) {
   if (selected.kind === 'builtin' && (selected as any).name) defaultName = `${(selected as any).name} (Copy)`;
   if (selected.kind === 'user' && (selected as any).name) defaultName = (selected as any).name;
 
-  let name = prompt('Preset name:', defaultName);
-  if (!name) return;
-  name = name.trim();
+  const raw = prompt('Preset name:', defaultName);
+  if (raw == null) return;
+  let name = raw.trim();
   if (!name) return;
 
   // Prevent overwriting built-ins by name.
   if (builtins.some((b) => b.name.toLowerCase() === name.toLowerCase())) {
-    alert('That name matches a locked built-in preset. Please choose a different name (it will be saved as a new preset).');
-    return;
+    // Friendly UX: don't hard-block. Auto-suffix so users can quickly save a copy.
+    name = `${name} (Copy)`;
   }
 
   const user = loadUserPresets();
@@ -652,8 +652,19 @@ export function initPresetsUI(workspace: AnyWorkspace) {
     saveBtn.addEventListener(
       'click',
       (e) => {
+        e.preventDefault();
         e.stopImmediatePropagation();
-        saveCurrentWorkspaceAsPreset(workspace);
+        e.stopPropagation();
+        try {
+          saveCurrentWorkspaceAsPreset(workspace);
+        } catch (err) {
+          console.warn('[BF6] Save preset failed:', err);
+          try {
+            alert(`Save preset failed: ${String((err as any)?.message || err)}`);
+          } catch {
+            // ignore
+          }
+        }
       },
       true
     );
