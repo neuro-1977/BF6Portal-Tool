@@ -1,0 +1,85 @@
+# Selection lists (working notes)
+
+Raw, in-progress selection list values (as collected).
+
+```text
+SELECTION LISTS:
+MusicEventsItem
+widget 1: 
+MusicEventsItem
+widget 2:
+BR_insertionCinematic_Dropzone_Loop
+BR_insertionCinematic_Loop
+BR_InsertionJump
+BR_insertionLanding
+BR_LastTwoSquads
+BR_LossEarly_Loop
+BR_Loss_EndOfRound_Loop
+BR_Loss_SecondPlace_Loop
+Br_Pause
+BR_RespawnSecondChance
+BR_RespawnTower
+BR_Stop
+BR_Unpause
+BR_WonRound_Loop
+BRGauntlet_LoopFilled
+BRGauntlet_WaitingForPlayers_Loop
+Core_Deploy_Loop
+Core_EndOfRound_Loop
+Core_LastPhraseBegin
+Core_Overtime_Loop
+Core_PauseMenu_Loop
+Core_LastPhraseBeginCore_PhaseEnded
+Core_Stinger_Negative
+Core_Stinger_Positive
+Core_Stinger_RankUp
+Core_LastPhraseBeginCore_PhaseEnded
+Gauntlet_Deploy
+Gauntlet_Loss_FinalMission_Loop
+Gauntlet_MissionBreifing_Final
+Gauntlet_MissionBreifing_One
+Gauntlet_MissionBreifing_Three
+Gauntlet_MissionBreifing_Two
+Gauntrlet_Pause
+Gauntlet_Qaulified_Loop
+Gauntlet_Qualified_Outro
+Gauntlet_Stop
+Gauntlet_Unpause
+Gauntlet_Urgency
+Gauntlet_Urgency_FinalMission
+
+
+MusicPackagesItem
+widget 1:
+MusicPackages
+widget 2:
+BR 
+Core 
+Gauntlet
+
+
+MusicParamsItem
+widget 1:
+MusicParams
+widget 2:
+BR_Amplitude
+BRGauntlet_LobbyTimerRemaining
+Core_Amplitude
+Core_IsWinning
+Core_PhaseUrgency
+Core_Sector
+Core_Urgency
+Gauntlet_Amplitude
+
+
+AmmoTypesItem
+widget 1:
+AmmoTypes
+widget 2:
+AR_Carbine_Ammo
+Armour_Plate
+LMG_Ammo
+Pistol_Ammo
+Shotgun_Ammo
+Sniper_DMR_Ammo
+```

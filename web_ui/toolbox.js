@@ -649,94 +649,6 @@ window.TOOLBOX_CONFIG = {
       "contents": [
         {
           "kind": "category",
-          "name": "ACTIONS",
-          "categorystyle": "actions_category",
-          "contents": [
-            {
-              "kind": "category",
-              "name": "AI",
-              "categorystyle": "actions_category",
-              "contents": [
-                {
-                  "kind": "block",
-                  "type": "AIBATTLEFIELDBEHAVIOUR"
-                },
-                {
-                  "kind": "block",
-                  "type": "AIDEFENDPOSITIONBEHAVIOUR"
-                },
-                {
-                  "kind": "block",
-                  "type": "AIIDLEBEHAVIOUR"
-                },
-                {
-                  "kind": "block",
-                  "type": "AILOSMOVETOBEHAVIOUR"
-                },
-                {
-                  "kind": "block",
-                  "type": "AIMOVETOBEHAVIOUR"
-                },
-                {
-                  "kind": "block",
-                  "type": "AIPARACHUTEBEHAVIOUR"
-                },
-                {
-                  "kind": "block",
-                  "type": "AIVALIDATEMOVETOBEHAVIOUR"
-                },
-                {
-                  "kind": "block",
-                  "type": "AIWAYPOINTIDLEBEHAVIOUR"
-                }
-              ]
-            },
-            {
-              "kind": "category",
-              "name": "Player",
-              "categorystyle": "actions_category",
-              "contents": [
-                {
-                  "kind": "block",
-                  "type": "SETPLAYERHEALTH"
-                },
-                {
-                  "kind": "block",
-                  "type": "SETPLAYERLOADOUT"
-                },
-                {
-                  "kind": "block",
-                  "type": "TELEPORT"
-                }
-              ]
-            },
-            {
-              "kind": "category",
-              "name": "Game",
-              "categorystyle": "actions_category",
-              "contents": [
-                {
-                  "kind": "block",
-                  "type": "ENDROUND"
-                },
-                {
-                  "kind": "block",
-                  "type": "PAUSEROUND"
-                }
-              ]
-            },
-            {
-              "kind": "block",
-              "type": "ACTION_BLOCK"
-            },
-            {
-              "kind": "block",
-              "type": "CONTROL_ACTION_BLOCK"
-            }
-          ]
-        },
-        {
-          "kind": "category",
           "name": "AI",
           "categorystyle": "ai_category",
           "contents": [
@@ -1625,6 +1537,8 @@ window.TOOLBOX_CONFIG = {
         },
         {
           "kind": "category",
+          "name": "LITERALS",
+          "categorystyle": "literals_category",
           "contents": [
             {
               "kind": "block",
@@ -1652,6 +1566,29 @@ window.TOOLBOX_CONFIG = {
             {
               "kind": "block",
               "type": "GETVARIABLE"
+            }
+          ]
+        },
+        {
+          "kind": "category",
+          "name": "SELECTION LISTS",
+          "categorystyle": "selection_lists_category",
+          "contents": [
+            {
+              "kind": "block",
+              "type": "MusicEventsItem"
+            },
+            {
+              "kind": "block",
+              "type": "MusicPackagesItem"
+            },
+            {
+              "kind": "block",
+              "type": "MusicParamsItem"
+            },
+            {
+              "kind": "block",
+              "type": "AmmoTypesItem"
             }
           ]
         },

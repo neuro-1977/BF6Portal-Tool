@@ -1095,7 +1095,9 @@ function fallbackInjection() {
     // Check TOOLBOX_CONFIG
     let toolbox = null;
     if (typeof TOOLBOX_CONFIG !== 'undefined') {
-        toolbox = normalizeToolboxConfig(TOOLBOX_CONFIG);
+        // Keep the toolbox exactly as-authored so menus stay nested where they were.
+        // (Search filtering will still work on the full nested structure.)
+        toolbox = TOOLBOX_CONFIG;
     } else {
         console.error("[BF6] TOOLBOX_CONFIG is undefined! Using emergency fallback.");
         toolbox = {
@@ -1189,14 +1191,12 @@ function fallbackInjection() {
         });
         console.log("[BF6] Blockly injected successfully.");
 
-        // Apply official toolbox layout + search box (strict actions vs values).
+        // Search box (keep original nested toolbox; no Actions/Values regrouping).
         try {
-            const official = buildOfficialToolboxLayout(toolbox, window.workspace);
-            window.__bf6OfficialToolbox = official;
-            window.workspace.updateToolbox(official);
-            applyToolboxSearchBox(window.workspace, () => window.__bf6OfficialToolbox);
+            window.__bf6BaseToolbox = cloneJson(toolbox);
+            applyToolboxSearchBox(window.workspace, () => window.__bf6BaseToolbox);
         } catch (e) {
-            console.warn('[BF6] Failed to apply official toolbox layout:', e);
+            console.warn('[BF6] Failed to apply toolbox search:', e);
         }
 
         // Initialize live TypeScript code preview + presets UI now that we have a workspace.

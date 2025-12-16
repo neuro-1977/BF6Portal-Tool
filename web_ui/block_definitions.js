@@ -2847,3 +2847,109 @@ Blockly.Blocks['ENABLEVEHICLE'] = {
   }
 };
 
+
+// --- SELECTION LISTS (initial, user-supplied) ---
+// These are lightweight dropdown value blocks intended to plug into future
+// typed inputs (e.g., MusicPackages / MusicEvents / MusicParams / AmmoTypes).
+(function registerSelectionLists() {
+  if (typeof Blockly === 'undefined' || !Blockly.Blocks) return;
+
+  const dedupe = (arr) => {
+    const seen = new Set();
+    const out = [];
+    for (const s of arr) {
+      const key = String(s);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(key);
+    }
+    return out;
+  };
+
+  const defineSelectionListBlock = (blockType, outputCheck, options) => {
+    Blockly.Blocks[blockType] = {
+      init: function() {
+        const opts = dedupe(options || []).map((v) => [v, v]);
+        this.appendDummyInput()
+          .appendField(blockType)
+          .appendField(new Blockly.FieldDropdown(opts), 'VALUE');
+        this.setOutput(true, outputCheck || null);
+        this.setColour('#45B5B5');
+        this.setTooltip('Selection list');
+        this.setHelpUrl('');
+      }
+    };
+  };
+
+  // MusicEventsItem
+  defineSelectionListBlock('MusicEventsItem', 'MusicEvents', [
+    'BR_insertionCinematic_Dropzone_Loop',
+    'BR_insertionCinematic_Loop',
+    'BR_InsertionJump',
+    'BR_insertionLanding',
+    'BR_LastTwoSquads',
+    'BR_LossEarly_Loop',
+    'BR_Loss_EndOfRound_Loop',
+    'BR_Loss_SecondPlace_Loop',
+    'Br_Pause',
+    'BR_RespawnSecondChance',
+    'BR_RespawnTower',
+    'BR_Stop',
+    'BR_Unpause',
+    'BR_WonRound_Loop',
+    'BRGauntlet_LoopFilled',
+    'BRGauntlet_WaitingForPlayers_Loop',
+    'Core_Deploy_Loop',
+    'Core_EndOfRound_Loop',
+    'Core_LastPhraseBegin',
+    'Core_Overtime_Loop',
+    'Core_PauseMenu_Loop',
+    'Core_LastPhraseBeginCore_PhaseEnded',
+    'Core_Stinger_Negative',
+    'Core_Stinger_Positive',
+    'Core_Stinger_RankUp',
+    'Gauntlet_Deploy',
+    'Gauntlet_Loss_FinalMission_Loop',
+    'Gauntlet_MissionBreifing_Final',
+    'Gauntlet_MissionBreifing_One',
+    'Gauntlet_MissionBreifing_Three',
+    'Gauntlet_MissionBreifing_Two',
+    'Gauntrlet_Pause',
+    'Gauntlet_Qaulified_Loop',
+    'Gauntlet_Qualified_Outro',
+    'Gauntlet_Stop',
+    'Gauntlet_Unpause',
+    'Gauntlet_Urgency',
+    'Gauntlet_Urgency_FinalMission',
+  ]);
+
+  // MusicPackagesItem
+  defineSelectionListBlock('MusicPackagesItem', 'MusicPackages', [
+    'BR',
+    'Core',
+    'Gauntlet',
+  ]);
+
+  // MusicParamsItem
+  defineSelectionListBlock('MusicParamsItem', 'MusicParams', [
+    'BR_Amplitude',
+    'BRGauntlet_LobbyTimerRemaining',
+    'Core_Amplitude',
+    'Core_IsWinning',
+    'Core_PhaseUrgency',
+    'Core_Sector',
+    'Core_Urgency',
+    'Gauntlet_Amplitude',
+  ]);
+
+  // AmmoTypesItem
+  defineSelectionListBlock('AmmoTypesItem', 'AmmoTypes', [
+    'AR_Carbine_Ammo',
+    'Armour_Plate',
+    'LMG_Ammo',
+    'Pistol_Ammo',
+    'Shotgun_Ammo',
+    'Sniper_DMR_Ammo',
+  ]);
+})();
+
