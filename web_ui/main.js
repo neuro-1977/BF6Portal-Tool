@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Prefer the simple injection path for stability.
     // If you want to switch back to StartupSequence later, you can.
-    fallbackInjection();
+    // fallbackInjection();
 
     // Initialize Button Listeners
     setupButtonListeners();

@@ -1,9 +1,9 @@
 # BF6Portal Tool
 
-![Version](https://img.shields.io/badge/version-1.2.7-blue.svg)
+![Version](https://img.shields.io/badge/version-1.2.8-blue.svg)
 ![License](https://img.shields.io/badge/license-ISC-green.svg)
 
-Release notes: see `docs/RELEASE_NOTES_1.2.7.md`.
+Release notes: see `docs/RELEASE_NOTES_1.2.8.md`.
 
 **BF6Portal Tool** is a standalone visual logic editor for **Battlefield 6 Portal**, built with **Electron** + **Google Blockly**. It aims to replicate the Portal Rules Editor workflow in a desktop app, with offline editing and quality-of-life tooling.
 
@@ -28,7 +28,7 @@ Release notes: see `docs/RELEASE_NOTES_1.2.7.md`.
 1) Clone:
 
 ```bash
-git clone https://github.com/neuro-1977/BF6Portal-Tool.git
+git clone https://gitlab.com/Neuro1977/bf6-portal-tool.git
 cd BF6Portal-Tool
 ```
 

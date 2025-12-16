@@ -1,0 +1,40 @@
+image: electronuserland/builder:wine
+
+stages:
+  - build
+  - release
+
+build:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - npm install
+    - cd web_ui
+    - npm install
+    - npm run build
+    - cd ..
+    - npm run dist -- --win
+    # Rename the variable output filename to a fixed name for the release link
+    - mv dist/*.exe dist/BF6Portal-Tool-Setup.exe
+  artifacts:
+    paths:
+      - dist/BF6Portal-Tool-Setup.exe
+    expire_in: 1 week
+
+release_job:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - echo "Creating release for tag $CI_COMMIT_TAG"
+  release:
+    name: "Release $CI_COMMIT_TAG"
+    description: "Automatic release for version $CI_COMMIT_TAG"
+    tag_name: "$CI_COMMIT_TAG"
+    ref: "$CI_COMMIT_TAG"
+    assets:
+      links:
+        - name: "Windows Installer (.exe)"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_TAG}/raw/dist/BF6Portal-Tool-Setup.exe?job=build"

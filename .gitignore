@@ -5,6 +5,7 @@ yarn-error.log
 
 # Build
 dist/
+web_ui/dist/
 dist_release/
 out/
 build/

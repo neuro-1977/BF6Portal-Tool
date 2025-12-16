@@ -25,6 +25,9 @@ import {MenuBar} from './components/MenuBar';
 import './index.css';
 import './components/MenuBar.css';
 
+// Expose toolbox globally for legacy scripts
+(window as any).TOOLBOX_CONFIG = toolbox;
+
 let menuBar: MenuBar | undefined;
 
 // Initialize Menu Bar
@@ -101,9 +104,9 @@ try {
 
   // Merge generated toolbox into main toolbox
   // We append the generated categories to the end of the main toolbox contents
-  if (generatedToolbox && generatedToolbox.contents) {
-      (toolbox.contents as any[]).push(...generatedToolbox.contents);
-  }
+  // if (generatedToolbox && generatedToolbox.contents) {
+  //    (toolbox.contents as any[]).push(...generatedToolbox.contents);
+  // }
 
   Object.assign(javascriptGenerator.forBlock, bf6Generators); // Use bf6Generators with javascriptGenerator
 
@@ -135,6 +138,11 @@ try {
       pinch: true
     },
   });
+  
+  // Expose workspace globally
+  (window as any).workspace = ws;
+
+  console.log("Final Toolbox Configuration:", filterToolbox('')); // Added console log
 
   if (menuBar) {
       menuBar.setWorkspace(ws);

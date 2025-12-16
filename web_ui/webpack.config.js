@@ -53,8 +53,8 @@ const config = {
     // because this UI uses its own script tags and logic.
     new HtmlWebpackPlugin({
       template: 'index.html',
-      chunks: [], // Do not inject the 'index' bundle
-      inject: false // Do not inject anything
+      chunks: ['index'], // Inject the 'index' bundle
+      inject: 'body' // Inject at the end of the body
     }),
     new HtmlWebpackPlugin({
       template: 'src/view-data.html',

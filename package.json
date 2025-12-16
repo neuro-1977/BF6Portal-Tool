@@ -1,6 +1,6 @@
 {
   "name": "bf6portal-tool",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "Battlefield 6 Portal Logic Editor - Gemini Edition",
   "main": "electron-main.js",
   "scripts": {
@@ -11,6 +11,14 @@
   },
   "author": "Neuro",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/Neuro1977/bf6-portal-tool.git"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/Neuro1977/bf6-portal-tool/-/issues"
+  },
+  "homepage": "https://gitlab.com/Neuro1977/bf6-portal-tool",
   "build": {
     "appId": "com.neuro.bf6portal",
     "productName": "BF6Portal Tool",
@@ -39,7 +47,7 @@
     "asar": true
   },
   "devDependencies": {
-    "electron": "^28.3.3",
+    "electron": "^39.2.7",
     "electron-builder": "^24.9.1",
     "electron-packager": "^17.1.2",
     "webpack-cli": "^6.0.1"
