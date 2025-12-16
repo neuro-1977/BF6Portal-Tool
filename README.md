@@ -7,6 +7,10 @@ Release notes: see `docs/RELEASE_NOTES_1.2.8.md`.
 
 **BF6Portal Tool** is a standalone visual logic editor for **Battlefield 6 Portal**, built with **Electron** + **Google Blockly**. It aims to replicate the Portal Rules Editor workflow in a desktop app, with offline editing and quality-of-life tooling.
 
+## Screenshot
+
+![BF6Portal Tool editor screenshot](docs/screenshots/editor.png)
+
 ## Features
 
 - **Rules toolbox essentials:** a single **RULES** menu containing `MOD_BLOCK`, `RULE_HEADER`, and `CONDITION_BLOCK`.

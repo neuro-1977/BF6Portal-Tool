@@ -1,5 +1,9 @@
 # Release Notes - v1.2.8
 
+## Screenshot
+
+![BF6Portal Tool editor screenshot](screenshots/editor.png)
+
 ## Features & Improvements
 - **Refined Toolbox Structure:** The Blockly toolbox has been reorganized to better match the official Battlefield Portal Rules Editor layout.
     - Added distinct "Yellow" (Actions/Statements) and "Green" (Values/Expressions) categories for clearer distinction.
