@@ -24,12 +24,84 @@ Blockly.Blocks['MOD_BLOCK'] = {
 
 Blockly.Blocks['RULE_HEADER'] = {
   init: function() {
+    // Keep everything on the top row: <rule name>  Event <event> <scope>
     this.appendDummyInput()
-        .appendField("RULE");
-        this.appendDummyInput().appendField("Rule Name:").appendField(new Blockly.FieldTextInput("New Rule"), "RULE_NAME");
-    this.appendDummyInput().appendField("Event Type:").appendField(new Blockly.FieldDropdown([["Ongoing", "ONGOING"], ["OnPlayerJoin", "ONPLAYERJOIN"], ["OnPlayerDeath", "ONPLAYERDEATH"], ["OnPlayerSpawn", "ONPLAYERSPAWN"]]), "EVENT_TYPE");
-    this.appendDummyInput().appendField("Scope:").appendField(new Blockly.FieldDropdown([["Global", "GLOBAL"], ["Team", "TEAM"], ["Squad", "SQUAD"], ["Player", "PLAYER"]]), "SCOPE");
-    this.appendDummyInput().appendField("Is Global:").appendField(new Blockly.FieldTextInput(""), "IS_GLOBAL");
+        .appendField(new Blockly.FieldTextInput("New Rule"), "RULE_NAME")
+        .appendField("Event")
+        .appendField(new Blockly.FieldDropdown([
+      ["Ongoing", "Ongoing"],
+      ["OnAIMoveToFailed", "OnAIMoveToFailed"],
+      ["OnAIMoveToRunning", "OnAIMoveToRunning"],
+      ["OnAIMoveToSucceeded", "OnAIMoveToSucceeded"],
+      ["OnAIParachuteRunning", "OnAIParachuteRunning"],
+      ["OnAIParachuteSucceeded", "OnAIParachuteSucceeded"],
+      ["OnAIWaypointIdleFailed", "OnAIWaypointIdleFailed"],
+      ["OnAIWaypointIdleRunning", "OnAIWaypointIdleRunning"],
+      ["OnAIWaypointIdleSucceeded", "OnAIWaypointIdleSucceeded"],
+      ["OnCapturePointCaptured", "OnCapturePointCaptured"],
+      ["OnCapturePointCapturing", "OnCapturePointCapturing"],
+      ["OnCapturePointLost", "OnCapturePointLost"],
+      ["OnGameModeEnding", "OnGameModeEnding"],
+      ["OnGameModeStarted", "OnGameModeStarted"],
+      ["OnMandown", "OnMandown"],
+      ["OnMCOMArmed", "OnMCOMArmed"],
+      ["OnMCOMDefused", "OnMCOMDefused"],
+      ["OnMCOMDestroyed", "OnMCOMDestroyed"],
+      ["OnPlayerDamaged", "OnPlayerDamaged"],
+      ["OnPlayerDeployed", "OnPlayerDeployed"],
+      ["OnPlayerDied", "OnPlayerDied"],
+      ["OnPlayerEarnedKill", "OnPlayerEarnedKill"],
+      ["OnPlayerEarnedKillAssist", "OnPlayerEarnedKillAssist"],
+      ["OnPlayerEnterAreaTrigger", "OnPlayerEnterAreaTrigger"],
+      ["OnPlayerEnterCapturePoint", "OnPlayerEnterCapturePoint"],
+      ["OnPlayerEnterVehicle", "OnPlayerEnterVehicle"],
+      ["OnPlayerEnterVehicleSeat", "OnPlayerEnterVehicleSeat"],
+      ["OnPlayerExitAreaTrigger", "OnPlayerExitAreaTrigger"],
+      ["OnPlayerExitCapturePoint", "OnPlayerExitCapturePoint"],
+      ["OnPlayerExitVehicle", "OnPlayerExitVehicle"],
+      ["OnPlayerExitVehicleSeat", "OnPlayerExitVehicleSeat"],
+      ["OnPlayerInteract", "OnPlayerInteract"],
+      ["OnPlayerJoinGame", "OnPlayerJoinGame"],
+      ["OnPlayerLeaveGame", "OnPlayerLeaveGame"],
+      ["OnPlayerSwitchTeam", "OnPlayerSwitchTeam"],
+      ["OnPlayerUIButtonEvent", "OnPlayerUIButtonEvent"],
+      ["OnPlayerUndeploy", "OnPlayerUndeploy"],
+      ["OnRayCastHit", "OnRayCastHit"],
+      ["OnRayCastMissed", "OnRayCastMissed"],
+      ["OnRevived", "OnRevived"],
+      ["OnRingOfFireZoneSizeChange", "OnRingOfFireZoneSizeChange"],
+      ["OnSpawnerSpawned", "OnSpawnerSpawned"],
+      ["OnTimeLimitReached", "OnTimeLimitReached"],
+      ["OnVehicleDestroyed", "OnVehicleDestroyed"],
+      ["OnVehicleSpawned", "OnVehicleSpawned"],
+    ]), "EVENT_TYPE")
+
+    // Official UI: this dropdown is present but not labeled (starts with Global).
+        .appendField(new Blockly.FieldDropdown([
+      ["Global", "Global"],
+      ["AreaTrigger", "AreaTrigger"],
+      ["CapturePoint", "CapturePoint"],
+      ["EmplacementSpawner", "EmplacementSpawner"],
+      ["HQ", "HQ"],
+      ["InteractPoint", "InteractPoint"],
+      ["LootSpawner", "LootSpawner"],
+      ["MCOM", "MCOM"],
+      ["Player", "Player"],
+      ["RingOfFire", "RingOfFire"],
+      ["ScreenEffect [depreciated]", "ScreenEffect [depreciated]"],
+      ["Sector", "Sector"],
+      ["SFX", "SFX"],
+      ["SpatialObject", "SpatialObject"],
+      ["spawner", "spawner"],
+      ["spawnPoint", "spawnPoint"],
+      ["Team", "Team"],
+      ["Vehicle", "Vehicle"],
+      ["VehicleSpawner", "VehicleSpawner"],
+      ["VFX", "VFX"],
+      ["VO", "VO"],
+      ["WaypointPath", "WaypointPath"],
+      ["WorldIcon", "WorldIcon"],
+    ]), "SCOPE");
 
         this.setPreviousStatement(true, "Rule");
     this.setNextStatement(true, "Rule");

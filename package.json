@@ -1,6 +1,6 @@
 {
   "name": "bf6portal-tool",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Battlefield 6 Portal Logic Editor - Gemini Edition",
   "main": "electron-main.js",
   "scripts": {

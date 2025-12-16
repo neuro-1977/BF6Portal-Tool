@@ -567,6 +567,491 @@ function normalizeToolboxConfig(toolbox) {
     }
 }
 
+// --- Official toolbox layout (strict Actions vs Values) ---
+
+const __bf6ToolboxKindCache = {
+    kindByType: new Map(),
+    hasDropdownByType: new Map(),
+};
+
+function classifyBlockType(workspace, type) {
+    if (!workspace || !type) return { kind: 'unknown' };
+    if (__bf6ToolboxKindCache.kindByType.has(type)) return __bf6ToolboxKindCache.kindByType.get(type);
+
+    let result = { kind: 'unknown', isStatement: false, isValue: false };
+    try {
+        const b = workspace.newBlock(type);
+        const isValue = !!b.outputConnection;
+        const isStatement = !!b.previousConnection || !!b.nextConnection;
+        result = { kind: (isValue ? 'value' : (isStatement ? 'statement' : 'unknown')), isStatement, isValue };
+        b.dispose(false);
+    } catch {
+        // ignore
+    }
+
+    __bf6ToolboxKindCache.kindByType.set(type, result);
+    return result;
+}
+
+function blockTypeHasDropdown(workspace, type) {
+    if (!workspace || !type) return false;
+    if (__bf6ToolboxKindCache.hasDropdownByType.has(type)) return __bf6ToolboxKindCache.hasDropdownByType.get(type);
+    let has = false;
+    try {
+        const b = workspace.newBlock(type);
+        for (const input of (b.inputList || [])) {
+            for (const field of (input.fieldRow || [])) {
+                if (field && field.constructor && field.constructor.name === 'FieldDropdown') {
+                    has = true;
+                    break;
+                }
+            }
+            if (has) break;
+        }
+        b.dispose(false);
+    } catch {
+        // ignore
+    }
+    __bf6ToolboxKindCache.hasDropdownByType.set(type, has);
+    return has;
+}
+
+function findCategoryByName(contents, nameLower) {
+    if (!Array.isArray(contents)) return null;
+    const key = String(nameLower || '').toLowerCase();
+    return contents.find((c) => c && c.kind === 'category' && typeof c.name === 'string' && c.name.toLowerCase() === key) || null;
+}
+
+function cloneJson(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
+
+function filterToolboxNode(node, keepBlockTypeFn) {
+    if (!node || typeof node !== 'object') return null;
+
+    if (node.kind === 'block') {
+        const t = node.type;
+        return (t && keepBlockTypeFn(String(t))) ? cloneJson(node) : null;
+    }
+
+    if (node.kind === 'sep') {
+        // Keep for now; we'll trim later.
+        return cloneJson(node);
+    }
+
+    if (node.kind === 'category') {
+        const out = cloneJson(node);
+        if (Array.isArray(node.contents)) {
+            out.contents = node.contents
+                .map((child) => filterToolboxNode(child, keepBlockTypeFn))
+                .filter(Boolean);
+            out.contents = trimSeps(out.contents);
+        }
+        if (out.custom) {
+            // Dynamic categories: keep them as-is.
+            return out;
+        }
+        if (Array.isArray(out.contents) && out.contents.length === 0) return null;
+        return out;
+    }
+
+    // Unknown node type
+    return null;
+}
+
+function trimSeps(contents) {
+    if (!Array.isArray(contents)) return contents;
+    const out = [];
+    for (const item of contents) {
+        if (!item) continue;
+        if (item.kind === 'sep') {
+            if (out.length === 0) continue;
+            // Don't allow duplicate separators.
+            if (out[out.length - 1] && out[out.length - 1].kind === 'sep') continue;
+        }
+        out.push(item);
+    }
+    // Trim trailing sep
+    while (out.length > 0 && out[out.length - 1] && out[out.length - 1].kind === 'sep') out.pop();
+    return out;
+}
+
+function retintCategoryTree(node, categorystyle) {
+    if (!node || typeof node !== 'object') return node;
+    if (node.kind === 'category') {
+        node.categorystyle = categorystyle;
+        delete node.colour;
+        if (Array.isArray(node.contents)) {
+            node.contents = node.contents.map((c) => retintCategoryTree(c, categorystyle));
+        }
+    }
+    return node;
+}
+
+function getAllBlockTypesInToolbox(toolbox) {
+    const set = new Set();
+    function walk(node) {
+        if (!node || typeof node !== 'object') return;
+        if (node.kind === 'block' && node.type) {
+            set.add(String(node.type));
+            return;
+        }
+        if (Array.isArray(node.contents)) {
+            for (const c of node.contents) walk(c);
+        }
+    }
+    if (toolbox && Array.isArray(toolbox.contents)) {
+        for (const c of toolbox.contents) walk(c);
+    }
+    return set;
+}
+
+function buildOfficialToolboxLayout(sourceToolbox, workspace) {
+    // Source should already be normalized/flattish.
+    const src = sourceToolbox && sourceToolbox.kind === 'categoryToolbox' ? sourceToolbox : normalizeToolboxConfig(sourceToolbox);
+    const contents = (src && Array.isArray(src.contents)) ? src.contents : [];
+
+    const rulesCat = findCategoryByName(contents, 'rules');
+    const subroutineCat = findCategoryByName(contents, 'subroutine');
+    const subroutinesCat = findCategoryByName(contents, 'subroutines');
+    const eventsCat = findCategoryByName(contents, 'events');
+    const conditionsCat = findCategoryByName(contents, 'conditions');
+
+    // Control actions: use LOGIC -> Control Flow if available.
+    const logicCat = findCategoryByName(contents, 'logic');
+    let controlActionTypes = new Set();
+    try {
+        if (logicCat && Array.isArray(logicCat.contents)) {
+            const controlFlow = (logicCat.contents || []).find((c) => c && c.kind === 'category' && typeof c.name === 'string' && c.name.toLowerCase() === 'control flow');
+            const tmp = getAllBlockTypesInToolbox({ kind: 'categoryToolbox', contents: [controlFlow].filter(Boolean) });
+            controlActionTypes = tmp;
+        }
+    } catch {
+        // ignore
+    }
+
+    // Event payloads: EVENTS -> Event Payloads
+    let eventPayloadTypes = new Set();
+    try {
+        if (eventsCat && Array.isArray(eventsCat.contents)) {
+            const payloads = (eventsCat.contents || []).find((c) => c && c.kind === 'category' && typeof c.name === 'string' && c.name.toLowerCase() === 'event payloads');
+            const tmp = getAllBlockTypesInToolbox({ kind: 'categoryToolbox', contents: [payloads].filter(Boolean) });
+            eventPayloadTypes = tmp;
+        }
+    } catch {
+        // ignore
+    }
+
+    const literalTypes = new Set(['NUMBER', 'STRING', 'BOOLEAN']);
+    const variableTypes = new Set(['GETVARIABLE', 'SETVARIABLE']);
+
+    const isSelectionList = (type) => {
+        // Heuristic: output block with a dropdown and no value inputs.
+        try {
+            const b = workspace.newBlock(type);
+            const isValue = !!b.outputConnection;
+            if (!isValue) {
+                b.dispose(false);
+                return false;
+            }
+            let hasValueInput = false;
+            for (const input of (b.inputList || [])) {
+                if (input && input.type === Blockly.INPUT_VALUE) {
+                    hasValueInput = true;
+                    break;
+                }
+            }
+            const hasDropdown = blockTypeHasDropdown(workspace, type);
+            b.dispose(false);
+            return hasDropdown && !hasValueInput;
+        } catch {
+            return false;
+        }
+    };
+
+    const keepAsAction = (type) => {
+        if (!type) return false;
+        if (controlActionTypes.has(type)) return false;
+        const k = classifyBlockType(workspace, type);
+        return !!k.isStatement;
+    };
+
+    const keepAsValue = (type) => {
+        if (!type) return false;
+        const k = classifyBlockType(workspace, type);
+        return !!k.isValue;
+    };
+
+    const keepAsValueGeneral = (type) => {
+        if (!keepAsValue(type)) return false;
+        if (eventPayloadTypes.has(type)) return false;
+        if (literalTypes.has(type)) return false;
+        if (variableTypes.has(type)) return false;
+        if (isSelectionList(type)) return false;
+        return true;
+    };
+
+    const makeGroupCategory = (name, categorystyle, subcats) => {
+        return {
+            kind: 'category',
+            name,
+            categorystyle,
+            contents: (subcats || []).filter(Boolean)
+        };
+    };
+
+    const getAndFilterTopCat = (topName, predicate, tintStyle, renameTo) => {
+        const srcCat = findCategoryByName(contents, topName);
+        if (!srcCat) return null;
+        const filtered = filterToolboxNode(srcCat, predicate);
+        if (!filtered) return null;
+        if (renameTo) filtered.name = renameTo;
+        if (tintStyle) retintCategoryTree(filtered, tintStyle);
+        return filtered;
+    };
+
+    // Yellow (Actions) menus
+    const yellowStyle = 'actions_category';
+    const yellowMenus = [
+        getAndFilterTopCat('ai', keepAsAction, yellowStyle, 'AI'),
+        getAndFilterTopCat('arrays', keepAsAction, yellowStyle, 'ARRAYS'),
+        getAndFilterTopCat('audio', keepAsAction, yellowStyle, 'AUDIO'),
+        getAndFilterTopCat('camera', keepAsAction, yellowStyle, 'CAMERA'),
+        getAndFilterTopCat('effects', keepAsAction, yellowStyle, 'EFFECTS'),
+        getAndFilterTopCat('emplacements', keepAsAction, yellowStyle, 'EMPLACEMENTS'),
+        getAndFilterTopCat('gameplay', keepAsAction, yellowStyle, 'GAMEPLAY'),
+        // LOGIC (actions) excludes the control-flow blocks we move to CONTROL ACTIONS.
+        getAndFilterTopCat('logic', (t) => keepAsAction(t) && !controlActionTypes.has(t), yellowStyle, 'LOGIC'),
+        // CONDITIONS are value-y in Portal; but if we have statement-y ones, keep them under LOGIC/OTHER via other categories.
+        getAndFilterTopCat('objective', keepAsAction, yellowStyle, 'OBJECTIVE'),
+        getAndFilterTopCat('other', keepAsAction, yellowStyle, 'OTHER'),
+        getAndFilterTopCat('player', keepAsAction, yellowStyle, 'PLAYER'),
+        getAndFilterTopCat('transform', keepAsAction, yellowStyle, 'TRANSFORM'),
+        getAndFilterTopCat('ui', keepAsAction, yellowStyle, 'USER INTERFACE'),
+        getAndFilterTopCat('vehicles', keepAsAction, yellowStyle, 'VEHICLES'),
+    ].filter(Boolean);
+
+    // Green (Values) menus
+    const greenStyle = 'values_category';
+    const greenMenus = [
+        getAndFilterTopCat('ai', keepAsValueGeneral, greenStyle, 'AI'),
+        getAndFilterTopCat('arrays', keepAsValueGeneral, greenStyle, 'ARRAYS'),
+        getAndFilterTopCat('audio', keepAsValueGeneral, greenStyle, 'AUDIO'),
+        getAndFilterTopCat('effects', keepAsValueGeneral, greenStyle, 'EFFECTS'),
+        // EVENT PAYLOADS
+        (() => {
+            if (!eventsCat) return null;
+            const payloadOnly = filterToolboxNode(eventsCat, (t) => keepAsValue(t) && eventPayloadTypes.has(t));
+            if (!payloadOnly) return null;
+            payloadOnly.name = 'EVENT PAYLOADS';
+            retintCategoryTree(payloadOnly, greenStyle);
+            // Flatten so we don't keep Game Events
+            payloadOnly.contents = (payloadOnly.contents || []).filter((c) => c && c.kind === 'block');
+            // If the payloads were nested, fall back to collecting them.
+            if (!payloadOnly.contents || payloadOnly.contents.length === 0) {
+                const types = Array.from(eventPayloadTypes);
+                payloadOnly.contents = types.map((t) => ({ kind: 'block', type: t }));
+            }
+            return payloadOnly;
+        })(),
+        getAndFilterTopCat('gameplay', keepAsValueGeneral, greenStyle, 'GAMEPLAY'),
+        // LOGIC values: include comparisons/booleans; also merge CONDITIONS into LOGIC.
+        (() => {
+            const baseLogic = getAndFilterTopCat('logic', keepAsValueGeneral, greenStyle, 'LOGIC');
+            const cond = conditionsCat ? filterToolboxNode(conditionsCat, keepAsValueGeneral) : null;
+            if (cond) retintCategoryTree(cond, greenStyle);
+            if (baseLogic && cond) {
+                baseLogic.contents = trimSeps([...(baseLogic.contents || []), { kind: 'sep' }, ...(cond.contents || [])]);
+            }
+            return baseLogic || cond;
+        })(),
+        getAndFilterTopCat('math', keepAsValueGeneral, greenStyle, 'MATH'),
+        getAndFilterTopCat('objective', keepAsValueGeneral, greenStyle, 'OBJECTIVE'),
+        getAndFilterTopCat('other', keepAsValueGeneral, greenStyle, 'OTHER'),
+        getAndFilterTopCat('player', keepAsValueGeneral, greenStyle, 'PLAYER'),
+        getAndFilterTopCat('transform', keepAsValueGeneral, greenStyle, 'TRANSFORM'),
+        getAndFilterTopCat('ui', keepAsValueGeneral, greenStyle, 'USER INTERFACE'),
+        getAndFilterTopCat('vehicles', keepAsValueGeneral, greenStyle, 'VEHICLES'),
+        // SELECTION LISTS
+        (() => {
+            const allTypes = Array.from(getAllBlockTypesInToolbox(src));
+            const selectionTypes = allTypes
+                .filter((t) => keepAsValue(t) && isSelectionList(t) && !eventPayloadTypes.has(t) && !literalTypes.has(t) && !variableTypes.has(t))
+                .sort();
+            if (selectionTypes.length === 0) return null;
+            return {
+                kind: 'category',
+                name: 'SELECTION LISTS',
+                categorystyle: greenStyle,
+                contents: selectionTypes.map((t) => ({ kind: 'block', type: t }))
+            };
+        })(),
+        // LITERALS
+        {
+            kind: 'category',
+            name: 'LITERALS',
+            categorystyle: greenStyle,
+            contents: Array.from(literalTypes).map((t) => ({ kind: 'block', type: t }))
+        },
+        // VARIABLES
+        (() => {
+            const allTypes = Array.from(getAllBlockTypesInToolbox(src));
+            const vars = allTypes
+                .filter((t) => keepAsValue(t) && variableTypes.has(t))
+                .sort();
+            if (vars.length === 0) return null;
+            return {
+                kind: 'category',
+                name: 'VARIABLES',
+                categorystyle: greenStyle,
+                contents: vars.map((t) => ({ kind: 'block', type: t }))
+            };
+        })(),
+    ].filter(Boolean);
+
+    // Subroutines
+    const subroutinesTypes = new Set();
+    for (const cat of [subroutineCat, subroutinesCat].filter(Boolean)) {
+        for (const t of getAllBlockTypesInToolbox({ kind: 'categoryToolbox', contents: [cat] })) subroutinesTypes.add(t);
+    }
+    const subroutinesMenu = {
+        kind: 'category',
+        name: 'SUBROUTINES',
+        categorystyle: 'subroutines_category',
+        contents: Array.from(subroutinesTypes).map((t) => ({ kind: 'block', type: t }))
+    };
+
+    // Control actions
+    const controlActionsMenu = {
+        kind: 'category',
+        name: 'CONTROL ACTIONS',
+        categorystyle: 'control_actions_category',
+        contents: Array.from(controlActionTypes).map((t) => ({ kind: 'block', type: t }))
+    };
+
+    // RULES
+    const rulesMenu = rulesCat ? cloneJson(rulesCat) : {
+        kind: 'category',
+        name: 'RULES',
+        categorystyle: 'rules_category',
+        contents: []
+    };
+    rulesMenu.name = 'RULES';
+    rulesMenu.categorystyle = 'rules_category';
+
+    const finalToolbox = {
+        kind: 'categoryToolbox',
+        contents: [
+            rulesMenu,
+            makeGroupCategory('ACTIONS', 'actions_category', yellowMenus),
+            makeGroupCategory('VALUES', 'values_category', greenMenus),
+            subroutinesMenu,
+            controlActionsMenu,
+        ]
+    };
+
+    return finalToolbox;
+}
+
+function applyToolboxSearchBox(workspace, getBaseToolbox) {
+    try {
+        const toolboxDiv = document.querySelector('.blocklyToolboxDiv');
+        if (!toolboxDiv) return;
+
+        // Avoid duplicates.
+        if (document.getElementById('bf6ToolboxSearchContainer')) return;
+
+        toolboxDiv.style.position = 'absolute';
+        toolboxDiv.style.overflow = 'hidden';
+
+        const container = document.createElement('div');
+        container.id = 'bf6ToolboxSearchContainer';
+        container.style.position = 'absolute';
+        container.style.left = '0';
+        container.style.right = '0';
+        container.style.top = '0';
+        container.style.height = '44px';
+        container.style.padding = '8px 10px';
+        container.style.background = '#23272e';
+        container.style.borderBottom = '1px solid #181a1b';
+        container.style.zIndex = '10';
+        container.style.boxSizing = 'border-box';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'Search…';
+        input.autocomplete = 'off';
+        input.spellcheck = false;
+        input.style.width = '100%';
+        input.style.height = '28px';
+        input.style.boxSizing = 'border-box';
+        input.style.borderRadius = '6px';
+        input.style.border = '1px solid #333';
+        input.style.background = '#181a1b';
+        input.style.color = '#e0e0e0';
+        input.style.padding = '6px 10px';
+        input.style.fontFamily = 'Segoe UI, Consolas, monospace';
+
+        container.appendChild(input);
+        toolboxDiv.appendChild(container);
+
+        // Make room for the search bar.
+        toolboxDiv.style.paddingTop = '44px';
+
+        const filterToolbox = (toolbox, term) => {
+            const t = String(term || '').trim().toLowerCase();
+            if (!t) return toolbox;
+
+            const matchBlock = (type) => String(type || '').toLowerCase().includes(t);
+
+            const walk = (node) => {
+                if (!node || typeof node !== 'object') return null;
+                if (node.kind === 'block') {
+                    return matchBlock(node.type) ? cloneJson(node) : null;
+                }
+                if (node.kind === 'sep') return cloneJson(node);
+                if (node.kind === 'category') {
+                    // If category name matches, keep everything.
+                    const name = String(node.name || '').toLowerCase();
+                    if (name && name.includes(t)) return cloneJson(node);
+
+                    const out = cloneJson(node);
+                    if (Array.isArray(node.contents)) {
+                        out.contents = node.contents.map(walk).filter(Boolean);
+                        out.contents = trimSeps(out.contents);
+                    }
+                    if (Array.isArray(out.contents) && out.contents.length === 0) return null;
+                    return out;
+                }
+                return null;
+            };
+
+            const filtered = {
+                kind: 'categoryToolbox',
+                contents: (toolbox.contents || []).map(walk).filter(Boolean)
+            };
+            return filtered;
+        };
+
+        let timer = null;
+        input.addEventListener('input', () => {
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+                try {
+                    const base = (typeof getBaseToolbox === 'function') ? getBaseToolbox() : null;
+                    if (!base) return;
+                    const next = filterToolbox(base, input.value);
+                    workspace.updateToolbox(next);
+                } catch (e) {
+                    console.warn('[BF6] toolbox search failed:', e);
+                }
+            }, 80);
+        });
+    } catch (e) {
+        console.warn('[BF6] applyToolboxSearchBox failed:', e);
+    }
+}
+
 function reorderTopCategories(contents) {
     if (!Array.isArray(contents)) return contents;
 
@@ -577,8 +1062,8 @@ function reorderTopCategories(contents) {
         }
     }
 
-    // Desired order: RULES first, then CONDITIONS.
-    const preferredNames = ['rules', 'conditions'];
+    // Desired order: RULES first (official), then everything else.
+    const preferredNames = ['rules'];
     const preferred = preferredNames
         .map((n) => byName.get(n))
         .filter(Boolean);
@@ -631,6 +1116,7 @@ function fallbackInjection() {
         'base': Blockly.Themes.Dark,
         'categoryStyles': {
             'rules_category': { 'colour': '#A285E6' },
+            'values_category': { 'colour': '#4CAF50' },
             'ai_category': { 'colour': '#B5A045' },
             'arrays_category': { 'colour': '#B5A045' },
             'audio_category': { 'colour': '#B5A045' },
@@ -648,7 +1134,7 @@ function fallbackInjection() {
             'selection_lists_category': { 'colour': '#45B5B5' },
             'literals_category': { 'colour': '#45B5B5' },
             'subroutines_category': { 'colour': '#E6A85C' },
-            'control_actions_category': { 'colour': '#A285E6' },
+            'control_actions_category': { 'colour': '#0288D1' },
             'loop_category': { 'colour': '#5CA65C' },
             'math_category': { 'colour': '#5C68A6' },
             'text_category': { 'colour': '#5CA68D' },
@@ -702,6 +1188,16 @@ function fallbackInjection() {
             trashcan: true
         });
         console.log("[BF6] Blockly injected successfully.");
+
+        // Apply official toolbox layout + search box (strict actions vs values).
+        try {
+            const official = buildOfficialToolboxLayout(toolbox, window.workspace);
+            window.__bf6OfficialToolbox = official;
+            window.workspace.updateToolbox(official);
+            applyToolboxSearchBox(window.workspace, () => window.__bf6OfficialToolbox);
+        } catch (e) {
+            console.warn('[BF6] Failed to apply official toolbox layout:', e);
+        }
 
         // Initialize live TypeScript code preview + presets UI now that we have a workspace.
         try { initLiveCodePreview(); } catch (e) { console.warn('[BF6] initLiveCodePreview failed:', e); }
