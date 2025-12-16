@@ -164,81 +164,272 @@ function refreshPresetDropdown(selectedId?: string) {
 }
 
 function focusWorkspaceOnContent(workspace: AnyWorkspace) {
+  if (!workspace) return;
+
+  // Many imported workspaces (including the shipped templates) place blocks far away.
+  // If we don't zoom/center after load, it can look like nothing loaded.
   try {
     Blockly.svgResize(workspace);
   } catch {
     // ignore
   }
+
   try {
-    // Works in WorkspaceSvg.
-    (workspace as any).zoomToFit?.();
+    if (typeof (workspace as any).zoomToFit === 'function') {
+      (workspace as any).zoomToFit();
+      return;
+    }
   } catch {
     // ignore
   }
+
   try {
-    workspace.scrollCenter();
+    if (typeof workspace.scrollCenter === 'function') {
+      workspace.scrollCenter();
+    }
+  } catch {
+    // ignore
+  }
+
+  try {
+    const top = typeof workspace.getTopBlocks === 'function' ? workspace.getTopBlocks(true) : [];
+    const first = Array.isArray(top) ? top[0] : null;
+    if (first && typeof (workspace as any).centerOnBlock === 'function') {
+      (workspace as any).centerOnBlock(first.id);
+    }
   } catch {
     // ignore
   }
 }
 
-function collectBlockTypesFromState(state: any): Set<string> {
-  const out = new Set<string>();
+type PortalBlockModelInfo = {
+  fieldNames: string[];
+  statementInputs: string[];
+  valueInputs: string[];
+  usedAsStatement: boolean;
+  usedAsValue: boolean;
+  hasNext: boolean;
+  role: 'unknown' | 'top' | 'statement' | 'value';
+};
 
-  const visitBlock = (b: any) => {
-    if (!b || typeof b !== 'object') return;
-    if (typeof b.type === 'string') out.add(b.type);
+const PLACEHOLDER_DEFAULT_COLOUR = '#5b80a5';
 
-    if (b.next && b.next.block) visitBlock(b.next.block);
-    if (b.inputs && typeof b.inputs === 'object') {
-      for (const k of Object.keys(b.inputs)) {
-        const inp = b.inputs[k];
-        if (inp && inp.block) visitBlock(inp.block);
-        if (inp && inp.shadow) visitBlock(inp.shadow);
+const PORTAL_TYPE_COLOUR_HINTS: Record<string, string> = {
+  // Common structural types from community Portal exports.
+  modBlock: '#4A4A4A',
+  ruleBlock: '#A285E6',
+  conditionBlock: '#45B5B5',
+  subroutineBlock: '#E6A85C',
+  subroutineInstanceBlock: '#E6A85C',
+  variableReferenceBlock: '#0288D1',
+  subroutineArgumentBlock: '#0288D1',
+};
+
+function getSuggestedPortalBlockColour(type: string): string {
+  const t = String(type || '').trim();
+  if (!t) return PLACEHOLDER_DEFAULT_COLOUR;
+
+  if (Object.prototype.hasOwnProperty.call(PORTAL_TYPE_COLOUR_HINTS, t)) {
+    return PORTAL_TYPE_COLOUR_HINTS[t];
+  }
+
+  const lower = t.toLowerCase();
+  if (lower.includes('condition')) return '#45B5B5';
+  if (lower.includes('rule')) return '#A285E6';
+  if (lower.includes('subroutine')) return '#E6A85C';
+  if (lower.includes('variable')) return '#0288D1';
+  if (lower.includes('event')) return '#5CA65C';
+
+  return PLACEHOLDER_DEFAULT_COLOUR;
+}
+
+function buildPortalBlockModelFromState(state: any): Map<string, PortalBlockModelInfo> {
+  const model = new Map<
+    string,
+    {
+      fieldNames: Set<string>;
+      statementInputs: Set<string>;
+      valueInputs: Set<string>;
+      usedAsStatement: boolean;
+      usedAsValue: boolean;
+      hasNext: boolean;
+      role: PortalBlockModelInfo['role'];
+    }
+  >();
+
+  const isStatementInputName = (name: string) => {
+    if (!name || typeof name !== 'string') return false;
+    if (name === 'RULES' || name === 'ACTIONS' || name === 'CONDITIONS') return true;
+    if (/^DO\d*$/.test(name)) return true;
+    if (/^ELSE\d*$/.test(name)) return true;
+    if (name === 'ELSE' || name === 'THEN' || name === 'STACK' || name === 'BODY') return true;
+    return false;
+  };
+
+  const ensure = (type: string) => {
+    if (!model.has(type)) {
+      model.set(type, {
+        fieldNames: new Set<string>(),
+        statementInputs: new Set<string>(),
+        valueInputs: new Set<string>(),
+        usedAsStatement: false,
+        usedAsValue: false,
+        hasNext: false,
+        role: 'unknown',
+      });
+    }
+    return model.get(type)!;
+  };
+
+  const visitBlock = (block: any, context: 'top' | 'statement' | 'value') => {
+    if (!block || typeof block !== 'object') return;
+    const type = block.type;
+    if (typeof type !== 'string') return;
+
+    const info = ensure(type);
+    if (context === 'statement') info.usedAsStatement = true;
+    if (context === 'value') info.usedAsValue = true;
+    if (block.next && block.next.block) info.hasNext = true;
+
+    if (block.fields && typeof block.fields === 'object') {
+      for (const k of Object.keys(block.fields)) info.fieldNames.add(k);
+    }
+
+    if (block.inputs && typeof block.inputs === 'object') {
+      for (const inName of Object.keys(block.inputs)) {
+        const input = block.inputs[inName];
+        const child = input && (input.block || input.shadow);
+        const childContext: 'statement' | 'value' = isStatementInputName(inName) ? 'statement' : 'value';
+
+        if (isStatementInputName(inName)) info.statementInputs.add(inName);
+        else info.valueInputs.add(inName);
+
+        visitBlock(child, childContext);
       }
     }
-    if (Array.isArray(b.blocks)) {
-      for (const child of b.blocks) visitBlock(child);
+
+    if (block.next && block.next.block) {
+      visitBlock(block.next.block, 'statement');
     }
   };
 
   try {
     const blocksRoot = state?.blocks;
     if (blocksRoot && typeof blocksRoot === 'object' && Array.isArray(blocksRoot.blocks)) {
-      for (const top of blocksRoot.blocks) visitBlock(top);
+      for (const top of blocksRoot.blocks) visitBlock(top, 'top');
     } else if (Array.isArray(state?.blocks)) {
-      for (const top of state.blocks) visitBlock(top);
+      for (const top of state.blocks) visitBlock(top, 'top');
     }
   } catch {
     // ignore
   }
 
+  // Special-case known structural Portal block types.
+  for (const [type, info] of model.entries()) {
+    if (type === 'modBlock' || type === 'subroutineBlock') {
+      info.role = 'top';
+    } else if (type === 'ruleBlock' || type === 'conditionBlock' || type === 'subroutineInstanceBlock') {
+      info.role = 'statement';
+    } else if (type === 'variableReferenceBlock' || type === 'subroutineArgumentBlock') {
+      info.role = 'value';
+    }
+  }
+
+  // Convert sets to arrays for stable init ordering.
+  const out = new Map<string, PortalBlockModelInfo>();
+  for (const [type, info] of model.entries()) {
+    out.set(type, {
+      fieldNames: Array.from(info.fieldNames).sort(),
+      statementInputs: Array.from(info.statementInputs).sort(),
+      valueInputs: Array.from(info.valueInputs).sort(),
+      usedAsStatement: !!info.usedAsStatement,
+      usedAsValue: !!info.usedAsValue,
+      hasNext: !!info.hasNext,
+      role: info.role,
+    });
+  }
+
   return out;
 }
 
-function ensureBlocksRegisteredForState(state: any) {
-  // Best-effort: register placeholder blocks for missing types so loads don't hard-fail.
-  // (This mirrors legacy behavior in `web_ui/main.js`.)
-  const types = collectBlockTypesFromState(state);
-  if (types.size === 0) return;
+function ensurePortalBlocksRegisteredFromState(state: any): { created: number } {
+  // Build a model of block shapes from the incoming JSON state and register
+  // placeholder blocks for any types not present in this build.
+  const model = buildPortalBlockModelFromState(state);
+  if (!model || model.size === 0) return { created: 0 };
 
-  for (const t of types) {
-    try {
-      if ((Blockly as any).Blocks && Object.prototype.hasOwnProperty.call((Blockly as any).Blocks, t)) continue;
-      (Blockly as any).Blocks[t] = {
-        init: function () {
-          this.appendDummyInput().appendField(t);
-          this.setColour('#5b80a5');
-          this.setTooltip('Placeholder block (auto-created during preset/import).');
-          this.setHelpUrl('');
+  let created = 0;
+
+  for (const [type, info] of model.entries()) {
+    if (!type || typeof type !== 'string') continue;
+    if ((Blockly as any)?.Blocks && Object.prototype.hasOwnProperty.call((Blockly as any).Blocks, type)) {
+      continue;
+    }
+
+    (Blockly as any).Blocks[type] = {
+      init: function () {
+        // Title
+        this.appendDummyInput().appendField(type);
+
+        // Fields (best-effort)
+        const fieldNames = Array.isArray(info.fieldNames) ? info.fieldNames : [];
+        for (const fname of fieldNames.slice(0, 12)) {
+          try {
+            this.appendDummyInput().appendField(`${fname}:`).appendField(new (Blockly as any).FieldTextInput(''), fname);
+          } catch {
+            // ignore
+          }
+        }
+
+        // Inputs
+        const statementInputs = Array.isArray(info.statementInputs) ? info.statementInputs : [];
+        const valueInputs = Array.isArray(info.valueInputs) ? info.valueInputs : [];
+
+        for (const inName of statementInputs) {
+          try {
+            this.appendStatementInput(inName).appendField(inName);
+          } catch {
+            // ignore
+          }
+        }
+
+        for (const inName of valueInputs) {
+          try {
+            this.appendValueInput(inName).appendField(inName);
+          } catch {
+            // ignore
+          }
+        }
+
+        // Connection inference
+        const role = info.role || 'unknown';
+        if (role === 'top') {
+          // no connections
+        } else if (role === 'statement') {
           this.setPreviousStatement(true, null);
           this.setNextStatement(true, null);
-        },
-      };
-    } catch {
-      // ignore
-    }
+        } else if (role === 'value') {
+          this.setOutput(true, null);
+        } else {
+          if (info.hasNext || info.usedAsStatement) {
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+          } else {
+            this.setOutput(true, null);
+          }
+        }
+
+        // Visual distinction for placeholders.
+        this.setColour(getSuggestedPortalBlockColour(type));
+        this.setTooltip('Placeholder block (auto-created during import).');
+        this.setHelpUrl('');
+      },
+    };
+
+    created++;
   }
+
+  return { created };
 }
 
 async function loadPresetById(workspace: AnyWorkspace, id: string) {
@@ -272,33 +463,62 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
     }
     const parsed = await res.json();
     const state = normalizeWorkspaceState(parsed);
-    ensureBlocksRegisteredForState(state);
+    try {
+      const r = ensurePortalBlocksRegisteredFromState(state);
+      if (r?.created) console.log(`[BF6] Auto-registered ${r.created} block types for preset load.`);
+    } catch (e) {
+      console.warn('[BF6] Failed to auto-register block types:', e);
+    }
 
     Blockly.Events.disable();
     try {
       workspace.clear();
       Blockly.serialization.workspaces.load(state, workspace, undefined);
+    } catch (e: any) {
+      console.warn('[BF6] Failed to load preset workspace:', e);
+      alert(`Failed to load preset.\n\n${String(e?.message || e)}`);
     } finally {
       Blockly.Events.enable();
     }
 
-    setTimeout(() => focusWorkspaceOnContent(workspace), 0);
+    setTimeout(() => {
+      try {
+        focusWorkspaceOnContent(workspace);
+      } catch {
+        // ignore
+      }
+    }, 0);
     return;
   }
 
   if (info.kind === 'user') {
     const state = normalizeWorkspaceState(info.state);
-    ensureBlocksRegisteredForState(state);
+
+    try {
+      const r = ensurePortalBlocksRegisteredFromState(state);
+      if (r?.created) console.log(`[BF6] Auto-registered ${r.created} block types for preset load.`);
+    } catch (e) {
+      console.warn('[BF6] Failed to auto-register block types:', e);
+    }
 
     Blockly.Events.disable();
     try {
       workspace.clear();
       Blockly.serialization.workspaces.load(state, workspace, undefined);
+    } catch (e: any) {
+      console.warn('[BF6] Failed to load preset workspace:', e);
+      alert(`Failed to load preset.\n\n${String(e?.message || e)}`);
     } finally {
       Blockly.Events.enable();
     }
 
-    setTimeout(() => focusWorkspaceOnContent(workspace), 0);
+    setTimeout(() => {
+      try {
+        focusWorkspaceOnContent(workspace);
+      } catch {
+        // ignore
+      }
+    }, 0);
     return;
   }
 
