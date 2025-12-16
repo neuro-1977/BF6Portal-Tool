@@ -13,12 +13,12 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/neuro-1977/BF6Portal-Tool.git"
+    "url": "https://gitlab.com/Neuro1977/bf6-portal-tool.git"
   },
   "bugs": {
-    "url": "https://github.com/neuro-1977/BF6Portal-Tool/issues"
+    "url": "https://gitlab.com/Neuro1977/bf6-portal-tool/-/issues"
   },
-  "homepage": "https://github.com/neuro-1977/BF6Portal-Tool",
+  "homepage": "https://gitlab.com/Neuro1977/bf6-portal-tool",
   "build": {
     "appId": "com.neuro.bf6portal",
     "productName": "BF6Portal Tool",
