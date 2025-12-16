@@ -1,93 +1,78 @@
-# BF6 Portal Tool
+# BF6Portal Tool
 
-![Version](https://img.shields.io/badge/version-1.2.5-blue.svg)
+![Version](https://img.shields.io/badge/version-1.2.6-blue.svg)
 ![License](https://img.shields.io/badge/license-ISC-green.svg)
 
-Release notes: see `docs/RELEASE_NOTES_1.2.5.md`.
+Release notes: see `docs/RELEASE_NOTES_1.2.6.md`.
 
-**BF6 Portal Tool** is a powerful, standalone visual logic editor for **Battlefield 6 Portal**, built using **Electron** and **Google Blockly**. It replicates the official Rules Editor experience in a desktop application, allowing fo
-r offline development, easier management of complex logic, and custom extensions.
-## ?? Features
+**BF6Portal Tool** is a standalone visual logic editor for **Battlefield 6 Portal**, built with **Electron** + **Google Blockly**. It aims to replicate the Portal Rules Editor workflow in a desktop app, with offline editing and quality-of-life tooling.
 
-*   **Authentic Interface:** Fully recreated Toolbox menu structure matching the official Battlefield Portal editor (Rules, AI, Vectors, Gameplay, etc.).
-*   **Visual Scripting:** Intuitive drag-and-drop block interface powered by Blockly.
-*   **Comprehensive Block Library:** Includes hundreds of blocks for Game Modes, AI logic, Math, Event Payloads, and more.
-*   **Validation:** Visual cues for Statement (Yellow) vs. Value (Green) block connections.
-*   **Desktop Power:** Runs as a native application on Windows (Electron-based).
-*   **Maintenance Tools:** Includes a suite of Python scripts to auto-generate and update block definitions from data sources.
+## Features
 
-## ??? Installation & Setup
+- **Rules toolbox essentials:** a single **RULES** menu containing `MOD_BLOCK`, `RULE_HEADER`, and `CONDITION_BLOCK`.
+- **Import compatibility:** loads Blockly JSON exports, including common community/template wrappers like `{ "mod": { ... } }`.
+- **Resilient template loading:** missing block `type`s are auto-registered as **placeholder blocks** so templates can still render.
+- **Presets:** 3 locked built-ins (Andy6170 templates) + user save/delete via `localStorage`.
+- **Help modal + right-click help:** offline docs from `bf6portal_blocks.json` and per-block “Help: <type>”.
+- **Code Preview drawer:** resizable bottom drawer showing a TypeScript export of the current workspace state.
+
+## Installation & setup
 
 ### Prerequisites
 
-*   **Node.js** (v18 or higher)
-*   **Python 3.8+** (required only for running maintenance scripts in 	tools/)
+- Node.js (v18+ recommended)
+- Python 3.8+ (only needed for some helper scripts)
 
-### Getting Started
+### Getting started
 
-1.  **Clone the repository:**
-    `ash
-    git clone https://github.com/neuro-1977/BF6Portal-Tool.git
-    cd BF6Portal-Tool
-    `
+1) Clone:
 
-2.  **Install dependencies:**
-    `ash
-    # Install Electron dependencies
-    npm install
+```bash
+git clone https://github.com/neuro-1977/BF6Portal-Tool.git
+cd BF6Portal-Tool
+```
 
-    # Install Web UI dependencies
-    cd web_ui
-    npm install
-    cd ..
-    `
+2) Install dependencies:
 
-3.  **Run the Application:**
-    `ash
-    npm start
-    `
+```bash
+npm install
+cd web_ui
+npm install
+cd ..
+```
 
-## ??? Development
+3) Run the app:
 
-The project consists of two main parts:
-1.  **Electron Main Process:** Handles the app window and file system operations (electron-main.js).
-2.  **Web UI:** The Blockly editor, built with TypeScript and Webpack (web_ui/).
+```bash
+npm start
+```
 
-### Rebuilding the Editor
-If you make changes to web_ui/src, you must rebuild the renderer bundles:
+## Development
 
-`ash
+The project has two main parts:
+
+1) Electron main process: `electron-main.js`
+2) Renderer (Blockly editor): `web_ui/` (TypeScript + webpack)
+
+### Rebuild the renderer
+
+```bash
 cd web_ui
 npm run build
-`
+```
 
-### Building for Production
-To create a standalone executable (.exe):
+### Build a Windows installer
 
-`ash
+```bash
 npm run dist
-`
-The output will be located in the dist/ directory.
+```
 
-## ?? Helper Scripts
+The installer output is written to `dist/`.
 
-This repository includes a robust set of Python tools in the 	ools/ directory to help manage the thousands of block definitions.
+## Helper scripts
 
-*   generate_toolbox_v2.py: Regenerates the Toolbox layout.
-*   ill_toolbox_gaps.py: Finds and adds missing blocks to the menu.
-*   update_blocks_db.py: Syncs TypeScript definitions with the local database.
+Utilities live in `tools/` (used to generate/inspect blocks/toolboxes from Portal data).
 
-?? **See [docs/SCRIPTS.md](docs/SCRIPTS.md) for full usage instructions.**
+## License
 
-## ?? Contributing
-
-We welcome contributions! Please follow our development workflow:
-
-*   **main**: Stable, production-ready code.
-*   **develop**: Integration branch for new features.
-
-?? **See [docs/WORKFLOW.md](docs/WORKFLOW.md) for branching strategy and release process.**
-
-## ?? License
-
-This project is licensed under the **ISC License**.
+ISC

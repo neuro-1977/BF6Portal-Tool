@@ -5,10 +5,10 @@ const os = require('os');
 
 // Configuration
 const PORT = 8000; // Application port
-// In production (asar), we need to step out of the archive to find unpacked resources if we unpacked them
-// Or use __dirname if we are in dev.
+// In production, app.getAppPath() points at the packaged app root (typically .../resources/app.asar).
+// In dev, __dirname is the project root.
 const isPackaged = app.isPackaged;
-const ROOT_DIR = isPackaged ? path.join(process.resourcesPath, 'app.asar.unpacked') : __dirname;
+const ROOT_DIR = isPackaged ? app.getAppPath() : __dirname;
 
 let mainWindow;
 let serverProcess;

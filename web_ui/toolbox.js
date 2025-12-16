@@ -1008,10 +1008,6 @@ window.TOOLBOX_CONFIG = {
                   "type": "GREATERTHANOREQUAL"
                 }
               ]
-            },
-            {
-              "kind": "block",
-              "type": "CONDITION_BLOCK"
             }
           ]
         },
@@ -1324,28 +1320,7 @@ window.TOOLBOX_CONFIG = {
             }
           ]
         },
-        {
-          "kind": "category",
-          "name": "MOD",
-          "categorystyle": "mod_category",
-          "contents": [
-            {
-              "kind": "category",
-              "name": "Game Mode",
-              "categorystyle": "mod_category",
-              "contents": [
-                {
-                  "kind": "block",
-                  "type": "MOD_BLOCK"
-                }
-              ]
-            },
-            {
-              "kind": "block",
-              "type": "MOD_BLOCK"
-            }
-          ]
-        },
+        
         {
           "kind": "category",
           "name": "OBJECTIVE",
@@ -1431,15 +1406,8 @@ window.TOOLBOX_CONFIG = {
           "categorystyle": "rules_category",
           "contents": [
             {
-              "kind": "category",
-              "name": "Rule Definition",
-              "categorystyle": "rules_category",
-              "contents": [
-                {
-                  "kind": "block",
-                  "type": "RULE_HEADER"
-                }
-              ]
+              "kind": "block",
+              "type": "MOD_BLOCK"
             },
             {
               "kind": "block",

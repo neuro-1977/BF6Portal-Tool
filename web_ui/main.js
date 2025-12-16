@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setupAboutQuotes().catch((e) => console.warn('[BF6] setupAboutQuotes failed:', e));
     setupAboutModal();
-    setupTerminalConsole();
+    setupCodePreviewDrawer();
 
     // Prefer the simple injection path for stability.
     // If you want to switch back to StartupSequence later, you can.
@@ -16,38 +16,37 @@ document.addEventListener('DOMContentLoaded', () => {
     setupButtonListeners();
 });
 
-function setupTerminalConsole() {
+function setupCodePreviewDrawer() {
     const toggleBtn = document.getElementById('terminal-toggle');
     const container = document.getElementById('terminal-drawer');
     if (!toggleBtn || !container) return;
 
-    // This feature is meant for the Electron build (needs require('electron') + xterm).
-    if (typeof require !== 'function') {
-        // In a plain browser context, there's nothing to toggle.
-        toggleBtn.style.display = 'none';
-        return;
-    }
-
-    let drawer = null;
+    // The drawer is a Code Preview panel (works in both browser + Electron).
+    let DrawerCtor = null;
     try {
-        // terminal-drawer.js exports the class.
-        const TerminalDrawer = require('./terminal-drawer.js');
-        drawer = new TerminalDrawer('terminal-drawer');
-
-        // Only enable the button if xterm initialized.
-        if (!drawer || !drawer.container || !drawer.term || !drawer.fitAddon || typeof drawer.toggle !== 'function') {
-            throw new Error('TerminalDrawer did not initialize (missing xterm deps?)');
+        if (typeof require === 'function') {
+            DrawerCtor = require('./terminal-drawer.js');
+        } else if (window.TerminalDrawer) {
+            DrawerCtor = window.TerminalDrawer;
         }
+    } catch {
+        DrawerCtor = window.TerminalDrawer;
+    }
 
-        // Keep a reference for debugging.
-        window.__terminalDrawer = drawer;
-    } catch (e) {
-        console.warn('[BF6] Terminal console unavailable:', e);
-        // Hide the button to avoid a dead control.
+    if (!DrawerCtor) {
+        // No drawer implementation; hide toggle.
         toggleBtn.style.display = 'none';
         return;
     }
 
+    const drawer = new DrawerCtor('terminal-drawer');
+    if (!drawer || typeof drawer.toggle !== 'function') {
+        toggleBtn.style.display = 'none';
+        return;
+    }
+
+    window.__terminalDrawer = drawer;
+    toggleBtn.title = 'Code Preview';
     toggleBtn.addEventListener('click', () => drawer.toggle());
 }
 
@@ -62,6 +61,8 @@ function setupButtonListeners() {
         },
         'saveBtn': () => saveWorkspace(),
         'exportTsBtn': () => exportToTypeScript(),
+        'presetSaveBtn': () => saveCurrentWorkspaceAsPreset(),
+        'presetDeleteBtn': () => deleteSelectedPreset(),
         'closeAboutModal': () => {
             closeAboutModal();
         }
@@ -79,6 +80,321 @@ function setupButtonListeners() {
     if (loadInput) {
         loadInput.addEventListener('change', handleFileUpload);
     }
+
+    // Preset select listener
+    const presetSelect = document.getElementById('presetSelect');
+    if (presetSelect) {
+        presetSelect.addEventListener('change', () => {
+            const id = presetSelect.value;
+            if (id) loadPresetById(id);
+        });
+    }
+}
+
+// --- Code Preview (TypeScript) ---
+
+function generateTypeScriptFromWorkspace(workspace) {
+    if (!workspace || !Blockly?.serialization?.workspaces?.save) {
+        return `// Code Preview unavailable\n// (Blockly serialization API not found)`;
+    }
+    const state = Blockly.serialization.workspaces.save(workspace);
+    const json = JSON.stringify(state, null, 2);
+    return [
+        '/*',
+        '  BF6Portal Tool - Code Preview',
+        '  This is a TypeScript representation of the current Blockly workspace state.',
+        '  You can re-import this by converting it back to JSON (workspaceState).',
+        '*/',
+        '',
+        'export const workspaceState = ' + json + ' as const;',
+        '',
+        'export default workspaceState;',
+        '',
+    ].join('\n');
+}
+
+function setCodePreviewText(text) {
+    // In-page preview (if we later show it)
+    try {
+        const ta = document.getElementById('codeOutput');
+        if (ta) ta.value = String(text ?? '');
+    } catch {
+        // ignore
+    }
+
+    // Drawer preview
+    try {
+        const drawer = window.__terminalDrawer;
+        if (drawer && typeof drawer.setCode === 'function') {
+            drawer.setCode(String(text ?? ''));
+        }
+    } catch {
+        // ignore
+    }
+}
+
+let __codePreviewTimer = null;
+function scheduleCodePreviewRefresh() {
+    if (!window.workspace) return;
+    if (__codePreviewTimer) clearTimeout(__codePreviewTimer);
+    __codePreviewTimer = setTimeout(() => {
+        try {
+            const ts = generateTypeScriptFromWorkspace(window.workspace);
+            setCodePreviewText(ts);
+        } catch (e) {
+            setCodePreviewText(`// Error generating preview\n// ${String(e && e.message ? e.message : e)}`);
+        }
+    }, 100);
+}
+
+function initLiveCodePreview() {
+    if (!window.workspace || typeof window.workspace.addChangeListener !== 'function') return;
+    // Initial render
+    scheduleCodePreviewRefresh();
+    window.workspace.addChangeListener(() => {
+        scheduleCodePreviewRefresh();
+    });
+}
+
+// --- Presets ---
+
+const PRESET_STORAGE_KEY = 'bf6portal.presets.user.v1';
+
+function getBuiltInPresets() {
+    return [
+        { id: 'builtin:rush', name: 'Andy6170 - Rush (V1.0)', url: 'presets/custom_rush_V1.0.json', locked: true },
+        { id: 'builtin:conquest', name: 'Andy6170 - Conquest (7.2)', url: 'presets/custom_conquest_template_7.2.json', locked: true },
+        { id: 'builtin:breakthrough', name: 'Andy6170 - Breakthrough (V1.1)', url: 'presets/custom_breakthrough_V1.1.json', locked: true },
+    ];
+}
+
+function loadUserPresets() {
+    try {
+        const raw = localStorage.getItem(PRESET_STORAGE_KEY);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw);
+        return (parsed && typeof parsed === 'object') ? parsed : {};
+    } catch {
+        return {};
+    }
+}
+
+function saveUserPresets(obj) {
+    try {
+        localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(obj || {}));
+    } catch {
+        // ignore
+    }
+}
+
+function refreshPresetDropdown(selectedId) {
+    const select = document.getElementById('presetSelect');
+    if (!select) return;
+
+    const builtins = getBuiltInPresets();
+    const user = loadUserPresets();
+    const userEntries = Object.entries(user)
+        .filter(([id, v]) => v && typeof v === 'object' && typeof v.name === 'string')
+        .map(([id, v]) => ({ id, name: v.name }));
+
+    select.innerHTML = '';
+
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Select…';
+    select.appendChild(placeholder);
+
+    const ogBuilt = document.createElement('optgroup');
+    ogBuilt.label = 'Built-in (locked)';
+    for (const p of builtins) {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name;
+        ogBuilt.appendChild(opt);
+    }
+    select.appendChild(ogBuilt);
+
+    const ogUser = document.createElement('optgroup');
+    ogUser.label = 'Your presets';
+    if (userEntries.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = '(none yet)';
+        opt.disabled = true;
+        ogUser.appendChild(opt);
+    } else {
+        userEntries.sort((a, b) => a.name.localeCompare(b.name));
+        for (const p of userEntries) {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = p.name;
+            ogUser.appendChild(opt);
+        }
+    }
+    select.appendChild(ogUser);
+
+    if (selectedId) select.value = selectedId;
+    updatePresetButtons();
+}
+
+function getSelectedPresetInfo() {
+    const select = document.getElementById('presetSelect');
+    const id = select ? String(select.value || '') : '';
+    if (!id) return { id: '', kind: 'none', locked: false };
+
+    const builtin = getBuiltInPresets().find(p => p.id === id);
+    if (builtin) return { ...builtin, kind: 'builtin', locked: true };
+
+    const user = loadUserPresets();
+    const item = user[id];
+    if (item) return { id, kind: 'user', locked: false, name: item.name, state: item.state };
+
+    return { id, kind: 'unknown', locked: false };
+}
+
+function updatePresetButtons() {
+    const delBtn = document.getElementById('presetDeleteBtn');
+    if (!delBtn) return;
+    const info = getSelectedPresetInfo();
+    delBtn.disabled = !(info && info.kind === 'user');
+    delBtn.style.opacity = delBtn.disabled ? '0.5' : '1';
+    delBtn.title = delBtn.disabled ? 'Built-in presets are locked' : 'Delete selected user preset';
+}
+
+async function loadPresetById(id) {
+    if (!window.workspace) return;
+    const info = getSelectedPresetInfo();
+    updatePresetButtons();
+
+    // Confirm replacing existing work.
+    try {
+        const count = (typeof window.workspace.getAllBlocks === 'function') ? window.workspace.getAllBlocks(false).length : 0;
+        if (count > 0) {
+            const ok = confirm('Loading a preset will replace your current workspace. Continue?');
+            if (!ok) {
+                // revert selection
+                refreshPresetDropdown('');
+                return;
+            }
+        }
+    } catch {
+        // ignore
+    }
+
+    if (info.kind === 'builtin' && info.url) {
+        const res = await fetch(info.url, { cache: 'no-store' });
+        if (!res.ok) {
+            alert(`Failed to load preset: HTTP ${res.status}`);
+            return;
+        }
+        const parsed = await res.json();
+        const state = normalizeWorkspaceState(parsed);
+        try { ensurePortalBlocksRegisteredFromState(state); } catch {}
+        Blockly.Events.disable();
+        try {
+            window.workspace.clear();
+            Blockly.serialization.workspaces.load(state, window.workspace, undefined);
+        } finally {
+            Blockly.Events.enable();
+        }
+        setTimeout(() => {
+            try {
+                Blockly.svgResize(window.workspace);
+                focusWorkspaceOnContent(window.workspace);
+                applyDocColoursToWorkspace(window.workspace);
+                scheduleCodePreviewRefresh();
+            } catch {}
+        }, 0);
+        return;
+    }
+
+    if (info.kind === 'user' && info.state) {
+        const state = normalizeWorkspaceState(info.state);
+        try { ensurePortalBlocksRegisteredFromState(state); } catch {}
+        Blockly.Events.disable();
+        try {
+            window.workspace.clear();
+            Blockly.serialization.workspaces.load(state, window.workspace, undefined);
+        } finally {
+            Blockly.Events.enable();
+        }
+        setTimeout(() => {
+            try {
+                Blockly.svgResize(window.workspace);
+                focusWorkspaceOnContent(window.workspace);
+                applyDocColoursToWorkspace(window.workspace);
+                scheduleCodePreviewRefresh();
+            } catch {}
+        }, 0);
+        return;
+    }
+}
+
+function makeUserPresetId() {
+    return `user:${Date.now()}:${Math.random().toString(16).slice(2)}`;
+}
+
+function saveCurrentWorkspaceAsPreset() {
+    if (!window.workspace || !Blockly?.serialization?.workspaces?.save) return;
+
+    const selected = getSelectedPresetInfo();
+    const builtins = getBuiltInPresets();
+
+    let defaultName = 'My Preset';
+    if (selected.kind === 'builtin' && selected.name) defaultName = `${selected.name} (Copy)`;
+    if (selected.kind === 'user' && selected.name) defaultName = selected.name;
+
+    let name = prompt('Preset name:', defaultName);
+    if (!name) return;
+    name = name.trim();
+    if (!name) return;
+
+    // Prevent overwriting built-ins by name.
+    if (builtins.some(b => b.name.toLowerCase() === name.toLowerCase())) {
+        alert('That name matches a locked built-in preset. Please choose a different name (it will be saved as a new preset).');
+        return;
+    }
+
+    const user = loadUserPresets();
+    const existingId = Object.keys(user).find(k => (user[k]?.name || '').toLowerCase() === name.toLowerCase());
+
+    // If user is editing a built-in, always save as a new preset.
+    let targetId = (selected.kind === 'user') ? selected.id : '';
+    if (selected.kind === 'builtin') targetId = '';
+
+    // If the name already exists under a different id, offer overwrite.
+    if (existingId && existingId !== targetId) {
+        const ok = confirm('A user preset with that name already exists. Overwrite it?');
+        if (!ok) return;
+        targetId = existingId;
+    }
+
+    if (!targetId) targetId = makeUserPresetId();
+
+    const state = Blockly.serialization.workspaces.save(window.workspace);
+    user[targetId] = {
+        name,
+        state,
+        updatedAt: new Date().toISOString(),
+        createdAt: user[targetId]?.createdAt || new Date().toISOString(),
+    };
+    saveUserPresets(user);
+    refreshPresetDropdown(targetId);
+    alert(`Saved preset: ${name}`);
+}
+
+function deleteSelectedPreset() {
+    const selected = getSelectedPresetInfo();
+    if (!selected || selected.kind !== 'user') {
+        updatePresetButtons();
+        return;
+    }
+    const ok = confirm(`Delete preset "${selected.name}"? This cannot be undone.`);
+    if (!ok) return;
+    const user = loadUserPresets();
+    delete user[selected.id];
+    saveUserPresets(user);
+    refreshPresetDropdown('');
 }
 
 function setupAboutModal() {
@@ -261,8 +577,8 @@ function reorderTopCategories(contents) {
         }
     }
 
-    // Desired order: RULES first, then MOD, then CONDITIONS.
-    const preferredNames = ['rules', 'mod', 'conditions'];
+    // Desired order: RULES first, then CONDITIONS.
+    const preferredNames = ['rules', 'conditions'];
     const preferred = preferredNames
         .map((n) => byName.get(n))
         .filter(Boolean);
@@ -370,10 +686,9 @@ function fallbackInjection() {
             theme: bf6_theme,
             grid: {
                 spacing: 20,
-                // Make it look like real "grid lines" by drawing full-length pattern strokes.
-                length: 20,
-                // Make it very obvious (you can tone this down later).
-                colour: '#4fc3f7',
+                // Subtle, BF6-ish grid: short ticks (dot-grid vibe) and low contrast.
+                length: 2,
+                colour: 'rgba(63, 74, 82, 0.28)',
                 snap: true
             },
             zoom: {
@@ -387,6 +702,10 @@ function fallbackInjection() {
             trashcan: true
         });
         console.log("[BF6] Blockly injected successfully.");
+
+        // Initialize live TypeScript code preview + presets UI now that we have a workspace.
+        try { initLiveCodePreview(); } catch (e) { console.warn('[BF6] initLiveCodePreview failed:', e); }
+        try { refreshPresetDropdown(''); } catch (e) { console.warn('[BF6] refreshPresetDropdown failed:', e); }
 
         const toolboxEl = document.querySelector('.blocklyToolbox') || document.querySelector('.blocklyToolboxDiv');
         if (!toolboxEl) {
@@ -403,13 +722,23 @@ function fallbackInjection() {
 
 function saveWorkspace() {
     if (!window.workspace) return;
+
+    // Prefer JSON serialization (matches the "Save JSON" button label).
+    if (Blockly?.serialization?.workspaces?.save) {
+        try {
+            const state = Blockly.serialization.workspaces.save(window.workspace);
+            const jsonText = JSON.stringify(state, null, 2);
+            downloadText(jsonText, 'bf6_portal_rules.json', 'application/json');
+            return;
+        } catch (e) {
+            console.warn('[BF6] JSON save failed; falling back to XML:', e);
+        }
+    }
+
+    // Legacy fallback: XML.
     const xml = Blockly.Xml.workspaceToDom(window.workspace);
     const xmlText = Blockly.Xml.domToPrettyText(xml);
-    const blob = new Blob([xmlText], {type: 'text/xml'});
-    const a = document.createElement('a');
-    a.download = 'bf6_portal_rules.xml';
-    a.href = URL.createObjectURL(blob);
-    a.click();
+    downloadText(xmlText, 'bf6_portal_rules.xml', 'text/xml');
 }
 
 function handleFileUpload(event) {
@@ -417,16 +746,783 @@ function handleFileUpload(event) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(e) {
-        const xmlText = e.target.result;
-        if (window.workspace) {
-            const xml = Blockly.Xml.textToDom(xmlText);
-            window.workspace.clear();
-            Blockly.Xml.domToWorkspace(xml, window.workspace);
+        const text = String(e.target.result ?? '');
+        const cleaned = text.replace(/^\uFEFF/, '');
+        if (!window.workspace) return;
+
+        // Allow re-loading the same file consecutively.
+        try {
+            event.target.value = '';
+        } catch {
+            // ignore
         }
+
+        const looksLikeXml = /^\s*</.test(cleaned);
+        const looksLikeJson = /^\s*[\[{]/.test(cleaned);
+
+        // Prefer JSON when available.
+        if (!looksLikeXml && looksLikeJson && Blockly?.serialization?.workspaces?.load) {
+            try {
+                const parsed = JSON.parse(cleaned);
+                const state = normalizeWorkspaceState(parsed);
+                const expectedBlockCount = (() => {
+                    try {
+                        const arr = state?.blocks?.blocks;
+                        return Array.isArray(arr) ? arr.length : 0;
+                    } catch {
+                        return 0;
+                    }
+                })();
+
+                // Auto-register missing block types referenced by the imported JSON.
+                // This is especially important for community Portal templates.
+                try {
+                    const r = ensurePortalBlocksRegisteredFromState(state);
+                    if (r && r.created) {
+                        console.log(`[BF6] Auto-registered ${r.created} block types for import.`);
+                    }
+                } catch (e) {
+                    console.warn('[BF6] Failed to auto-register block types:', e);
+                }
+
+                Blockly.Events.disable();
+                try {
+                    window.workspace.clear();
+                    Blockly.serialization.workspaces.load(state, window.workspace, undefined);
+                } finally {
+                    Blockly.Events.enable();
+                }
+
+                // Ensure the SVG recalculates size after a big load.
+                setTimeout(() => {
+                    Blockly.svgResize(window.workspace);
+                    focusWorkspaceOnContent(window.workspace);
+                    applyDocColoursToWorkspace(window.workspace);
+                    logWorkspaceSummary(window.workspace, file?.name);
+
+                    // If the JSON clearly had blocks, but none were created, provide actionable hints.
+                    try {
+                        const actual = (typeof window.workspace.getAllBlocks === 'function')
+                            ? window.workspace.getAllBlocks(false).length
+                            : 0;
+                        if (actual === 0 && expectedBlockCount > 0) {
+                            const report = describeMissingBlockTypes(state);
+                            const hint = report
+                                ? report
+                                : 'The file contains blocks, but none could be created. This usually means the required block definitions are missing or incompatible with this build.';
+                            console.warn('[BF6] JSON contained blocks but 0 blocks were created. Likely missing block definitions or unsupported format.');
+                            alert(
+                                'Loaded JSON, but 0 blocks were created in the workspace.\n\n' +
+                                hint +
+                                '\n\nTry updating/rebuilding the app with the needed block definitions, or share this JSON so we can add compatibility.'
+                            );
+                        }
+                    } catch {
+                        // ignore
+                    }
+                }, 0);
+                return;
+            } catch (err) {
+                console.warn('[BF6] Failed to load JSON workspace:', err);
+
+                // If this *was* JSON, try to help the user by reporting missing block types.
+                try {
+                    const parsed = JSON.parse(cleaned);
+                    const state = normalizeWorkspaceState(parsed);
+                    const report = describeMissingBlockTypes(state);
+                    if (report) {
+                        alert(
+                            'Failed to load JSON workspace.\n\n' +
+                            report +
+                            '\n\nThis file may require block definitions that are not present in your current build.'
+                        );
+                        return;
+                    }
+                } catch {
+                    // ignore
+                }
+
+                alert('Failed to load JSON. This expects a Blockly workspace JSON export from this tool.');
+                return;
+            }
+        }
+
+        // Fallback: XML load (legacy).
+        if (looksLikeXml) {
+            try {
+                const xml = Blockly.Xml.textToDom(cleaned);
+                window.workspace.clear();
+                Blockly.Xml.domToWorkspace(xml, window.workspace);
+                setTimeout(() => {
+                    Blockly.svgResize(window.workspace);
+                    focusWorkspaceOnContent(window.workspace);
+                    logWorkspaceSummary(window.workspace, file?.name);
+                }, 0);
+                return;
+            } catch (err) {
+                console.warn('[BF6] Failed to load XML workspace:', err);
+                alert('Failed to load XML workspace.');
+                return;
+            }
+        }
+
+        alert('Unrecognized file format. Please load a Blockly workspace JSON (.json) or legacy XML (.xml).');
     };
     reader.readAsText(file);
 }
 
-function exportToTypeScript() {
-    alert("Export to TypeScript feature coming soon!");
+function focusWorkspaceOnContent(workspace) {
+    if (!workspace) return;
+
+    // Many imported workspaces (e.g. custom_rush) place blocks thousands of pixels away.
+    // If we don't zoom/center after load, it *looks* like nothing loaded.
+    try {
+        if (typeof workspace.zoomToFit === 'function') {
+            workspace.zoomToFit();
+            return;
+        }
+    } catch (e) {
+        console.warn('[BF6] zoomToFit failed:', e);
+    }
+
+    try {
+        if (typeof workspace.scrollCenter === 'function') {
+            workspace.scrollCenter();
+        }
+    } catch (e) {
+        console.warn('[BF6] scrollCenter failed:', e);
+    }
+
+    try {
+        const top = (typeof workspace.getTopBlocks === 'function') ? workspace.getTopBlocks(true) : [];
+        const first = Array.isArray(top) ? top[0] : null;
+        if (first && typeof workspace.centerOnBlock === 'function') {
+            workspace.centerOnBlock(first.id);
+        }
+    } catch (e) {
+        console.warn('[BF6] centerOnBlock failed:', e);
+    }
 }
+
+function logWorkspaceSummary(workspace, filename) {
+    try {
+        const total = (typeof workspace.getAllBlocks === 'function') ? workspace.getAllBlocks(false).length : 0;
+        console.log(`[BF6] Loaded workspace${filename ? ` from ${filename}` : ''}. Blocks: ${total}`);
+    } catch {
+        // ignore
+    }
+}
+
+function normalizeWorkspaceState(state) {
+    // Blockly JSON serialization format (preferred):
+    // { blocks: { languageVersion: 0, blocks: [...] }, variables: [...] }
+    if (state && typeof state === 'object') {
+        // Some Portal exports wrap the workspace under a top-level container like:
+        // { "mod": { blocks: {...}, variables: [...] } }
+        // Unwrap it so Blockly's workspace loader sees the expected shape.
+        if (state.mod && typeof state.mod === 'object') {
+            return normalizeWorkspaceState(state.mod);
+        }
+
+        if (state.blocks && typeof state.blocks === 'object' && Array.isArray(state.blocks.blocks)) {
+            // Ensure languageVersion exists (some exports omit it).
+            if (!('languageVersion' in state.blocks)) {
+                state.blocks.languageVersion = 0;
+            }
+            return state;
+        }
+
+        // Some exports may provide the blocks array directly.
+        if (Array.isArray(state.blocks)) {
+            return {
+                blocks: { languageVersion: 0, blocks: state.blocks },
+                variables: Array.isArray(state.variables) ? state.variables : [],
+            };
+        }
+
+        // Sometimes nested.
+        if (state.workspace && typeof state.workspace === 'object') {
+            return normalizeWorkspaceState(state.workspace);
+        }
+    }
+    return state;
+}
+
+function describeMissingBlockTypes(state) {
+    const types = collectBlockTypesFromState(state);
+    if (!types || types.size === 0) return null;
+
+    const missing = [];
+    for (const t of types) {
+        // Blockly keeps block definitions in Blockly.Blocks
+        if (!Blockly?.Blocks || !Object.prototype.hasOwnProperty.call(Blockly.Blocks, t)) {
+            missing.push(t);
+        }
+    }
+
+    if (missing.length === 0) return null;
+
+    const sample = missing.slice(0, 25);
+    const more = missing.length > sample.length ? ` (+${missing.length - sample.length} more)` : '';
+    return `Missing block types (${missing.length}):\n- ${sample.join('\n- ')}${more}`;
+}
+
+function ensurePortalBlocksRegisteredFromState(state) {
+    // Build a model of block shapes from the incoming JSON state and register
+    // placeholder blocks for any types not present in this build.
+    // This allows importing community templates created in other editors.
+    const model = buildPortalBlockModelFromState(state);
+    if (!model || model.size === 0) return { created: 0 };
+
+    let created = 0;
+
+    for (const [type, info] of model.entries()) {
+        if (!type || typeof type !== 'string') continue;
+        if (Blockly?.Blocks && Object.prototype.hasOwnProperty.call(Blockly.Blocks, type)) {
+            continue;
+        }
+
+        Blockly.Blocks[type] = {
+            init: function() {
+                // Title
+                this.appendDummyInput().appendField(type);
+
+                // Fields (best-effort)
+                const fieldNames = Array.isArray(info.fieldNames) ? info.fieldNames : [];
+                for (const fname of fieldNames.slice(0, 12)) {
+                    try {
+                        this.appendDummyInput()
+                            .appendField(`${fname}:`)
+                            .appendField(new Blockly.FieldTextInput(''), fname);
+                    } catch {
+                        // ignore
+                    }
+                }
+
+                // Inputs
+                const statementInputs = Array.isArray(info.statementInputs) ? info.statementInputs : [];
+                const valueInputs = Array.isArray(info.valueInputs) ? info.valueInputs : [];
+
+                for (const inName of statementInputs) {
+                    try {
+                        this.appendStatementInput(inName).appendField(inName);
+                    } catch {
+                        // ignore
+                    }
+                }
+
+                for (const inName of valueInputs) {
+                    try {
+                        this.appendValueInput(inName).appendField(inName);
+                    } catch {
+                        // ignore
+                    }
+                }
+
+                // Connection inference
+                const role = info.role || 'unknown';
+                if (role === 'top') {
+                    // no connections
+                } else if (role === 'statement') {
+                    this.setPreviousStatement(true, null);
+                    this.setNextStatement(true, null);
+                } else if (role === 'value') {
+                    this.setOutput(true, null);
+                } else {
+                    if (info.hasNext || info.usedAsStatement) {
+                        this.setPreviousStatement(true, null);
+                        this.setNextStatement(true, null);
+                    } else {
+                        this.setOutput(true, null);
+                    }
+                }
+
+                // Visual distinction for placeholders (but try to match the closest
+                // real category colour when we can).
+                this.setColour(getSuggestedPortalBlockColour(type));
+                this.setTooltip('Placeholder block (auto-created during import).');
+                this.setHelpUrl('');
+            }
+        };
+
+        created++;
+    }
+
+    return { created };
+}
+
+const PLACEHOLDER_DEFAULT_COLOUR = '#5b80a5';
+const PORTAL_TYPE_COLOUR_HINTS = {
+    // Common structural types from community Portal exports.
+    modBlock: '#4A4A4A',
+    ruleBlock: '#A285E6',
+    conditionBlock: '#45B5B5',
+    subroutineBlock: '#E6A85C',
+    subroutineInstanceBlock: '#E6A85C',
+    variableReferenceBlock: '#0288D1',
+    subroutineArgumentBlock: '#0288D1',
+};
+
+function getSuggestedPortalBlockColour(type) {
+    const t = String(type || '').trim();
+    if (!t) return PLACEHOLDER_DEFAULT_COLOUR;
+
+    // Prefer explicit type hints for known Portal structural blocks.
+    if (Object.prototype.hasOwnProperty.call(PORTAL_TYPE_COLOUR_HINTS, t)) {
+        return PORTAL_TYPE_COLOUR_HINTS[t];
+    }
+
+    // Then try local docs (when available).
+    const doc = BF6_BLOCK_DOCS ? (BF6_BLOCK_DOCS.get(t) || BF6_BLOCK_DOCS.get(t.toUpperCase()) || BF6_BLOCK_DOCS.get(t.toLowerCase())) : null;
+    const c = doc ? doc.colour : null;
+    if (typeof c === 'number' && Number.isFinite(c)) return c;
+    if (typeof c === 'string' && c.trim()) return c.trim();
+
+    // Heuristic fallback based on name.
+    const lower = t.toLowerCase();
+    if (lower.includes('condition')) return '#45B5B5';
+    if (lower.includes('rule')) return '#A285E6';
+    if (lower.includes('subroutine')) return '#E6A85C';
+    if (lower.includes('variable')) return '#0288D1';
+    if (lower.includes('event')) return '#5CA65C';
+
+    return PLACEHOLDER_DEFAULT_COLOUR;
+}
+
+function isAutoPlaceholderBlock(block) {
+    try {
+        if (!block) return false;
+        const tip = (typeof block.getTooltip === 'function') ? block.getTooltip() : (block.tooltip_ || '');
+        return String(tip || '').includes('auto-created during import');
+    } catch {
+        return false;
+    }
+}
+
+function applyDocColoursToWorkspace(workspace) {
+    try {
+        if (!workspace || !BF6_BLOCK_DOCS) return;
+        if (typeof workspace.getAllBlocks !== 'function') return;
+        const blocks = workspace.getAllBlocks(false);
+        for (const b of blocks) {
+            if (!isAutoPlaceholderBlock(b)) continue;
+            const desired = getSuggestedPortalBlockColour(b.type);
+            if (desired && desired !== PLACEHOLDER_DEFAULT_COLOUR) {
+                try { b.setColour(desired); } catch {}
+            }
+        }
+    } catch {
+        // ignore
+    }
+}
+
+function scheduleApplyDocColoursToWorkspace(maxTries) {
+    let tries = 0;
+    const limit = (typeof maxTries === 'number' && maxTries > 0) ? maxTries : 20;
+    const tick = () => {
+        tries++;
+        if (window.workspace && BF6_BLOCK_DOCS) {
+            applyDocColoursToWorkspace(window.workspace);
+            return;
+        }
+        if (tries < limit) setTimeout(tick, 150);
+    };
+    setTimeout(tick, 0);
+}
+
+function buildPortalBlockModelFromState(state) {
+    const model = new Map();
+
+    const isStatementInputName = (name) => {
+        if (!name || typeof name !== 'string') return false;
+        if (name === 'RULES' || name === 'ACTIONS' || name === 'CONDITIONS') return true;
+        if (/^DO\d*$/.test(name)) return true;
+        if (/^ELSE\d*$/.test(name)) return true;
+        if (name === 'ELSE' || name === 'THEN' || name === 'STACK' || name === 'BODY') return true;
+        return false;
+    };
+
+    const ensure = (type) => {
+        if (!model.has(type)) {
+            model.set(type, {
+                fieldNames: new Set(),
+                statementInputs: new Set(),
+                valueInputs: new Set(),
+                usedAsStatement: false,
+                usedAsValue: false,
+                hasNext: false,
+                role: 'unknown',
+            });
+        }
+        return model.get(type);
+    };
+
+    const visitBlock = (block, context) => {
+        if (!block || typeof block !== 'object') return;
+        const type = block.type;
+        if (typeof type !== 'string') return;
+
+        const info = ensure(type);
+        if (context === 'statement') info.usedAsStatement = true;
+        if (context === 'value') info.usedAsValue = true;
+        if (block.next && block.next.block) info.hasNext = true;
+
+        if (block.fields && typeof block.fields === 'object') {
+            for (const k of Object.keys(block.fields)) info.fieldNames.add(k);
+        }
+
+        if (block.inputs && typeof block.inputs === 'object') {
+            for (const inName of Object.keys(block.inputs)) {
+                const input = block.inputs[inName];
+                const child = input && (input.block || input.shadow);
+                const childContext = isStatementInputName(inName) ? 'statement' : 'value';
+
+                if (isStatementInputName(inName)) info.statementInputs.add(inName);
+                else info.valueInputs.add(inName);
+
+                visitBlock(child, childContext);
+            }
+        }
+
+        if (block.next && block.next.block) {
+            visitBlock(block.next.block, 'statement');
+        }
+    };
+
+    try {
+        const blocksRoot = state?.blocks;
+        if (blocksRoot && typeof blocksRoot === 'object' && Array.isArray(blocksRoot.blocks)) {
+            for (const top of blocksRoot.blocks) visitBlock(top, 'top');
+        } else if (Array.isArray(state?.blocks)) {
+            for (const top of state.blocks) visitBlock(top, 'top');
+        }
+    } catch {
+        // ignore
+    }
+
+    // Special-case known structural Portal block types.
+    for (const [type, info] of model.entries()) {
+        if (type === 'modBlock' || type === 'subroutineBlock') {
+            info.role = 'top';
+        } else if (type === 'ruleBlock' || type === 'conditionBlock' || type === 'subroutineInstanceBlock') {
+            info.role = 'statement';
+        } else if (type === 'variableReferenceBlock' || type === 'subroutineArgumentBlock') {
+            info.role = 'value';
+        }
+    }
+
+    // Convert sets to arrays for stable init ordering.
+    const out = new Map();
+    for (const [type, info] of model.entries()) {
+        out.set(type, {
+            fieldNames: Array.from(info.fieldNames).sort(),
+            statementInputs: Array.from(info.statementInputs).sort(),
+            valueInputs: Array.from(info.valueInputs).sort(),
+            usedAsStatement: !!info.usedAsStatement,
+            usedAsValue: !!info.usedAsValue,
+            hasNext: !!info.hasNext,
+            role: info.role,
+        });
+    }
+
+    return out;
+}
+
+function collectBlockTypesFromState(state) {
+    const out = new Set();
+
+    const visitBlock = (b) => {
+        if (!b || typeof b !== 'object') return;
+        if (typeof b.type === 'string') out.add(b.type);
+
+        // Common nested locations in Blockly serialization JSON.
+        if (b.next && b.next.block) visitBlock(b.next.block);
+        if (b.inputs && typeof b.inputs === 'object') {
+            for (const k of Object.keys(b.inputs)) {
+                const inp = b.inputs[k];
+                if (inp && inp.block) visitBlock(inp.block);
+                if (inp && inp.shadow) visitBlock(inp.shadow);
+            }
+        }
+
+        // Some formats use statement arrays.
+        if (Array.isArray(b.blocks)) {
+            for (const child of b.blocks) visitBlock(child);
+        }
+    };
+
+    try {
+        const blocksRoot = state?.blocks;
+        if (blocksRoot && typeof blocksRoot === 'object' && Array.isArray(blocksRoot.blocks)) {
+            for (const top of blocksRoot.blocks) visitBlock(top);
+        } else if (Array.isArray(state?.blocks)) {
+            for (const top of state.blocks) visitBlock(top);
+        }
+    } catch {
+        // ignore
+    }
+
+    return out;
+}
+
+function downloadText(text, filename, mimeType) {
+    const blob = new Blob([text], { type: mimeType || 'text/plain' });
+    const a = document.createElement('a');
+    a.download = filename || 'download.txt';
+    a.href = URL.createObjectURL(blob);
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+function exportToTypeScript() {
+    try {
+        const ts = generateTypeScriptFromWorkspace(window.workspace);
+        downloadText(ts, 'bf6_portal_rules.ts', 'text/plain');
+    } catch (e) {
+        console.warn('[BF6] Export TS failed:', e);
+        alert('Failed to export TypeScript. See console for details.');
+    }
+}
+
+// --- Help / Block docs ---
+
+let BF6_BLOCK_DOCS = null;
+
+function escapeHtml(s) {
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function renderSimpleMarkdown(text) {
+    // Minimal formatting: bold/italic + line breaks. Keep it safe.
+    const t = escapeHtml(text || '');
+    return t
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/_(.+?)_/g, '<em>$1</em>')
+        .replace(/\n/g, '<br/>');
+}
+
+async function loadBlockDocs() {
+    if (BF6_BLOCK_DOCS) return BF6_BLOCK_DOCS;
+    try {
+        const res = await fetch('bf6portal_blocks.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const arr = await res.json();
+
+        const map = new Map();
+        const upsert = (key, doc) => {
+            if (!key || typeof key !== 'string') return;
+            const k = key.trim();
+            if (!k) return;
+            const prev = map.get(k);
+            if (!prev || (doc?.tooltip && !prev.tooltip)) {
+                map.set(k, doc);
+            }
+        };
+
+        const toPascalFromSnake = (s) => {
+            if (!s || typeof s !== 'string') return '';
+            return s
+                .split('_')
+                .filter(Boolean)
+                .map(p => p ? (p[0].toUpperCase() + p.slice(1)) : '')
+                .join('');
+        };
+
+        if (Array.isArray(arr)) {
+            for (const item of arr) {
+                const name = item?.name;
+                const blockId = item?.block_id;
+                if (typeof name !== 'string' || !name.trim()) continue;
+                const typeFromName = name.trim().split(/\s+/)[0];
+                if (!typeFromName) continue;
+
+                const tooltip = (typeof item.tooltip === 'string') ? item.tooltip : '';
+                const colour = item?.colour;
+
+                const doc = {
+                    type: typeFromName,
+                    blockId: (typeof blockId === 'string') ? blockId : '',
+                    displayName: name.replace(/\s*%\d+/g, '').trim(),
+                    category: item.category || 'Uncategorized',
+                    tooltip,
+                    colour: (typeof colour === 'number' || typeof colour === 'string') ? colour : null,
+                };
+
+                // Index docs under multiple common identifiers to make lookup resilient.
+                upsert(typeFromName, doc);
+                upsert(typeFromName.toUpperCase(), doc);
+                upsert(typeFromName.toLowerCase(), doc);
+
+                if (typeof blockId === 'string' && blockId.trim()) {
+                    const bid = blockId.trim();
+                    const pascal = toPascalFromSnake(bid);
+                    upsert(bid, doc);
+                    upsert(bid.toUpperCase(), doc);
+                    upsert(bid.toLowerCase(), doc);
+                    if (pascal) {
+                        upsert(pascal, doc);
+                        upsert(pascal.toUpperCase(), doc);
+                        upsert(pascal.toLowerCase(), doc);
+                    }
+                }
+            }
+        }
+
+        BF6_BLOCK_DOCS = map;
+        // Once docs are available, try to recolour any already-imported placeholders.
+        scheduleApplyDocColoursToWorkspace(25);
+        return BF6_BLOCK_DOCS;
+    } catch (e) {
+        console.warn('[BF6] Failed to load bf6portal_blocks.json docs:', e);
+        BF6_BLOCK_DOCS = new Map();
+        return BF6_BLOCK_DOCS;
+    }
+}
+
+function getKnownBlockTypes() {
+    const types = new Set();
+    try {
+        if (Blockly?.Blocks) {
+            for (const k of Object.keys(Blockly.Blocks)) types.add(k);
+        }
+    } catch {
+        // ignore
+    }
+    if (BF6_BLOCK_DOCS) {
+        for (const k of BF6_BLOCK_DOCS.keys()) types.add(k);
+    }
+    return Array.from(types).sort((a, b) => a.localeCompare(b));
+}
+
+function openHelpModal() {
+    const modal = document.getElementById('helpModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeHelpModal() {
+    const modal = document.getElementById('helpModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function showHelpForBlockType(type) {
+    const titleEl = document.getElementById('helpTitle');
+    const bodyEl = document.getElementById('helpBody');
+    if (!titleEl || !bodyEl) return;
+
+    const doc = BF6_BLOCK_DOCS ? BF6_BLOCK_DOCS.get(type) : null;
+    titleEl.textContent = doc?.displayName || type || 'Block Help';
+
+    const category = doc?.category ? `<div style="opacity:.85; margin-bottom:8px;">Category: <strong>${escapeHtml(doc.category)}</strong></div>` : '';
+    const tooltip = doc?.tooltip ? `<div style="line-height:1.35;">${renderSimpleMarkdown(doc.tooltip)}</div>` : '<div style="opacity:.85;">No documentation found for this block type in the local docs yet.</div>';
+
+    bodyEl.innerHTML = `${category}${tooltip}`;
+    openHelpModal();
+}
+
+function showHelpIndex(filterText) {
+    const titleEl = document.getElementById('helpTitle');
+    const bodyEl = document.getElementById('helpBody');
+    if (!titleEl || !bodyEl) return;
+
+    titleEl.textContent = 'Block Help';
+
+    const all = getKnownBlockTypes();
+    const q = String(filterText || '').trim().toLowerCase();
+    const filtered = q ? all.filter(t => t.toLowerCase().includes(q)) : all;
+
+    const itemsHtml = filtered.slice(0, 400).map(t => {
+        const doc = BF6_BLOCK_DOCS ? BF6_BLOCK_DOCS.get(t) : null;
+        const cat = doc?.category ? ` <span style="opacity:.7;">(${escapeHtml(doc.category)})</span>` : '';
+        return `<div style="padding:6px 0; border-bottom: 1px solid #333; cursor:pointer;" data-help-type="${escapeHtml(t)}"><strong>${escapeHtml(t)}</strong>${cat}</div>`;
+    }).join('');
+
+    bodyEl.innerHTML = `
+      <div style="margin-bottom: 10px;">
+        <input id="helpSearch" placeholder="Search block types..." value="${escapeHtml(filterText || '')}" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background:#1e1e1e; color:#fff; box-sizing:border-box;" />
+      </div>
+      <div style="max-height: 55vh; overflow:auto; padding-right: 6px;">
+        ${itemsHtml || '<div style="opacity:.85;">No blocks found.</div>'}
+      </div>
+      <div style="opacity:.7; margin-top:10px; font-size: 12px;">Showing ${Math.min(filtered.length, 400)} of ${filtered.length} matched (and ${all.length} total known).</div>
+    `;
+
+    // Wire search + clicks
+    const searchEl = document.getElementById('helpSearch');
+    if (searchEl) {
+        searchEl.oninput = (ev) => {
+            showHelpIndex(ev.target.value);
+        };
+        setTimeout(() => { try { searchEl.focus(); } catch {} }, 0);
+    }
+
+    bodyEl.querySelectorAll('[data-help-type]').forEach((el) => {
+        el.addEventListener('click', () => {
+            const t = el.getAttribute('data-help-type');
+            if (t) showHelpForBlockType(t);
+        });
+    });
+
+    openHelpModal();
+}
+
+async function initHelpUI() {
+    await loadBlockDocs();
+
+    // Help is ready; apply doc-based colours to any imported placeholders.
+    scheduleApplyDocColoursToWorkspace(25);
+
+    const helpBtn = document.getElementById('helpBtn');
+    if (helpBtn) {
+        helpBtn.addEventListener('click', () => showHelpIndex(''));
+    }
+
+    const modal = document.getElementById('helpModal');
+    const closeEl = modal ? modal.querySelector('.close') : null;
+    if (closeEl) closeEl.addEventListener('click', closeHelpModal);
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeHelpModal();
+        });
+    }
+
+    // Add a context-menu item for blocks (both in workspace and flyouts).
+    try {
+        if (Blockly?.ContextMenuRegistry?.registry) {
+            const registry = Blockly.ContextMenuRegistry.registry;
+            const id = 'bf6portal.helpForBlock';
+            // Avoid duplicate registration if hot-reloaded.
+            if (!registry.getItem(id)) {
+                registry.register({
+                    id,
+                    scopeType: Blockly.ContextMenuRegistry.ScopeType.BLOCK,
+                    displayText: (scope) => {
+                        const t = scope?.block?.type;
+                        return t ? `Help: ${t}` : 'Help for this block';
+                    },
+                    preconditionFn: (scope) => (scope?.block?.type ? 'enabled' : 'hidden'),
+                    callback: (scope) => {
+                        try {
+                            const t = scope?.block?.type;
+                            if (t) showHelpForBlockType(t);
+                        } catch (e) {
+                            console.warn('[BF6] Help context menu failed:', e);
+                        }
+                    },
+                    weight: 100,
+                });
+            }
+        }
+    } catch (e) {
+        console.warn('[BF6] Failed to register Blockly help context menu:', e);
+    }
+}
+
+// Initialize Help UI after load.
+setTimeout(() => {
+    try { initHelpUI(); } catch (e) { console.warn('[BF6] initHelpUI failed:', e); }
+}, 0);

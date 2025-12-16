@@ -1,14 +1,15 @@
-import os
+from pathlib import Path
 
 def main():
-    base_dir = r"d:\=Code=\BF6Portal Tool\web_ui\src\generators"
-    generated_file = os.path.join(base_dir, "generated_bf6_generators.ts")
-    target_file = os.path.join(base_dir, "bf6_generators.ts")
+    repo_root = Path(__file__).resolve().parents[1]
+    base_dir = repo_root / 'web_ui' / 'src' / 'generators'
+    generated_file = base_dir / 'generated_bf6_generators.ts'
+    target_file = base_dir / 'bf6_generators.ts'
     
-    with open(generated_file, 'r', encoding='utf-8') as f:
+    with generated_file.open('r', encoding='utf-8') as f:
         new_content = f.read()
         
-    with open(target_file, 'a', encoding='utf-8') as f:
+    with target_file.open('a', encoding='utf-8') as f:
         f.write("\n// Auto-generated missing generators\n")
         f.write(new_content)
         

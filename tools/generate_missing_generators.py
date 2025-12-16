@@ -1,6 +1,7 @@
 import re
 import os
 import json
+from pathlib import Path
 
 def find_block_definitions(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
@@ -66,16 +67,17 @@ def generate_code_for_block(block_def):
     return "\n".join(lines)
 
 def main():
-    base_dir = r"d:\=Code=\BF6Portal Tool\web_ui\src"
-    blocks_file = os.path.join(base_dir, "blocks", "bf6portal.ts")
-    generators_file = os.path.join(base_dir, "generators", "bf6_generators.ts")
+    repo_root = Path(__file__).resolve().parents[1]
+    base_dir = repo_root / 'web_ui' / 'src'
+    blocks_file = base_dir / 'blocks' / 'bf6portal.ts'
+    generators_file = base_dir / 'generators' / 'bf6_generators.ts'
     
     print(f"Reading definitions from {blocks_file}...")
-    block_defs = find_block_definitions(blocks_file)
+    block_defs = find_block_definitions(str(blocks_file))
     print(f"Found {len(block_defs)} block definitions.")
     
     print(f"Reading implemented generators from {generators_file}...")
-    implemented = find_implemented_generators(generators_file)
+    implemented = find_implemented_generators(str(generators_file))
     print(f"Found {len(implemented)} implemented generators.")
     
     missing_defs = [b for b in block_defs if b['type'] not in implemented]
@@ -86,9 +88,9 @@ def main():
         output_code.append(generate_code_for_block(block_def))
         
     if output_code:
-        output_path = os.path.join(base_dir, "generators", "generated_bf6_generators.ts")
+        output_path = base_dir / 'generators' / 'generated_bf6_generators.ts'
         print(f"Writing generated code to {output_path}...")
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with output_path.open('w', encoding='utf-8') as f:
             f.write("\n".join(output_code))
         print("Done.")
     else:

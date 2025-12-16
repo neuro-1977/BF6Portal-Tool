@@ -88,6 +88,23 @@
         background: #39ff1420;
         color: #39ff14;
       }
+
+      .menu-select {
+        background: #181a1b;
+        color: #baff80;
+        border: 1px solid #333;
+        border-radius: 6px;
+        padding: 7px 10px;
+        margin: 0 10px 0 0;
+        font-family: "Segoe UI", "Consolas", "monospace", sans-serif;
+        font-size: 0.95em;
+        outline: none;
+        cursor: pointer;
+      }
+      .menu-select:focus {
+        border-color: #39ff14;
+        box-shadow: 0 0 0 2px #39ff1430;
+      }
       #blocklyDiv {
         flex: 1 1 auto;
         height: calc(100vh - 48px); /* FORCE HEIGHT IN CSS */
@@ -108,8 +125,8 @@
       /* Force grid visibility (some theme/background combos make it too subtle) */
       .blocklyGrid path,
       .blocklyGrid line {
-        stroke: #3f4a52 !important;
-        stroke-opacity: 0.85 !important;
+        stroke: #2f353a !important;
+        stroke-opacity: 0.35 !important;
         stroke-width: 1 !important;
       }
       .blocklyFlyoutBackground {
@@ -556,6 +573,13 @@
       <button class="menu-btn" id="saveBtn" style="color: #4fc3f7;">Save JSON</button>
       <button class="menu-btn" id="exportTsBtn" style="color: #baff80;">Export TS</button>
 
+      <span style="opacity:.85; margin-right:8px;">Presets</span>
+      <select id="presetSelect" class="menu-select" title="Load a preset block layout"></select>
+      <button class="menu-btn" id="presetSaveBtn" style="color: #baff80;">Save Preset</button>
+      <button class="menu-btn" id="presetDeleteBtn" style="color: #ffb0b0;">Delete</button>
+
+      <button class="menu-btn" id="helpBtn" style="color: #baff80;">Help</button>
+
       <span id="title">BF6Portal Tool</span>
       <button class="menu-btn" id="aboutBtn">About</button>
     </div>
@@ -699,7 +723,7 @@
           "
         >
           <div style="color: #ccc; margin-bottom: 5px; font-size: 12px">
-            JSON Source View
+            Code Preview (TypeScript)
           </div>
           <textarea
             id="codeOutput"
@@ -794,7 +818,7 @@
     <button id="terminal-toggle" style="position: fixed; bottom: 20px; right: 20px; z-index: 2000; padding: 10px; border-radius: 50%; border: none; background: #007acc; color: white; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">💻</button>
 
     <!-- Hidden file input for loading -->
-    <input type="file" id="loadInput" style="display: none;" />
+    <input type="file" id="loadInput" accept=".json,.xml,application/json,text/xml" style="display: none;" />
 
     <script src="block_definitions.js"></script>
     <script src="block_definitions_gen.js"></script>

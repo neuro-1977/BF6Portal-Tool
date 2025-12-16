@@ -10,7 +10,8 @@ Blockly.Blocks['MOD_BLOCK'] = {
 
         this.setPreviousStatement(false, null);
     this.setNextStatement(false, null);
-    this.appendStatementInput("RULES").setCheck("Rule").appendField("RULES");
+      // Keep the RULES statement input, but do not render an additional label.
+      this.appendStatementInput("RULES").setCheck("Rule");
     this.setDeletable(false);
     this.setMovable(false);
 

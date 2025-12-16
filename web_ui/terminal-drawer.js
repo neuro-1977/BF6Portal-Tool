@@ -1,49 +1,58 @@
-const { ipcRenderer } = require('electron');
-
 class TerminalDrawer {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
         if (!this.container) return;
 
-        // Load Xterm dependencies
-        try {
-            this.Terminal = require('xterm').Terminal;
-            this.FitAddon = require('xterm-addon-fit').FitAddon;
-            this.injectCSS();
-        } catch (e) {
-            console.error('Failed to load xterm dependencies:', e);
-            return;
-        }
-
         this.isOpen = false;
-        this.initUI();
-        this.initXterm();
-    }
+        this._isDragging = false;
+        this._startY = 0;
+        this._startHeight = 300;
+        this._minHeight = 160;
+        this._maxHeightVh = 85;
 
-    injectCSS() {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = require.resolve('xterm/css/xterm.css');
-        document.head.appendChild(link);
+        this.initUI();
+        this.initResizeDrag();
     }
 
     initUI() {
         this.container.innerHTML = `
-            <div style="
-                padding: 5px 10px; 
-                background-color: #252526; 
-                display: flex; 
-                justify-content: space-between; 
-                align-items: center; 
-                color: #ccc; 
-                font-family: sans-serif; 
+            <div id="code-preview-header" style="
+                padding: 6px 10px;
+                background-color: #252526;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                color: #ccc;
+                font-family: sans-serif;
                 font-size: 12px;
                 border-top: 1px solid #333;
+                cursor: row-resize;
+                user-select: none;
             ">
-                <span>NEURAL LINK (BF6 PORTAL)</span>
-                <button id="term-close-btn" style="background: none; border: none; color: #ccc; cursor: pointer; font-size: 16px;">×</button>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-weight:600;">Code Preview</span>
+                    <span style="opacity:.7;">TypeScript (.ts)</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button id="code-copy-btn" style="background: #1e1e1e; border: 1px solid #333; color: #baff80; cursor: pointer; padding: 4px 8px; border-radius: 6px; font-size: 12px;">Copy</button>
+                    <button id="term-close-btn" style="background: none; border: none; color: #ccc; cursor: pointer; font-size: 16px;">×</button>
+                </div>
             </div>
-            <div id="xterm-container" style="flex: 1; overflow: hidden; padding: 5px; background-color: #1e1e1e;"></div>
+            <textarea id="code-preview-text" spellcheck="false" style="
+                flex: 1;
+                width: 100%;
+                resize: none;
+                padding: 10px;
+                box-sizing: border-box;
+                border: none;
+                outline: none;
+                background: #1e1e1e;
+                color: #d4d4d4;
+                font-family: Consolas, monospace;
+                font-size: 12.5px;
+                line-height: 1.35;
+                overflow: auto;
+            "></textarea>
         `;
 
         // Styles
@@ -55,54 +64,100 @@ class TerminalDrawer {
             height: '300px',
             backgroundColor: '#1e1e1e',
             transform: 'translateY(100%)',
-            transition: 'transform 0.3s ease-in-out',
+            transition: 'transform 0.25s ease-in-out',
             zIndex: '1000',
             display: 'flex',
             flexDirection: 'column'
         });
 
+        this.textarea = this.container.querySelector('#code-preview-text');
         this.container.querySelector('#term-close-btn').onclick = () => this.toggle();
+        this.container.querySelector('#code-copy-btn').onclick = async () => {
+            try {
+                const t = this.getCode();
+                if (!t) return;
+                if (navigator?.clipboard?.writeText) {
+                    await navigator.clipboard.writeText(t);
+                    return;
+                }
+                // Fallback
+                this.textarea.focus();
+                this.textarea.select();
+                document.execCommand('copy');
+            } catch {
+                // ignore
+            }
+        };
     }
 
-    initXterm() {
-        if (!this.Terminal) return;
+    initResizeDrag() {
+        const header = this.container.querySelector('#code-preview-header');
+        if (!header) return;
 
-        this.term = new this.Terminal({
-            cursorBlink: true,
-            theme: { background: '#1e1e1e', foreground: '#ffffff' },
-            fontFamily: 'Consolas, monospace',
-            fontSize: 14
-        });
+        const onMove = (e) => {
+            if (!this._isDragging) return;
+            const clientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+            const dy = this._startY - clientY;
+            const maxPx = Math.floor(window.innerHeight * (this._maxHeightVh / 100));
+            const next = Math.max(this._minHeight, Math.min(maxPx, this._startHeight + dy));
+            this.container.style.height = `${next}px`;
+        };
 
-        const fitAddon = new this.FitAddon();
-        this.term.loadAddon(fitAddon);
-        
-        this.term.open(this.container.querySelector('#xterm-container'));
-        this.fitAddon = fitAddon;
+        const onUp = () => {
+            if (!this._isDragging) return;
+            this._isDragging = false;
+            document.body.style.cursor = '';
+        };
 
-        // Events
-        this.term.onData(data => ipcRenderer.send('terminal-keystroke', data));
-        
-        ipcRenderer.on('terminal-incoming', (event, data) => {
-            // Ensure string
-            const text = (typeof data === 'string') ? data : new TextDecoder().decode(data);
-            this.term.write(text);
-        });
+        const onDown = (e) => {
+            // Only drag from the header bar.
+            this._isDragging = true;
+            this._startY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+            this._startHeight = this.container.getBoundingClientRect().height;
+            document.body.style.cursor = 'row-resize';
+            e.preventDefault();
+        };
 
-        window.addEventListener('resize', () => fitAddon.fit());
+        header.addEventListener('mousedown', onDown);
+        header.addEventListener('touchstart', onDown, { passive: false });
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('touchmove', onMove, { passive: true });
+        window.addEventListener('mouseup', onUp);
+        window.addEventListener('touchend', onUp);
+    }
+
+    setCode(text) {
+        if (!this.textarea) return;
+        this.textarea.value = String(text ?? '');
+    }
+
+    getCode() {
+        return this.textarea ? String(this.textarea.value ?? '') : '';
     }
 
     toggle() {
         this.isOpen = !this.isOpen;
         this.container.style.transform = this.isOpen ? 'translateY(0)' : 'translateY(100%)';
-        
         if (this.isOpen) {
             setTimeout(() => {
-                this.fitAddon.fit();
-                this.term.focus();
-            }, 300);
+                try { this.textarea && this.textarea.focus(); } catch {}
+            }, 200);
         }
     }
 }
 
-module.exports = TerminalDrawer;
+// Support both browser globals and CommonJS (Electron).
+try {
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = TerminalDrawer;
+    }
+} catch {
+    // ignore
+}
+try {
+    if (typeof window !== 'undefined') {
+        window.TerminalDrawer = TerminalDrawer;
+    }
+} catch {
+    // ignore
+}

@@ -1,6 +1,6 @@
 import re
 import os
-import json
+from pathlib import Path
 
 def find_block_types(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
@@ -25,16 +25,17 @@ def find_generators(file_path):
     return set(generators)
 
 def main():
-    base_dir = r"d:\=Code=\BF6Portal Tool\web_ui\src"
-    blocks_dir = os.path.join(base_dir, "blocks")
-    generators_file = os.path.join(base_dir, "generators", "bf6_generators.ts")
+    repo_root = Path(__file__).resolve().parents[1]
+    base_dir = repo_root / 'web_ui' / 'src'
+    blocks_dir = base_dir / 'blocks'
+    generators_file = base_dir / 'generators' / 'bf6_generators.ts'
     
     all_blocks = set()
     
     # Scan block definition files
     for filename in os.listdir(blocks_dir):
         if filename.endswith(".ts") and filename.startswith("bf6portal"):
-            file_path = os.path.join(blocks_dir, filename)
+            file_path = str(blocks_dir / filename)
             print(f"Scanning {filename}...")
             blocks = find_block_types(file_path)
             all_blocks.update(blocks)
@@ -43,7 +44,7 @@ def main():
     
     # Scan generator file
     print(f"Scanning {generators_file}...")
-    implemented_generators = find_generators(generators_file)
+    implemented_generators = find_generators(str(generators_file))
     print(f"Found {len(implemented_generators)} implemented generators.")
     
     # Find missing

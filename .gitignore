@@ -5,6 +5,7 @@ yarn-error.log
 
 # Build
 dist/
+dist_release/
 out/
 build/
 *.zip
