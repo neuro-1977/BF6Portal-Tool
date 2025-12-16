@@ -15,8 +15,10 @@ build:
     - npm run build
     - cd ..
     - npm run dist -- --win
-    # Rename the variable output filename to a fixed name for the release link
-    - mv dist/*.exe dist/BF6Portal-Tool-Setup.exe
+    # List files for debugging
+    - ls -R dist/
+    # Rename the setup executable (handling spaces) to a simple name for the link
+    - find dist/ -name "*Setup*.exe" -exec mv "{}" dist/BF6Portal-Tool-Setup.exe \;
   artifacts:
     paths:
       - dist/BF6Portal-Tool-Setup.exe

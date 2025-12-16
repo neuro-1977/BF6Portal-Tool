@@ -28,7 +28,7 @@ Release notes: see `docs/RELEASE_NOTES_1.2.8.md`.
 1) Clone:
 
 ```bash
-git clone https://gitlab.com/Neuro1977/bf6-portal-tool.git
+git clone https://github.com/neuro-1977/BF6Portal-Tool.git
 cd BF6Portal-Tool
 ```
 
