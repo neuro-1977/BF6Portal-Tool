@@ -22,6 +22,8 @@ import {save, load} from './serialization';
 import {toolbox} from './toolbox';
 import {bf6Theme} from './bf6_theme';
 import {MenuBar} from './components/MenuBar';
+import { preloadSelectionLists, registerSelectionListExtensions } from './selection_lists';
+import { initPresetsUI } from './presets';
 import './index.css';
 import './components/MenuBar.css';
 
@@ -94,6 +96,10 @@ const filterToolbox = (searchTerm: string) => {
 // Register the blocks and generator with Blockly
 try {
   registerMutators(); // Register mutators before defining blocks
+  registerSelectionListExtensions();
+  // Best-effort preload so dropdowns are ready by the time a user opens them.
+  // (If it fails, dropdowns show an inline error message.)
+  void preloadSelectionLists();
   Blockly.common.defineBlocks(textBlocks);
   Blockly.common.defineBlocks(homeBlocks);
   Blockly.common.defineBlocks(bf6PortalBlocks);
@@ -142,6 +148,15 @@ try {
   // Expose workspace globally
   (window as any).workspace = ws;
 
+    // Presets dropdown (3 locked built-ins + user save/delete).
+    // NOTE: We bind in capture phase to prevent legacy `web_ui/main.js` handlers
+    // (which use global Blockly) from interfering with this webpack/TS workspace.
+    try {
+      initPresetsUI(ws);
+    } catch (e) {
+      console.warn('[BF6] Failed to init presets UI:', e);
+    }
+
   console.log("Final Toolbox Configuration:", filterToolbox('')); // Added console log
 
   if (menuBar) {
@@ -181,19 +196,16 @@ try {
   // --- Custom Toolbox Category for Selection Lists ---
   ws.registerToolboxCategoryCallback('SELECTION_LISTS_CATEGORY', (workspace) => {
     const xmlList: Element[] = [];
-    
-    // We need to find all blocks that are GREEN (#4CAF50 or similar) and have a dropdown.
-    // Since we can't easily inspect definitions at runtime in a clean way without iterating internal structures,
-    // we will manually list the known ones or try to inspect.
-    
-    // Known Green Blocks with Dropdowns:
-    const candidates = ['BOOL', 'VEHICLE_LIST_ITEM']; 
-    // Note: RULE_HEADER is Purple.
-    
-    for (const type of candidates) {
-        const block = document.createElement('block');
-        block.setAttribute('type', type);
-        xmlList.push(block);
+    // IMPORTANT: Do not alter toolbox layout here.
+    // This custom category should reflect the static blocks listed under the
+    // "SELECTION LISTS" category in `web_ui/src/toolbox.ts`.
+    const cat = (toolbox as any)?.contents?.find((c: any) => c && c.kind === 'category' && c.name === 'SELECTION LISTS');
+    const blocks = Array.isArray(cat?.contents) ? cat.contents : [];
+    for (const entry of blocks) {
+      if (!entry || entry.kind !== 'block' || !entry.type) continue;
+      const block = document.createElement('block');
+      block.setAttribute('type', String(entry.type));
+      xmlList.push(block);
     }
     
     return xmlList;

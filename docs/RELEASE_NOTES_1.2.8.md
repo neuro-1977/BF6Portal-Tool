@@ -13,6 +13,7 @@
 ## Fixes
 - **Toolbox Loading:** Fixed a critical issue where the toolbox would fail to load ("missing toolbox error") by ensuring the application bundle is correctly injected into the HTML.
 - **Scrollbar Styling:** Applied CSS fixes to suppress unwanted scrollbars on the toolbox container (work in progress).
+- **Presets dropdown restored:** Built-in presets (Rush/Conquest/Breakthrough) are visible again and **locked** from deletion; user presets can be saved/deleted normally.
 
 ## Known Issues
 - A persistent vertical scrollbar may still appear next to the toolbox flyout in certain states. This is tracked for a future fix.

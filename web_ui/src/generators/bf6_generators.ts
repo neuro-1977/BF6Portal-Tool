@@ -3170,3 +3170,48 @@ bf6Generators['xor'] = function(block: any, generator: any) {
   const code = `mod.Xor(${value0}, ${value1})`;
   return [code, Order.NONE];
 };
+
+// --- Selection Lists ---
+// These blocks output enum-like "*Item" types and are rendered as dropdowns.
+// Their selected value lives in the field named "OPTION".
+const __bf6SelectionListBlocks = [
+  'capture_points',
+  'custom_message_slot',
+  'damage_types',
+  'death_types',
+  'factions',
+  'input_restrictions',
+  'inventory_character_specialties',
+  'inventory_class_gadgets',
+  'inventory_melee_weapons',
+  'inventory_open_gadgets',
+  'inventory_primary_weapons',
+  'inventory_secondary_weapons',
+  'inventory_throwables',
+  'locational_sounds',
+  'maps',
+  'mco_ms',
+  'med_gadget_types',
+  'player_inventory_slots',
+  'player_soldiers',
+  'player_state_bool',
+  'player_state_number',
+  'player_state_vector',
+  'resupply_types',
+  'sounds',
+  'types',
+  'vehicles',
+  'vehicle_state_vector',
+  'vehicle_types',
+  'voice_overs',
+  'world_icon_images',
+  'world_icons',
+];
+
+for (const t of __bf6SelectionListBlocks) {
+  bf6Generators[t] = function(block: any, generator: any) {
+    const v = block.getFieldValue('OPTION');
+    // Emit as a string literal so it is always valid JavaScript/TypeScript.
+    return [JSON.stringify(v ?? ''), Order.ATOMIC];
+  };
+}
