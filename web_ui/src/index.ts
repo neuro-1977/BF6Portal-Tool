@@ -34,10 +34,14 @@ let menuBar: MenuBar | undefined;
 
 // Initialize Menu Bar
 try {
+  // This repo has multiple UI variants. The shipped `web_ui/index.html` (Awesome UI)
+  // does not include a MenuBar container, so only initialize when present.
+  if (document.getElementById('menuBarContainer')) {
     menuBar = new MenuBar('menuBarContainer');
     menuBar.render();
+  }
 } catch (e) {
-    console.error("Failed to initialize MenuBar:", e);
+  console.warn("Failed to initialize MenuBar:", e);
 }
 
 // Hide splash screen after initialization

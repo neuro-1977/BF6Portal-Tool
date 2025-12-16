@@ -68,6 +68,10 @@ const config = {
         { from: path.resolve(__dirname, '..', 'bf6portal_blocks.json'), to: 'bf6portal_blocks.json' },
         // Selection-list enums extracted from Portal docs (repo root file).
         // Used at runtime to populate dropdown options for selection-list blocks.
+        // We ship BOTH:
+        // - selection-lists.txt: packaged Electron builds (since electron-builder excludes *.md)
+        // - selection-lists.md: dev / source inspection
+        { from: path.resolve(__dirname, '..', 'selection-lists.md'), to: 'selection-lists.txt' },
         { from: path.resolve(__dirname, '..', 'selection-lists.md'), to: 'selection-lists.md' },
         { from: path.resolve(__dirname, '..', '=Resources=', 'Portal Blocks', 'custom_rush_V1.0.json'), to: 'presets/custom_rush_V1.0.json' },
         { from: path.resolve(__dirname, '..', '=Resources=', 'Portal Blocks', 'custom_conquest_template_7.2.json'), to: 'presets/custom_conquest_template_7.2.json' },

@@ -360,9 +360,14 @@ function ensurePortalBlocksRegisteredFromState(state: any): { created: number } 
 
   let created = 0;
 
+  const FORCE_OVERRIDE_TYPES = new Set<string>([
+    // These community/template structural types must have specific inputs for load to work.
+    'modBlock',
+  ]);
+
   for (const [type, info] of model.entries()) {
     if (!type || typeof type !== 'string') continue;
-    if ((Blockly as any)?.Blocks && Object.prototype.hasOwnProperty.call((Blockly as any).Blocks, type)) {
+    if (!FORCE_OVERRIDE_TYPES.has(type) && (Blockly as any)?.Blocks && Object.prototype.hasOwnProperty.call((Blockly as any).Blocks, type)) {
       continue;
     }
 
@@ -432,6 +437,30 @@ function ensurePortalBlocksRegisteredFromState(state: any): { created: number } 
   return { created };
 }
 
+function ensureCriticalPortalStructuralBlocks() {
+  // Some preset JSONs require `modBlock` to have a RULES statement input.
+  // If a conflicting definition exists, override it.
+  try {
+    (Blockly as any).Blocks = (Blockly as any).Blocks || {};
+    (Blockly as any).Blocks['modBlock'] = {
+      init: function () {
+        this.appendDummyInput().appendField('MOD');
+        try {
+          this.appendStatementInput('RULES').appendField('RULES');
+        } catch {
+          this.appendStatementInput('RULES');
+        }
+        // Top-level container
+        this.setColour(getSuggestedPortalBlockColour('modBlock'));
+        this.setTooltip('Portal template MOD container.');
+        this.setHelpUrl('');
+      },
+    };
+  } catch {
+    // ignore
+  }
+}
+
 async function loadPresetById(workspace: AnyWorkspace, id: string) {
   if (!workspace) return;
 
@@ -463,6 +492,8 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
     }
     const parsed = await res.json();
     const state = normalizeWorkspaceState(parsed);
+    // Make sure the key structural container blocks exist and have required inputs.
+    ensureCriticalPortalStructuralBlocks();
     try {
       const r = ensurePortalBlocksRegisteredFromState(state);
       if (r?.created) console.log(`[BF6] Auto-registered ${r.created} block types for preset load.`);
@@ -473,7 +504,7 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
     Blockly.Events.disable();
     try {
       workspace.clear();
-      Blockly.serialization.workspaces.load(state, workspace, undefined);
+      await Promise.resolve((Blockly.serialization.workspaces.load(state, workspace, undefined) as any));
     } catch (e: any) {
       console.warn('[BF6] Failed to load preset workspace:', e);
       alert(`Failed to load preset.\n\n${String(e?.message || e)}`);
@@ -494,6 +525,8 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
   if (info.kind === 'user') {
     const state = normalizeWorkspaceState(info.state);
 
+    ensureCriticalPortalStructuralBlocks();
+
     try {
       const r = ensurePortalBlocksRegisteredFromState(state);
       if (r?.created) console.log(`[BF6] Auto-registered ${r.created} block types for preset load.`);
@@ -504,7 +537,7 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
     Blockly.Events.disable();
     try {
       workspace.clear();
-      Blockly.serialization.workspaces.load(state, workspace, undefined);
+      await Promise.resolve((Blockly.serialization.workspaces.load(state, workspace, undefined) as any));
     } catch (e: any) {
       console.warn('[BF6] Failed to load preset workspace:', e);
       alert(`Failed to load preset.\n\n${String(e?.message || e)}`);
@@ -608,7 +641,7 @@ export function initPresetsUI(workspace: AnyWorkspace) {
       (e) => {
         e.stopImmediatePropagation();
         const id = String(presetSelect.value || '');
-        if (id) void loadPresetById(workspace, id);
+        if (id) void loadPresetById(workspace, id).catch((err) => console.warn('[BF6] Preset load failed:', err));
         updatePresetButtons();
       },
       true

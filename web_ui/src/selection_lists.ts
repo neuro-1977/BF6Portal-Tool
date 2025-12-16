@@ -86,7 +86,14 @@ export async function preloadSelectionLists(): Promise<void> {
   cache.lastError = undefined;
   try {
     // Copied into dist by webpack (see `web_ui/webpack.config.js`).
-    const md = await fetchText('selection-lists.md');
+    // NOTE: Electron packaging excludes *.md by default in this repo, so we ship a
+    // `.txt` copy for runtime and fall back to `.md` for dev.
+    let md: string | null = null;
+    try {
+      md = await fetchText('selection-lists.txt');
+    } catch {
+      md = await fetchText('selection-lists.md');
+    }
     cache.map = parseSelectionListsMarkdown(md);
     cache.loaded = true;
   } catch (e: any) {
