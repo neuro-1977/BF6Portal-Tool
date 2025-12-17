@@ -2,11 +2,14 @@
 
 This project follows a pragmatic changelog style (human-written notes) rather than auto-generated commit dumps.
 
-## Unreleased (planned for v1.2.9)
+## Unreleased (planned for v1.3.0)
 
 ### Fixes
-- **Selection Lists dropdowns:** address cases where dropdowns get stuck on “(loading selection lists…)” by improving runtime asset loading for Electron `file://` contexts.
-- **Presets:** allow saving after loading and editing a built-in preset (save-as copy / overwrite flow).
+- **Custom variables list:** ensure all custom/user variables are shown consistently (toolbox + manager + preset imports).
+- **Selection Lists dropdowns:** continue hardening edge cases where dropdowns can get stuck on “(loading selection lists…)” under Electron `file://` contexts.
+
+### Improvements
+- **Presets:** richer preset UX (save-as copy / overwrite flow for built-ins, better naming + metadata).
 
 ### Credits
 - Add explicit credit for the **Portal Docs** dataset used to populate block help/tooltips:
@@ -21,6 +24,19 @@ These are the key issues encountered recently and how they were fixed:
 - **Preset templates failing to load (`MissingConnection` / `modBlock` RULES)**: fixed by ensuring `modBlock` always provides a `RULES` statement input before loading presets.
 - **Packaged app missing `selection-lists.md`**: Electron build excludes `*.md`, so runtime now ships/loads `selection-lists.txt` instead.
 - **Code Preview stopped showing TypeScript**: caused by loading two Blockly instances (global script + webpack import) and serializing a workspace created by the “other” instance. Fixed by making the webpack Blockly instance the global `window.Blockly` and explicitly initializing the preview after workspace creation.
+
+## v1.2.9
+
+### Fixes
+- **Packaged app dialogs:** removed reliance on native `prompt()/alert()/confirm()` (blocked in Electron packaged builds) by using in-app modal dialogs and hooking Blockly’s dialog APIs.
+- **Subroutines:** restored toolbox entries / UI flows so creating and calling subroutines works again.
+- **Variables:** “Manage Variables” button works again; variables can be created and the toolbox updates appropriately.
+- **Presets:** fixed the built-in/custom Conquest template import by making legacy variable blocks (`SetVariable`/`GetVariable`/`variableReferenceBlock`) schema-compatible with the preset JSON (`VALUE-0`/`VALUE-1`).
+
+### Build / tooling
+- Added a headless smoke test to validate that presets load via Blockly serialization (`tools/smoke_test_preset_load.js`).
+- Added a safe cleanup helper for `dist-*` folders that are sometimes locked by Windows (`tools/cleanup_dist.ps1`).
+- Improved electron-builder output overrides for local builds (`dist:test`, `dist:unpacked`).
 
 ## v1.2.8
 

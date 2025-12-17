@@ -17,7 +17,9 @@ const config = {
   },
   output: {
     // Compile the source files into a bundle.
-    filename: '[name].[contenthash].bundle.js',
+    // Use a stable filename so Electron packaging and users aren't confused by
+    // content-hash renames on every build.
+    filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
   },
@@ -74,7 +76,7 @@ const config = {
         { from: path.resolve(__dirname, '..', 'selection-lists.md'), to: 'selection-lists.txt' },
         { from: path.resolve(__dirname, '..', 'selection-lists.md'), to: 'selection-lists.md' },
         { from: path.resolve(__dirname, '..', '=Resources=', 'Portal Blocks', 'custom_rush_V1.0.json'), to: 'presets/custom_rush_V1.0.json' },
-        { from: path.resolve(__dirname, '..', '=Resources=', 'Portal Blocks', 'custom_conquest_template_7.2.json'), to: 'presets/custom_conquest_template_7.2.json' },
+        { from: path.resolve(__dirname, '..', '=Resources=', 'Portal Blocks', 'custom_conquest_template_V8.0.json'), to: 'presets/custom_conquest_template_V8.0.json' },
         { from: path.resolve(__dirname, '..', '=Resources=', 'Portal Blocks', 'custom_breakthrough_V1.1.json'), to: 'presets/custom_breakthrough_V1.1.json' },
         { from: 'quotes.json', to: 'quotes.json' },
         { from: 'quotes.local.json', to: 'quotes.local.json', noErrorOnMissing: true },

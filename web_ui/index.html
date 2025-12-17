@@ -9,6 +9,8 @@
       body {
         height: 100%;
         margin: 0;
+        width: 100%;
+        overflow: hidden;
         background: #181a1b;
         color: #e0e0e0;
         font-family: "Segoe UI", "Consolas", "monospace", sans-serif;
@@ -57,7 +59,7 @@
       }
 
       #header {
-        width: 100vw;
+        width: 100%;
         height: 48px;
         background: #23272e;
         color: #baff80;
@@ -107,7 +109,8 @@
       }
       #blocklyDiv {
         flex: 1 1 auto;
-        height: calc(100vh - 48px); /* FORCE HEIGHT IN CSS */
+        min-height: 0; /* critical for flex children to avoid forcing page scroll */
+        height: auto;
         width: 100%;
         background: #1e1e1e; /* Match Dark Theme */
         z-index: 1;
@@ -146,11 +149,14 @@
         color: #baff80 !important;
       }
 
-      /* Keep zoom controls + scrollbars visible (we use Blockly's built-in UI) */
-      .blocklyZoom,
+      /* Keep zoom controls visible; hide Blockly scrollbars (users can still pan/zoom). */
+      .blocklyZoom {
+        display: block !important;
+      }
       .blocklyScrollbarHorizontal,
       .blocklyScrollbarVertical {
-        display: block !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
       }
     </style>
 
@@ -349,7 +355,8 @@
         background-size: 400% 100%;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        animation: rainbowAndy 2.5s linear infinite;
+        /* Sparkly letters requirement: rainbow gradient + animated glow */
+        animation: rainbowAndy 2.5s linear infinite, andySparkle 1.9s ease-in-out infinite;
         font-weight: bold;
       }
       @keyframes rainbowAndy {
@@ -358,6 +365,21 @@
         }
         100% {
           background-position: 100% 50%;
+        }
+      }
+      @keyframes andySparkle {
+        0%,
+        100% {
+          filter:
+            drop-shadow(0 0 6px rgba(255, 255, 255, 0.55))
+            drop-shadow(0 0 14px rgba(186, 255, 128, 0.45))
+            drop-shadow(0 0 22px rgba(79, 195, 247, 0.25));
+        }
+        50% {
+          filter:
+            drop-shadow(0 0 10px rgba(255, 255, 255, 0.85))
+            drop-shadow(0 0 22px rgba(186, 255, 128, 0.75))
+            drop-shadow(0 0 30px rgba(79, 195, 247, 0.45));
         }
       }
       /* Ticker is restored and cycles quirky comments every 12s before Blockly loads */
@@ -413,7 +435,7 @@
           z-index: 2000;
           left: 0;
           top: 0;
-          width: 100vw;
+          width: 100%;
           height: 100vh;
           background: rgba(0,0,0,0.8);
           align-items: center;
@@ -471,7 +493,7 @@
           z-index: 2000;
           left: 0;
           top: 0;
-          width: 100vw;
+          width: 100%;
           height: 100vh;
           background: rgba(0,0,0,0.8);
           align-items: center;
@@ -594,7 +616,7 @@
         z-index: 4000;
         left: 0;
         top: 0;
-        width: 100vw;
+        width: 100%;
         height: 100vh;
         background: rgba(0, 0, 0, 0.82);
         align-items: center;
@@ -760,7 +782,7 @@
         z-index: 4000;
         left: 0;
         top: 0;
-        width: 100vw;
+        width: 100%;
         height: 100vh;
         background: rgba(0, 0, 0, 0.82);
         align-items: center;

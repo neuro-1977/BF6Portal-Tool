@@ -2378,13 +2378,6 @@ export const bf6PortalExpandedBlocks = Blockly.common.createBlockDefinitionsFrom
     "type": "SETPLAYERTEAM"
   },
 {
-    "message0": "Call Subroutine Subroutine Name:",
-    "previousStatement": null,
-    "nextStatement": null,
-    "colour": "#E6A85C",
-    "type": "CALLSUBROUTINE"
-  },
-{
     "message0": "Return",
     "previousStatement": null,
     "nextStatement": null,

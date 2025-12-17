@@ -24,7 +24,8 @@ export const bf6Theme = Blockly.Theme.defineTheme('bf6_theme', {
     'selection_lists_category': { 'colour': '#45B5B5' },
     'literals_category': { 'colour': '#45B5B5' },
     'subroutines_category': { 'colour': '#E6A85C' },
-    'control_actions_category': { 'colour': '#A285E6' },
+    // Control actions should be blue.
+    'control_actions_category': { 'colour': '#0288D1' },
     'loop_category': { 'colour': '#5CA65C' },
     'math_category': { 'colour': '#5C68A6' },
     'text_category': { 'colour': '#5CA68D' },

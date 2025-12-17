@@ -14,6 +14,7 @@ import {blocks as homeBlocks} from './blocks/home';
 import {bf6PortalBlocks} from './blocks/bf6portal';
 import {bf6PortalExpandedBlocks} from './blocks/bf6portal_expanded'; // New import
 import {generatedBlocks} from './blocks/generated_blocks'; // Auto-generated blocks
+import { registerPortalVariableBlocks } from './blocks/portal_variables';
 import {generatedToolbox} from './generated_toolbox'; // Auto-generated toolbox
 import {registerMutators, SUBROUTINE_DEF_MUTATOR, SUBROUTINE_CALL_MUTATOR} from './blocks/subroutine_mutator';
 import {bf6Generators} from './generators/bf6_generators'; // Custom generators
@@ -24,8 +25,68 @@ import {bf6Theme} from './bf6_theme';
 import {MenuBar} from './components/MenuBar';
 import { preloadSelectionLists, registerSelectionListExtensions } from './selection_lists';
 import { initPresetsUI } from './presets';
+import { openVariablesManager } from './variables_manager';
+import { installBlocklyDialogs, promptText, alertText } from './dialogs';
 import './index.css';
 import './components/MenuBar.css';
+
+function registerHelpContextMenus(): void {
+  try {
+    const anyB: any = Blockly as any;
+    if (anyB.__bf6_help_context_menus_registered) return;
+    anyB.__bf6_help_context_menus_registered = true;
+
+    const reg = Blockly.ContextMenuRegistry.registry as any;
+    if (!reg || typeof reg.register !== 'function') return;
+
+    // Block-scoped help.
+    reg.register({
+      id: 'bf6.help.block',
+      scopeType: Blockly.ContextMenuRegistry.ScopeType.BLOCK,
+      displayText: () => 'Help',
+      preconditionFn: () => {
+        const g: any = window as any;
+        return (typeof g.showHelpForBlockType === 'function') ? 'enabled' : 'hidden';
+      },
+      callback: (scope: any) => {
+        try {
+          const g: any = window as any;
+          const type = scope?.block?.type;
+          if (type && typeof g.showHelpForBlockType === 'function') g.showHelpForBlockType(type);
+        } catch (e) {
+          console.warn('[BF6] Help callback failed:', e);
+        }
+      },
+      weight: 210,
+    });
+
+    // Workspace-scoped help index.
+    reg.register({
+      id: 'bf6.help.index',
+      scopeType: Blockly.ContextMenuRegistry.ScopeType.WORKSPACE,
+      displayText: () => 'Help (index)',
+      preconditionFn: () => {
+        const g: any = window as any;
+        return (typeof g.openHelpModal === 'function' || typeof g.showHelpIndex === 'function') ? 'enabled' : 'hidden';
+      },
+      callback: () => {
+        try {
+          const g: any = window as any;
+          if (typeof g.openHelpModal === 'function') {
+            g.openHelpModal();
+          } else if (typeof g.showHelpIndex === 'function') {
+            g.showHelpIndex('');
+          }
+        } catch (e) {
+          console.warn('[BF6] Help index callback failed:', e);
+        }
+      },
+      weight: 209,
+    });
+  } catch (e) {
+    console.warn('[BF6] Failed to register help context menus:', e);
+  }
+}
 
 // Expose toolbox globally for legacy scripts
 (window as any).TOOLBOX_CONFIG = toolbox;
@@ -38,6 +99,11 @@ import './components/MenuBar.css';
 // at the same instance used by this bundle.
 (window as any).Blockly = Blockly;
 (window as any).__bf6_blockly = Blockly;
+
+// Electron builds used by this app can disable window.prompt/alert/confirm.
+// Blockly's built-in Variables (and our subroutine fallback) rely on dialogs,
+// so install in-app modal handlers up-front.
+installBlocklyDialogs();
 
 let menuBar: MenuBar | undefined;
 
@@ -110,6 +176,8 @@ const filterToolbox = (searchTerm: string) => {
 try {
   registerMutators(); // Register mutators before defining blocks
   registerSelectionListExtensions();
+  registerHelpContextMenus();
+  registerPortalVariableBlocks();
   // Best-effort preload so dropdowns are ready by the time a user opens them.
   // (If it fails, dropdowns show an inline error message.)
   void preloadSelectionLists();
@@ -187,48 +255,134 @@ try {
       menuBar.setWorkspace(ws);
   }
 
+  // Blockly expects toolbox category callbacks to return XML Elements.
+  // Using document.createElement() in an HTML document can produce HTML elements
+  // with subtly different behavior/attributes, causing buttons to appear but not fire.
+  const xmlEl = (name: string): Element => {
+    const anyB: any = Blockly as any;
+    const create = anyB?.utils?.xml?.createElement;
+    if (typeof create === 'function') return create(name);
+
+    // Fallback: ensure we create an element in Blockly's XML namespace.
+    // This is critical for flyout <button> callbacks to register/click properly.
+    try {
+      return document.createElementNS('https://developers.google.com/blockly/xml', name);
+    } catch {
+      // Last resort.
+      return document.createElement(name);
+    }
+  };
+
   // --- Custom Toolbox Category for Variables ---
   ws.registerToolboxCategoryCallback('VARIABLES_CATEGORY', (workspace) => {
     const xmlList: Element[] = [];
     
     // 1. "Manage Variables" Button
-    const btn = document.createElement('button');
+    const btn = xmlEl('button');
     btn.setAttribute('text', 'Manage Variables');
     btn.setAttribute('callbackKey', 'MANAGE_VARIABLES');
     xmlList.push(btn);
 
-    // 2. Get/Set Blocks (Standard)
-    const blockSet = document.createElement('block');
-    blockSet.setAttribute('type', 'SETVARIABLE');
-    xmlList.push(blockSet);
+    // 2. Portal-compatible variable blocks (dynamic per variable)
+    // The Portal block set uses GETVARIABLE/SETVARIABLE with field_variable.
+    const anyWs: any = workspace as any;
+    const varMap = typeof anyWs.getVariableMap === 'function' ? anyWs.getVariableMap() : null;
+    const vars = (varMap && typeof varMap.getAllVariables === 'function')
+      ? varMap.getAllVariables()
+      : (typeof anyWs.getAllVariables === 'function' ? anyWs.getAllVariables() : []);
 
-    const blockGet = document.createElement('block');
-    blockGet.setAttribute('type', 'GETVARIABLE');
-    xmlList.push(blockGet);
+    if (!Array.isArray(vars) || vars.length === 0) {
+      const label = xmlEl('label');
+      label.setAttribute('text', 'No variables yet (click “Manage Variables”)');
+      xmlList.push(label);
+
+      // Still show generic blocks so users see what’s available.
+      const blockSet = xmlEl('block');
+      blockSet.setAttribute('type', 'SETVARIABLE');
+      xmlList.push(blockSet);
+
+      const blockGet = xmlEl('block');
+      blockGet.setAttribute('type', 'GETVARIABLE');
+      xmlList.push(blockGet);
+
+      return xmlList;
+    }
+
+    for (const v of vars) {
+      const varName = String((v && (v.name ?? (typeof v.getName === 'function' ? v.getName() : ''))) || '');
+      const varId = String((v && (v.id ?? (typeof v.getId === 'function' ? v.getId() : ''))) || '');
+
+      const setBlock = xmlEl('block');
+      setBlock.setAttribute('type', 'SETVARIABLE');
+      const setField = xmlEl('field');
+      setField.setAttribute('name', 'VARIABLE');
+      if (varId) setField.setAttribute('id', varId);
+      setField.textContent = varName;
+      setBlock.appendChild(setField);
+      xmlList.push(setBlock);
+
+      const getBlock = xmlEl('block');
+      getBlock.setAttribute('type', 'GETVARIABLE');
+      const getField = xmlEl('field');
+      getField.setAttribute('name', 'VARIABLE_NAME');
+      if (varId) getField.setAttribute('id', varId);
+      getField.textContent = varName;
+      getBlock.appendChild(getField);
+      xmlList.push(getBlock);
+    }
     
     return xmlList;
   });
 
   ws.registerButtonCallback('MANAGE_VARIABLES', (button) => {
-      // Use Blockly's built-in variable prompt for now, or a custom one if needed.
-      // Since the user asked for a "list of all selectable variables", 
-      // we can just trigger the standard variable creation flow or show a custom modal.
-      // For now, let's create a new variable via prompt as a simple "Manage" action.
-      Blockly.Variables.createVariableButtonHandler(button.getTargetWorkspace(), undefined, 'String');
+      // NOTE: Some Blockly versions/skins pass a flyout button object that does
+      // not expose `getTargetWorkspace()` reliably. Use the injected workspace
+      // we closed over instead.
+      try {
+        openVariablesManager(ws as any);
+      } catch (e) {
+        console.warn('[BF6] Failed to open variables manager:', e);
+      }
   });
 
   // --- Custom Toolbox Category for Selection Lists ---
   ws.registerToolboxCategoryCallback('SELECTION_LISTS_CATEGORY', (workspace) => {
     const xmlList: Element[] = [];
-    // IMPORTANT: Do not alter toolbox layout here.
-    // This custom category should reflect the static blocks listed under the
-    // "SELECTION LISTS" category in `web_ui/src/toolbox.ts`.
+    // Keep the curated (hand-picked) blocks listed in `web_ui/src/toolbox.ts`.
+    // These are the most commonly used selection list helpers.
     const cat = (toolbox as any)?.contents?.find((c: any) => c && c.kind === 'category' && c.name === 'SELECTION LISTS');
-    const blocks = Array.isArray(cat?.contents) ? cat.contents : [];
-    for (const entry of blocks) {
+    const curated = Array.isArray(cat?.contents) ? cat.contents : [];
+    for (const entry of curated) {
       if (!entry || entry.kind !== 'block' || !entry.type) continue;
-      const block = document.createElement('block');
+      const block = xmlEl('block');
       block.setAttribute('type', String(entry.type));
+      xmlList.push(block);
+    }
+
+    // Also expose *every* enum as a generic dropdown block (bf6_sel_<EnumName>).
+    // This fills in gaps where the primary block set doesn't have a dedicated
+    // dropdown block for a particular selection list.
+    const allEnumBlocks = Object.keys(((Blockly as any).Blocks || {}) as Record<string, any>)
+      .filter((t) => t.startsWith('bf6_sel_'))
+      .sort((a, b) => a.localeCompare(b));
+
+    if (allEnumBlocks.length === 0) {
+      // Ensure load starts (startup already does this, but this keeps the flyout robust).
+      void preloadSelectionLists();
+
+      const label = xmlEl('label');
+      label.setAttribute('text', 'Loading all selection lists…');
+      xmlList.push(label);
+      return xmlList;
+    }
+
+    const label = xmlEl('label');
+    label.setAttribute('text', 'All selection lists');
+    xmlList.push(label);
+
+    for (const type of allEnumBlocks) {
+      const block = xmlEl('block');
+      block.setAttribute('type', type);
       xmlList.push(block);
     }
     
@@ -240,7 +394,7 @@ try {
     const xmlList: Element[] = [];
     
     // 1. "New Subroutine" Button
-    const btn = document.createElement('button');
+    const btn = xmlEl('button');
     btn.setAttribute('text', 'New Subroutine');
     btn.setAttribute('callbackKey', 'CREATE_SUBROUTINE');
     xmlList.push(btn);
@@ -255,15 +409,15 @@ try {
       // But our mutator stores it in 'params' property of the block instance
       const params = (block as any).params || [];
 
-      const blockXml = document.createElement('block');
+      const blockXml = xmlEl('block');
       blockXml.setAttribute('type', 'CALLSUBROUTINE');
       
       // Add mutation to the call block so it knows what inputs to create
-      const mutation = document.createElement('mutation');
+      const mutation = xmlEl('mutation');
       mutation.setAttribute('params', JSON.stringify(params));
       blockXml.appendChild(mutation);
 
-      const field = document.createElement('field');
+      const field = xmlEl('field');
       field.setAttribute('name', 'SUBROUTINE_NAME');
       field.textContent = name;
       
@@ -328,7 +482,7 @@ try {
       createSubBtn.onclick = function() {
           const name = subNameInput.value;
           if (!name) {
-              alert("Please enter a subroutine name.");
+            void alertText('Subroutines', 'Please enter a subroutine name.');
               return;
           }
           
@@ -371,10 +525,34 @@ try {
   }
 
   ws.registerButtonCallback('CREATE_SUBROUTINE', (button) => {
-     if (modal && subNameInput && paramsContainer) {
-         subNameInput.value = '';
-         paramsContainer.innerHTML = ''; // Clear params
-         modal.style.display = "block";
+     try {
+       // Preferred UX: show modal when present.
+       if (modal && subNameInput && paramsContainer) {
+           subNameInput.value = '';
+           paramsContainer.innerHTML = ''; // Clear params
+           modal.style.display = "block";
+           return;
+       }
+
+       // Fallback UX (used by the legacy/"Awesome UI" index.html which doesn't
+       // include the modal markup): prompt for a name and create the block.
+       void promptText('Subroutine name:', '').then((name) => {
+         if (!name) return;
+
+         const block = ws.newBlock('SUBROUTINE_BLOCK');
+         block.setFieldValue(String(name), 'SUBROUTINE_NAME');
+         block.initSvg();
+         block.render();
+
+         const metrics = ws.getMetrics();
+         if (metrics) {
+           block.moveBy(metrics.viewLeft + 100, metrics.viewTop + 100);
+         }
+
+         ws.refreshToolboxSelection();
+       });
+     } catch (e) {
+       console.warn('[BF6] Failed to create subroutine:', e);
      }
   });
 

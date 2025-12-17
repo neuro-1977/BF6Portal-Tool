@@ -21,7 +21,7 @@ This release focuses on **Portal template compatibility**, **quality-of-life edi
 ### Presets + TypeScript Code Preview drawer
 - Added a **Presets** dropdown with 3 locked built-ins:
   - Andy6170 — Rush (V1.0)
-  - Andy6170 — Conquest (7.2)
+  - Andy6170 — Conquest (V8.0)
   - Andy6170 — Breakthrough (V1.1)
 - User presets are stored in `localStorage` (save/delete supported; built-ins require “Save as new”).
 - Added a resizable **Code Preview** drawer showing a TypeScript export of the current workspace state.

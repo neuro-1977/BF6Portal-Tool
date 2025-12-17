@@ -14,7 +14,253 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize Button Listeners
     setupButtonListeners();
+
+    // Selection lists (Portal enums) for dropdown blocks.
+    // This runs on the legacy (script-tag) Blockly instance, so it works even if
+    // the webpack bundle fails to initialize for any reason.
+    try {
+        registerLegacySelectionListDropdown();
+        // Best-effort preload so dropdowns are ready when users open them.
+        void preloadLegacySelectionLists();
+    } catch (e) {
+        console.warn('[BF6] Selection lists init failed:', e);
+    }
 });
+
+// --- Selection Lists (Legacy runtime) ---
+
+const __bf6SelectionLists = {
+    loaded: false,
+    loading: false,
+    map: {},
+    lastError: null,
+};
+
+function __bf6NormalizeEnumKey(name) {
+    const s = String(name || '').trim();
+    if (!s) return '';
+    return s.endsWith('Item') ? s.slice(0, -4) : s;
+}
+
+function __bf6AddEnumKeys(out, rawKey, values) {
+    const k1 = String(rawKey || '').trim();
+    const k2 = __bf6NormalizeEnumKey(k1);
+    if (k1 && (!out[k1] || out[k1].length === 0)) out[k1] = values;
+    if (k2 && (!out[k2] || out[k2].length === 0)) out[k2] = values;
+}
+
+function __bf6ParseSelectionListsMarkdown(md) {
+    const lines = String(md || '').split(/\r?\n/);
+    const out = {};
+
+    let i = 0;
+    while (i < lines.length) {
+        const line = String(lines[i] || '').trim();
+        i++;
+        if (!line) continue;
+        if (line.toUpperCase() === 'SELECTION LISTS:') continue;
+
+        const enumNameItem = line;
+
+        while (i < lines.length && String(lines[i] || '').trim() === '') i++;
+        if (i >= lines.length || String(lines[i] || '').trim().toLowerCase() !== 'widget 1:') continue;
+        i++;
+
+        while (i < lines.length && String(lines[i] || '').trim() === '') i++;
+        const enumName = (i < lines.length ? String(lines[i] || '').trim() : '');
+        i++;
+
+        while (i < lines.length && String(lines[i] || '').trim() === '') i++;
+        if (i >= lines.length || String(lines[i] || '').trim().toLowerCase() !== 'widget 2:') continue;
+        i++;
+
+        const values = [];
+        while (i < lines.length) {
+            const v = String(lines[i] || '').trim();
+            if (!v) break;
+            values.push(v);
+            i++;
+        }
+
+        if (enumName) __bf6AddEnumKeys(out, enumName, values);
+        if (enumNameItem) __bf6AddEnumKeys(out, enumNameItem, values);
+    }
+
+    return out;
+}
+
+async function __bf6FetchTextWithFallback(url) {
+    // First try fetch.
+    try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+        return await res.text();
+    } catch (e) {
+        // Then try Node fs (Electron file:// can be flaky with fetch for local assets).
+        try {
+            if (typeof require !== 'function') throw e;
+            const fs = require('fs');
+            const path = require('path');
+            const { fileURLToPath } = require('url');
+            const assetUrl = new URL(url, window.location.href);
+            const assetPath = fileURLToPath(assetUrl);
+            return fs.readFileSync(path.resolve(assetPath), 'utf8');
+        } catch {
+            throw e;
+        }
+    }
+}
+
+async function preloadLegacySelectionLists() {
+    if (__bf6SelectionLists.loaded || __bf6SelectionLists.loading) return;
+    __bf6SelectionLists.loading = true;
+    __bf6SelectionLists.lastError = null;
+    try {
+        let text = null;
+        try {
+            text = await __bf6FetchTextWithFallback('selection-lists.txt');
+        } catch {
+            text = await __bf6FetchTextWithFallback('selection-lists.md');
+        }
+        __bf6SelectionLists.map = __bf6ParseSelectionListsMarkdown(text);
+        __bf6SelectionLists.loaded = true;
+    } catch (e) {
+        __bf6SelectionLists.lastError = String(e && e.message ? e.message : e);
+    } finally {
+        __bf6SelectionLists.loading = false;
+    }
+}
+
+function __bf6GetEnumNameFromBlock(block) {
+    try {
+        const checks = (block && block.outputConnection && typeof block.outputConnection.getCheck === 'function')
+            ? block.outputConnection.getCheck()
+            : (block && block.outputConnection ? block.outputConnection.check_ : null);
+        const list = Array.isArray(checks) ? checks : (checks ? [checks] : []);
+        for (const c of list) {
+            const s = String(c);
+            if (s.endsWith('Item')) return s.slice(0, -4);
+        }
+    } catch {
+        // ignore
+    }
+    return null;
+}
+
+function registerLegacySelectionListDropdown() {
+    if (!window.Blockly || !window.Blockly.Extensions) return;
+    if (window.Blockly.__bf6_selection_lists_registered_legacy) return;
+
+    // The webpack bundle (index.bundle.js) also registers this extension.
+    // In the shipped Electron build, deferred scripts run before DOMContentLoaded,
+    // so by the time this legacy initializer runs, it may already be registered.
+    try {
+        if (typeof window.Blockly.Extensions.isRegistered === 'function'
+            && window.Blockly.Extensions.isRegistered('bf6_selection_list_dropdown')) {
+            window.Blockly.__bf6_selection_lists_registered_legacy = true;
+            return;
+        }
+    } catch {
+        // ignore
+    }
+
+    window.Blockly.__bf6_selection_lists_registered_legacy = true;
+
+    function __bf6GetCandidateEnumKeys(enumName) {
+        const raw = String(enumName || '').trim();
+        if (!raw) return [];
+        const norm = __bf6NormalizeEnumKey(raw);
+
+        const cands = new Set();
+        const add = (s) => {
+            const v = String(s || '').trim();
+            if (v) cands.add(v);
+        };
+
+        add(raw);
+        add(norm);
+        add(raw.toLowerCase());
+        add(norm.toLowerCase());
+
+        add(`Enum_${raw}`);
+        add(`Enum_${norm}`);
+        add(`Enum_${raw}`.toLowerCase());
+        add(`Enum_${norm}`.toLowerCase());
+
+        if (!raw.startsWith('Player')) {
+            add(`Player${raw}`);
+            add(`Player${norm}`);
+            add(`Player${raw}`.toLowerCase());
+            add(`Player${norm}`.toLowerCase());
+        }
+
+        // Known naming drift: docs use "RestrictedInputs" selection list, while
+        // some block outputs historically used "InputRestrictions".
+        if (norm === 'InputRestrictions') {
+            add('RestrictedInputs');
+            add('restrictedinputs');
+            add('Enum_RestrictedInputs');
+            add('enum_restrictedinputs');
+        }
+        if (norm === 'RestrictedInputs') {
+            add('InputRestrictions');
+            add('inputrestrictions');
+            add('Enum_InputRestrictions');
+            add('enum_inputrestrictions');
+        }
+
+        return Array.from(cands);
+    }
+
+    function __bf6LookupSelectionList(enumName) {
+        const map = __bf6SelectionLists.map || {};
+        for (const key of __bf6GetCandidateEnumKeys(enumName)) {
+            const values = map[key];
+            if (Array.isArray(values) && values.length > 0) return values;
+        }
+        return null;
+    }
+
+    window.Blockly.Extensions.register('bf6_selection_list_dropdown', function() {
+        const field = this.getField && this.getField('OPTION');
+        if (!field) return;
+
+        field.menuGenerator_ = () => {
+            const enumName = __bf6GetEnumNameFromBlock(this);
+            if (!enumName) return [['(missing output type)', '__missing__']];
+
+            const values = __bf6LookupSelectionList(enumName);
+            if (!values || values.length === 0) {
+                if (__bf6SelectionLists.lastError) {
+                    return [[`(selection lists failed: ${__bf6SelectionLists.lastError})`, '__error__']];
+                }
+
+                if (!__bf6SelectionLists.loaded && !__bf6SelectionLists.loading) {
+                    void preloadLegacySelectionLists();
+                }
+
+                if (__bf6SelectionLists.loaded) {
+                    return [[`(no selection list for: ${enumName})`, '__empty__']];
+                }
+
+                return [['(loading selection lists...)', '__loading__']];
+            }
+            return values.map(v => [v, v]);
+        };
+
+        try {
+            const cur = String((field.getValue && field.getValue()) || '');
+            if (!cur || cur === '__loading__' || cur === '__error__' || cur === '__missing__') {
+                const opts = field.menuGenerator_();
+                if (Array.isArray(opts) && opts.length > 0) {
+                    field.setValue(opts[0][1]);
+                }
+            }
+        } catch {
+            // ignore
+        }
+    });
+}
 
 function setupCodePreviewDrawer() {
     const toggleBtn = document.getElementById('terminal-toggle');
@@ -162,10 +408,198 @@ function initLiveCodePreview() {
 
 const PRESET_STORAGE_KEY = 'bf6portal.presets.user.v1';
 
+// In some packaged Electron builds, native `prompt()` can be suppressed (returns null).
+// Use an in-app modal instead so saving presets always works.
+function ensureBf6ModalRoot() {
+    let root = document.getElementById('bf6-modal-root');
+    if (root) return root;
+    root = document.createElement('div');
+    root.id = 'bf6-modal-root';
+    root.style.position = 'fixed';
+    root.style.inset = '0';
+    root.style.zIndex = '9999';
+    root.style.display = 'none';
+    document.body.appendChild(root);
+    return root;
+}
+
+function showBf6Modal({ title, bodyEl, okText, cancelText, showCancel = true, onOk, onCancel }) {
+    const root = ensureBf6ModalRoot();
+    root.innerHTML = '';
+
+    const overlay = document.createElement('div');
+    overlay.style.position = 'absolute';
+    overlay.style.inset = '0';
+    overlay.style.background = 'rgba(0,0,0,0.82)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+
+    const card = document.createElement('div');
+    card.style.maxWidth = '560px';
+    card.style.width = 'calc(100% - 32px)';
+    card.style.margin = 'auto';
+    card.style.background = '#23272e';
+    card.style.color = '#fff';
+    card.style.borderRadius = '14px';
+    card.style.boxShadow = '0 4px 32px #000a';
+    card.style.padding = '18px 18px 14px 18px';
+    card.style.position = 'relative';
+
+    const h = document.createElement('div');
+    h.textContent = title;
+    h.style.fontSize = '1.15em';
+    h.style.fontWeight = '700';
+    h.style.marginBottom = '10px';
+
+    const footer = document.createElement('div');
+    footer.style.display = 'flex';
+    footer.style.gap = '10px';
+    footer.style.justifyContent = 'flex-end';
+    footer.style.marginTop = '14px';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = cancelText || 'Cancel';
+    cancelBtn.style.padding = '8px 12px';
+    cancelBtn.style.borderRadius = '10px';
+    cancelBtn.style.border = '1px solid #444';
+    cancelBtn.style.background = '#1e1e1e';
+    cancelBtn.style.color = '#fff';
+    cancelBtn.style.cursor = 'pointer';
+
+    const okBtn = document.createElement('button');
+    okBtn.textContent = okText || 'OK';
+    okBtn.style.padding = '8px 12px';
+    okBtn.style.borderRadius = '10px';
+    okBtn.style.border = '1px solid #2a2a2a';
+    okBtn.style.background = '#007acc';
+    okBtn.style.color = '#fff';
+    okBtn.style.cursor = 'pointer';
+
+    card.appendChild(h);
+    card.appendChild(bodyEl);
+    card.appendChild(footer);
+    if (showCancel) footer.appendChild(cancelBtn);
+    footer.appendChild(okBtn);
+    overlay.appendChild(card);
+    root.appendChild(overlay);
+    root.style.display = 'block';
+
+    const close = () => {
+        root.style.display = 'none';
+        root.innerHTML = '';
+    };
+
+    return new Promise((resolve) => {
+        const cleanup = () => {
+            document.removeEventListener('keydown', onKeyDown);
+        };
+        const finish = (result) => {
+            cleanup();
+            close();
+            resolve(result);
+        };
+        const onKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                try { onCancel && onCancel(); } catch {}
+                finish('cancel');
+            }
+            if (e.key === 'Enter') {
+                try { onOk && onOk(); } catch {}
+                finish('ok');
+            }
+        };
+        document.addEventListener('keydown', onKeyDown);
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                try { onCancel && onCancel(); } catch {}
+                finish('cancel');
+            }
+        });
+        cancelBtn.addEventListener('click', () => {
+            try { onCancel && onCancel(); } catch {}
+            finish('cancel');
+        });
+        okBtn.addEventListener('click', () => {
+            try { onOk && onOk(); } catch {}
+            finish('ok');
+        });
+    });
+}
+
+async function bf6PromptText({ title, label, defaultValue }) {
+    try {
+        const body = document.createElement('div');
+        const l = document.createElement('div');
+        l.textContent = label;
+        l.style.opacity = '0.92';
+        l.style.marginBottom = '8px';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = defaultValue || '';
+        input.style.width = '100%';
+        input.style.boxSizing = 'border-box';
+        input.style.padding = '10px 12px';
+        input.style.borderRadius = '10px';
+        input.style.border = '1px solid #444';
+        input.style.background = '#1e1e1e';
+        input.style.color = '#fff';
+        input.style.outline = 'none';
+
+        body.appendChild(l);
+        body.appendChild(input);
+
+        let result = null;
+        const r = await showBf6Modal({
+            title,
+            bodyEl: body,
+            okText: 'Save',
+            cancelText: 'Cancel',
+            showCancel: true,
+            onOk: () => { result = input.value; },
+            onCancel: () => { result = null; },
+        });
+
+        if (r !== 'ok') return null;
+        return result;
+    } catch {
+        try {
+            return prompt(label, defaultValue);
+        } catch {
+            return null;
+        }
+    }
+}
+
+async function bf6Confirm({ title, message, okText, cancelText }) {
+    try {
+        const body = document.createElement('div');
+        body.textContent = message;
+        body.style.whiteSpace = 'pre-wrap';
+        const r = await showBf6Modal({ title, bodyEl: body, okText: okText || 'OK', cancelText: cancelText || 'Cancel', showCancel: true });
+        return r === 'ok';
+    } catch {
+        try { return confirm(message); } catch { return false; }
+    }
+}
+
+async function bf6Alert({ title, message, okText }) {
+    try {
+        const body = document.createElement('div');
+        body.textContent = message;
+        body.style.whiteSpace = 'pre-wrap';
+        await showBf6Modal({ title, bodyEl: body, okText: okText || 'OK', showCancel: false });
+    } catch {
+        try { alert(message); } catch {}
+    }
+}
+
 function getBuiltInPresets() {
     return [
         { id: 'builtin:rush', name: 'Andy6170 - Rush (V1.0)', url: 'presets/custom_rush_V1.0.json', locked: true },
-        { id: 'builtin:conquest', name: 'Andy6170 - Conquest (7.2)', url: 'presets/custom_conquest_template_7.2.json', locked: true },
+        { id: 'builtin:conquest', name: 'Andy6170 - Conquest (V8.0)', url: 'presets/custom_conquest_template_V8.0.json', locked: true },
         { id: 'builtin:breakthrough', name: 'Andy6170 - Breakthrough (V1.1)', url: 'presets/custom_breakthrough_V1.1.json', locked: true },
     ];
 }
@@ -336,7 +770,7 @@ function makeUserPresetId() {
     return `user:${Date.now()}:${Math.random().toString(16).slice(2)}`;
 }
 
-function saveCurrentWorkspaceAsPreset() {
+async function saveCurrentWorkspaceAsPreset() {
     if (!window.workspace || !Blockly?.serialization?.workspaces?.save) return;
 
     const selected = getSelectedPresetInfo();
@@ -346,15 +780,15 @@ function saveCurrentWorkspaceAsPreset() {
     if (selected.kind === 'builtin' && selected.name) defaultName = `${selected.name} (Copy)`;
     if (selected.kind === 'user' && selected.name) defaultName = selected.name;
 
-    let name = prompt('Preset name:', defaultName);
-    if (!name) return;
-    name = name.trim();
+    const raw = await bf6PromptText({ title: 'Save Preset', label: 'Preset name:', defaultValue: defaultName });
+    if (raw == null) return;
+    let name = String(raw).trim();
     if (!name) return;
 
     // Prevent overwriting built-ins by name.
     if (builtins.some(b => b.name.toLowerCase() === name.toLowerCase())) {
-        alert('That name matches a locked built-in preset. Please choose a different name (it will be saved as a new preset).');
-        return;
+        // Friendly UX: auto-suffix so users can quickly save a copy.
+        name = `${name} (Copy)`;
     }
 
     const user = loadUserPresets();
@@ -366,7 +800,12 @@ function saveCurrentWorkspaceAsPreset() {
 
     // If the name already exists under a different id, offer overwrite.
     if (existingId && existingId !== targetId) {
-        const ok = confirm('A user preset with that name already exists. Overwrite it?');
+        const ok = await bf6Confirm({
+            title: 'Overwrite preset?',
+            message: 'A user preset with that name already exists. Overwrite it?',
+            okText: 'Overwrite',
+            cancelText: 'Cancel'
+        });
         if (!ok) return;
         targetId = existingId;
     }
@@ -382,7 +821,7 @@ function saveCurrentWorkspaceAsPreset() {
     };
     saveUserPresets(user);
     refreshPresetDropdown(targetId);
-    alert(`Saved preset: ${name}`);
+    await bf6Alert({ title: 'Preset saved', message: `Saved preset: ${name}` });
 }
 
 function deleteSelectedPreset() {

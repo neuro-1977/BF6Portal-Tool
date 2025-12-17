@@ -1022,16 +1022,41 @@ export const toolbox = {
       "kind": "category",
       "name": "VARIABLES",
       "colour": "#4CAF50",
-      "custom": "VARIABLE", // Using Blockly's standard variable category
+      "custom": "VARIABLES_CATEGORY",
+      "contents": []
+    },
+    {
+      "kind": "category",
+      "name": "SUBROUTINES",
+      "colour": "#E6A85C",
+      "custom": "SUBROUTINES_CATEGORY",
+      "contents": []
+    },
+    {
+      "kind": "category",
+      "name": "CONTROL ACTIONS",
+      "colour": "#0288D1",
       "contents": [
-        { "kind": "block", "type": "SETVARIABLE" },
-        { "kind": "block", "type": "GETVARIABLE" },
-        { "kind": "block", "type": "set_variable" },
-        { "kind": "block", "type": "get_variable" },
-        { "kind": "block", "type": "mod_GetArgument" },
-        { "kind": "block", "type": "mod_GetVariable" },
-        { "kind": "block", "type": "mod_GlobalVariable" },
-        { "kind": "block", "type": "mod_ObjectVariable" }
+        { "kind": "block", "type": "WAIT" },
+        { "kind": "block", "type": "WAITUNTIL" },
+        { "kind": "block", "type": "ABORT" },
+        { "kind": "block", "type": "AbortIf" },
+        { "kind": "block", "type": "BREAK" },
+        { "kind": "block", "type": "CONTINUE" },
+        { "kind": "block", "type": "IF" },
+        { "kind": "block", "type": "WHILE" },
+
+        { "kind": "block", "type": "abort" },
+        { "kind": "block", "type": "abort_if" },
+        { "kind": "block", "type": "break" },
+        { "kind": "block", "type": "continue" },
+        { "kind": "block", "type": "else_if" },
+        { "kind": "block", "type": "if" },
+        { "kind": "block", "type": "skip" },
+        { "kind": "block", "type": "skip_if" },
+        { "kind": "block", "type": "wait" },
+        { "kind": "block", "type": "wait_until" },
+        { "kind": "block", "type": "while" }
       ]
     }
   ]
