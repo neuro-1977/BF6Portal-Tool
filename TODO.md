@@ -5,8 +5,25 @@
     - **Current State:** CSS attempts to hide scrollbars on `.blocklyToolboxDiv`, `.blocklyToolbox`, and `.blocklyFlyout` have reduced but not fully eliminated the artifact in some states.
     - **Potential Cause:** Electron/Chromium native scrollbar rendering on a dynamic container created by Blockly or the custom search bar injection.
 
-## Upcoming (target: v1.2.9)
+## Upcoming (target: v1.3.0)
 
-- [ ] **Selection Lists:** dropdowns can get stuck on “(loading selection lists…)” in some builds; improve runtime asset loading for Electron `file://`.
-- [ ] **Presets:** saving after editing a loaded preset should always work (save-as copy / overwrite flow).
-- [ ] **Credits:** add explicit credit/link for Portal Docs data source in About modal and repo README.
+- [ ] **Project cleanup / stabilization (v1.3.0 goal):**
+    - remove unnecessary comments, dead code paths, and stale file references
+    - consolidate duplicate logic (especially toolbox/presets/selection-lists)
+    - ensure naming and folder layout is consistent
+    - add or update documentation for the final structure
+
+- [ ] **Toolbox parity + ordering:** user-provided lists will define the exact order and membership of blocks in each menu; implement parity checks so we can confirm “everything is present” and in the right spot.
+
+- [ ] **Variables UX:** decide and implement whether “custom variables” should be listed (and where). Ensure variable creation + listing + toolbox generation are consistent across:
+    - fresh workspaces
+    - imported community templates
+    - built-in presets
+
+- [ ] **Selection Lists:** continue hardening edge cases where dropdowns can get stuck on “(loading selection lists…)” under Electron `file://`.
+
+- [ ] **Presets:** richer preset UX (save-as copy / overwrite flow for built-ins, better naming + metadata).
+
+- [ ] **Build outputs:** reduce `dist-*` folder sprawl and add a safe cleanup flow (Windows file locks on `app.asar` are common).
+
+- [ ] **Testing:** keep the headless preset-load smoke test and consider running it in CI for regressions.
