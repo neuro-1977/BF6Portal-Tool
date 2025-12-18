@@ -25,6 +25,11 @@
     - UX idea: right-click selection / block → **Save as Collection…**, then a toolbox menu **Collections**.
     - Safety: prevent naming collisions with existing block types + reserved names.
     - Visual: distinct styling (e.g. bright green outline / unique shape) so collections stand out.
+    - [x] MVP (bookmark-style): new **COLLECT** call block + offscreen **COLLECTION** definition block.
+    - [x] Right-click: **Convert to collection (bookmark + move stack)** and **Jump to collection definition**.
+    - [x] Codegen: call block inlines the definition stack (recursion guarded).
+    - [ ] Next: make the call block use a dropdown of existing collections (avoid typos).
+    - [ ] Next: optional “Export for Portal” flow that expands collections and strips tool-only blocks.
 
 - [ ] **External reference:** review `deluca-mike/bf6-portal-scripting-template` for ideas (TS bundling, debug UI patterns). **Do not reuse code** unless a license/permission is clarified; keep notes/attribution up to date.
 

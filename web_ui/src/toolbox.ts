@@ -18,6 +18,14 @@ export const toolbox = {
         { "kind": "block", "type": "COMMENT" }
       ]
     },
+    {
+      "kind": "category",
+      "name": "COLLECTIONS",
+      "colour": "#cc5cff",
+      "contents": [
+        { "kind": "block", "type": "BF6_COLLECTION_CALL" }
+      ]
+    },
     // --- YELLOW MENUS (Statements) ---
     {
       "kind": "category",

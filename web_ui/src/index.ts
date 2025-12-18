@@ -7,6 +7,7 @@
 import * as Blockly from 'blockly';
 import {blocks as textBlocks} from './blocks/text';
 import {blocks as homeBlocks} from './blocks/home';
+import {blocks as collectionBlocks} from './blocks/collections';
 import {bf6PortalBlocks} from './blocks/bf6portal';
 import {bf6PortalExpandedBlocks} from './blocks/bf6portal_expanded'; // New import
 import {generatedBlocks} from './blocks/generated_blocks'; // Auto-generated blocks
@@ -20,6 +21,7 @@ import {bf6Theme} from './bf6_theme';
 import {MenuBar} from './components/MenuBar';
 import { preloadSelectionLists, registerSelectionListExtensions } from './selection_lists';
 import { initPresetsUI } from './presets';
+import { registerCollectionsContextMenus } from './collections';
 import './index.css';
 import './components/MenuBar.css';
 
@@ -111,6 +113,7 @@ try {
   void preloadSelectionLists();
   Blockly.common.defineBlocks(textBlocks);
   Blockly.common.defineBlocks(homeBlocks);
+  Blockly.common.defineBlocks(collectionBlocks);
   Blockly.common.defineBlocks(bf6PortalBlocks);
   Blockly.common.defineBlocks(bf6PortalExpandedBlocks); // New registration
 
@@ -156,6 +159,13 @@ try {
   
   // Expose workspace globally
   (window as any).workspace = ws;
+
+  // Collections / bookmarks (macro-like call blocks + offscreen definitions)
+  try {
+    registerCollectionsContextMenus(ws);
+  } catch (e) {
+    console.warn('[BF6] Failed to register Collections context menus:', e);
+  }
 
   // Legacy `web_ui/main.js` owns the Code Preview drawer implementation.
   // When the workspace is created by this bundle, explicitly kick the preview on.

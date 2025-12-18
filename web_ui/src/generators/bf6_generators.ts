@@ -7,7 +7,47 @@
 import * as Blockly from 'blockly';
 import {Order} from 'blockly/javascript';
 
+import { COLLECTION_CALL_TYPE, COLLECTION_DEF_TYPE } from '../blocks/collections';
+
 export const bf6Generators: any = {};
+
+// --- Collections / Bookmarks ---
+// A collection definition lives offscreen and is inlined by a call block.
+bf6Generators[COLLECTION_DEF_TYPE] = function () {
+  return '';
+};
+
+bf6Generators[COLLECTION_CALL_TYPE] = function (block: any, generator: any) {
+  const name = String(block?.getFieldValue?.('NAME') ?? '').trim();
+  if (!name) return `// [Collections] Missing collection name\n`;
+
+  const ws = block?.workspace;
+  const defs = ws && typeof ws.getBlocksByType === 'function'
+    ? ws.getBlocksByType(COLLECTION_DEF_TYPE, false)
+    : [];
+
+  const def = Array.isArray(defs)
+    ? defs.find((d: any) => String(d?.getFieldValue?.('NAME') ?? '').trim().toLowerCase() === name.toLowerCase())
+    : null;
+
+  if (!def) {
+    return `// [Collections] Definition not found: ${name}\n`;
+  }
+
+  // Recursion guard (collection calling itself directly or indirectly).
+  const stack: string[] = (generator as any).__bf6CollectionStack || ((generator as any).__bf6CollectionStack = []);
+  if (stack.includes(name)) {
+    return `// [Collections] Recursive call blocked: ${name}\n`;
+  }
+
+  stack.push(name);
+  try {
+    const inner = generator.statementToCode(def, 'STACK');
+    return inner;
+  } finally {
+    stack.pop();
+  }
+};
 
 
 bf6Generators['MOD_BLOCK'] = function(block: any, generator: any) {
