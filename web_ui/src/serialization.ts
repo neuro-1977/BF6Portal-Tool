@@ -4,7 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import * as Blockly from 'blockly/core';
+import * as Blockly from 'blockly';
+
+import {
+  ensureCriticalPortalStructuralBlocks,
+  ensurePortalBlocksRegisteredFromState,
+  normalizeWorkspaceState,
+  wrapPortalExport,
+} from './portal_json';
 
 const storageKey = 'mainWorkspace';
 
@@ -35,8 +42,15 @@ export const load = async function (workspace: Blockly.Workspace) {
     if (res.ok) {
       const { state } = await res.json();
       if (state) {
+        const normalized = normalizeWorkspaceState(state);
+        ensureCriticalPortalStructuralBlocks();
+        try {
+          ensurePortalBlocksRegisteredFromState(normalized);
+        } catch {
+          // ignore
+        }
         Blockly.Events.disable();
-        Blockly.serialization.workspaces.load(state, workspace, undefined);
+        Blockly.serialization.workspaces.load(normalized, workspace, undefined);
         Blockly.Events.enable();
         loaded = true;
       }
@@ -46,8 +60,15 @@ export const load = async function (workspace: Blockly.Workspace) {
     // Fallback to localStorage
     const data = window.localStorage?.getItem(storageKey);
     if (!data) return;
+    const normalized = normalizeWorkspaceState(JSON.parse(data));
+    ensureCriticalPortalStructuralBlocks();
+    try {
+      ensurePortalBlocksRegisteredFromState(normalized);
+    } catch {
+      // ignore
+    }
     Blockly.Events.disable();
-    Blockly.serialization.workspaces.load(JSON.parse(data), workspace, undefined);
+    Blockly.serialization.workspaces.load(normalized, workspace, undefined);
     Blockly.Events.enable();
   }
 };
@@ -58,13 +79,14 @@ export const load = async function (workspace: Blockly.Workspace) {
  */
 export const saveToFile = function (workspace: Blockly.Workspace) {
   const data = Blockly.serialization.workspaces.save(workspace);
-  const json = JSON.stringify(data, null, 2);
+  const portal = wrapPortalExport(data);
+  const json = JSON.stringify(portal, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'bf6portal_workspace.json';
+  a.download = 'custom_draft_workspace.json';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -78,11 +100,39 @@ export const saveToFile = function (workspace: Blockly.Workspace) {
  */
 export const loadFromFile = function (workspace: Blockly.Workspace, jsonContent: string) {
   try {
-    const data = JSON.parse(jsonContent);
+    const parsed = JSON.parse(jsonContent);
+    const data = normalizeWorkspaceState(parsed);
+
+    try {
+      const count = typeof (workspace as any).getAllBlocks === 'function' ? (workspace as any).getAllBlocks(false).length : 0;
+      if (count > 0) {
+        const ok = confirm('Loading a file will replace your current workspace. Continue?');
+        if (!ok) return;
+      }
+    } catch {
+      // ignore
+    }
+
+    ensureCriticalPortalStructuralBlocks();
+    try {
+      ensurePortalBlocksRegisteredFromState(data);
+    } catch {
+      // ignore
+    }
+
     Blockly.Events.disable();
+    try {
+      (workspace as any).clear?.();
+    } catch {
+      // ignore
+    }
     Blockly.serialization.workspaces.load(data, workspace, undefined);
     Blockly.Events.enable();
-    (workspace as any).zoomToFit();
+    try {
+      (workspace as any).zoomToFit?.();
+    } catch {
+      // ignore
+    }
   } catch (e) {
     console.error("Failed to load workspace from file:", e);
     alert("Failed to load workspace. Invalid JSON file.");
