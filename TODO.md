@@ -15,6 +15,8 @@
 
 - [x] **Selection list colours:** selection-list dropdown blocks (e.g. **Vehicles**) should use a consistent colour (no random red outlier).
 
+- [x] **Portal JSON compatibility:** exported/imported workspace JSON matches Portal-style wrapper (`{"mod":{"blocks":...}}`), and importer accepts both wrapped and raw Blockly workspace formats.
+
 - [ ] **TypeScript import:** add a TypeScript → Blocks import flow. For now, show an **Import TS (Coming soon)** button until we can guarantee correctness.
 
 - [ ] **External reference:** review `deluca-mike/bf6-portal-scripting-template` for ideas (TS bundling, debug UI patterns). **Do not reuse code** unless a license/permission is clarified; keep notes/attribution up to date.
