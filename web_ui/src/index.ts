@@ -23,6 +23,7 @@ import { preloadSelectionLists, registerSelectionListExtensions } from './select
 import { initPresetsUI } from './presets';
 import { registerCollectionsContextMenus } from './collections';
 import { registerSubroutineNavigationContextMenus } from './subroutine_navigation';
+import { registerGeneralNavigationContextMenus } from './navigation';
 import './index.css';
 import './components/MenuBar.css';
 
@@ -173,6 +174,13 @@ try {
     registerSubroutineNavigationContextMenus(ws);
   } catch (e) {
     console.warn('[BF6] Failed to register Subroutine navigation menus:', e);
+  }
+
+  // Navigation / teleport: MOD / rules / variables / stack root
+  try {
+    registerGeneralNavigationContextMenus(ws);
+  } catch (e) {
+    console.warn('[BF6] Failed to register General navigation menus:', e);
   }
 
   // Legacy `web_ui/main.js` owns the Code Preview drawer implementation.
