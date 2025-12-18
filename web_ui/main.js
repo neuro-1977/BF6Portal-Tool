@@ -1932,35 +1932,57 @@ function showHelpIndex(filterText) {
 
     titleEl.textContent = 'Block Help';
 
-    const all = getKnownBlockTypes();
-    const q = String(filterText || '').trim().toLowerCase();
-    const filtered = q ? all.filter(t => t.toLowerCase().includes(q)) : all;
+    const ensureIndexUi = () => {
+        // Build the help index UI once. Subsequent filtering updates the list only.
+        if (document.getElementById('helpSearch') && document.getElementById('helpIndexList')) return;
+        bodyEl.innerHTML = `
+          <div style="margin-bottom: 10px;">
+            <input id="helpSearch" placeholder="Search block types..." value="" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background:#1e1e1e; color:#fff; box-sizing:border-box;" />
+          </div>
+          <div id="helpIndexList" style="max-height: 55vh; overflow:auto; padding-right: 6px;"></div>
+          <div id="helpIndexCount" style="opacity:.7; margin-top:10px; font-size: 12px;"></div>
+        `;
 
-    const itemsHtml = filtered.slice(0, 400).map(t => {
-        const doc = BF6_BLOCK_DOCS ? BF6_BLOCK_DOCS.get(t) : null;
-        const cat = doc?.category ? ` <span style="opacity:.7;">(${escapeHtml(doc.category)})</span>` : '';
-        return `<div style="padding:6px 0; border-bottom: 1px solid #333; cursor:pointer;" data-help-type="${escapeHtml(t)}"><strong>${escapeHtml(t)}</strong>${cat}</div>`;
-    }).join('');
+        const searchEl = document.getElementById('helpSearch');
+        if (searchEl) {
+            searchEl.oninput = (ev) => {
+                updateHelpIndexList(ev.target.value);
+            };
+        }
+    };
 
-    bodyEl.innerHTML = `
-      <div style="margin-bottom: 10px;">
-        <input id="helpSearch" placeholder="Search block types..." value="${escapeHtml(filterText || '')}" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background:#1e1e1e; color:#fff; box-sizing:border-box;" />
-      </div>
-      <div style="max-height: 55vh; overflow:auto; padding-right: 6px;">
-        ${itemsHtml || '<div style="opacity:.85;">No blocks found.</div>'}
-      </div>
-      <div style="opacity:.7; margin-top:10px; font-size: 12px;">Showing ${Math.min(filtered.length, 400)} of ${filtered.length} matched (and ${all.length} total known).</div>
-    `;
+    const updateHelpIndexList = (text) => {
+        const listEl = document.getElementById('helpIndexList');
+        const countEl = document.getElementById('helpIndexCount');
+        if (!listEl || !countEl) return;
 
-    // Wire search + clicks
+        const all = getKnownBlockTypes();
+        const q = String(text || '').trim().toLowerCase();
+        const filtered = q ? all.filter(t => t.toLowerCase().includes(q)) : all;
+
+        const itemsHtml = filtered.slice(0, 400).map(t => {
+            const doc = BF6_BLOCK_DOCS ? (BF6_BLOCK_DOCS.get(t) || BF6_BLOCK_DOCS.get(t.toUpperCase()) || BF6_BLOCK_DOCS.get(t.toLowerCase())) : null;
+            const cat = doc?.category ? ` <span style="opacity:.7;">(${escapeHtml(doc.category)})</span>` : '';
+            return `<div style="padding:6px 0; border-bottom: 1px solid #333; cursor:pointer;" data-help-type="${escapeHtml(t)}"><strong>${escapeHtml(t)}</strong>${cat}</div>`;
+        }).join('');
+
+        listEl.innerHTML = itemsHtml || '<div style="opacity:.85;">No blocks found.</div>';
+        countEl.textContent = `Showing ${Math.min(filtered.length, 400)} of ${filtered.length} matched (and ${all.length} total known).`;
+
+        listEl.querySelectorAll('[data-help-type]').forEach((el) => {
+            el.addEventListener('click', () => {
+                const t = el.getAttribute('data-help-type');
+                if (t) showHelpForBlockType(t);
+            });
+        });
+    };
+
+    ensureIndexUi();
+
     const searchEl = document.getElementById('helpSearch');
     if (searchEl) {
-        searchEl.oninput = (ev) => {
-            showHelpIndex(ev.target.value);
-        };
-        // Re-rendering this modal on every keystroke recreates the <input>.
-        // If we don't restore the caret, the next keystroke can be inserted at
-        // the start (making "MOD" look like "DOM" and vice versa).
+        searchEl.value = String(filterText || '');
+        updateHelpIndexList(searchEl.value);
         setTimeout(() => {
             try {
                 searchEl.focus();
@@ -1972,14 +1994,9 @@ function showHelpIndex(filterText) {
                 // ignore
             }
         }, 0);
+    } else {
+        updateHelpIndexList(filterText);
     }
-
-    bodyEl.querySelectorAll('[data-help-type]').forEach((el) => {
-        el.addEventListener('click', () => {
-            const t = el.getAttribute('data-help-type');
-            if (t) showHelpForBlockType(t);
-        });
-    });
 
     openHelpModal();
 }
