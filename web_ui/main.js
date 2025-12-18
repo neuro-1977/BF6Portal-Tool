@@ -222,6 +222,13 @@ function registerLegacySelectionListDropdown() {
     }
 
     window.Blockly.Extensions.register('bf6_selection_list_dropdown', function() {
+        // All selection list dropdown blocks should share a consistent colour.
+        try {
+            if (this && typeof this.setColour === 'function') this.setColour('#4CAF50');
+        } catch {
+            // ignore
+        }
+
         const field = this.getField && this.getField('OPTION');
         if (!field) return;
 
@@ -307,6 +314,17 @@ function setupButtonListeners() {
         },
         'saveBtn': () => saveWorkspace(),
         'exportTsBtn': () => exportToTypeScript(),
+        'importTsBtn': () => {
+            try {
+                void bf6Alert({
+                    title: 'Import TypeScript',
+                    message: 'Coming soon.\n\nTypeScript → Blocks import is planned, but it is not ready enough to guarantee correct Portal-compatible output yet.',
+                    okText: 'OK'
+                });
+            } catch {
+                alert('Import TS: Coming soon');
+            }
+        },
         'presetSaveBtn': () => saveCurrentWorkspaceAsPreset(),
         'presetDeleteBtn': () => deleteSelectedPreset(),
         'closeAboutModal': () => {
@@ -733,6 +751,13 @@ async function loadPresetById(id) {
         } finally {
             Blockly.Events.enable();
         }
+
+        // Custom toolbox categories can cache their flyout contents.
+        // After a deserialize, refresh so imported variables appear.
+        try {
+            window.workspace.refreshToolboxSelection?.();
+            window.workspace.getToolbox?.()?.refreshSelection?.();
+        } catch {}
         setTimeout(() => {
             try {
                 Blockly.svgResize(window.workspace);
@@ -754,6 +779,11 @@ async function loadPresetById(id) {
         } finally {
             Blockly.Events.enable();
         }
+
+        try {
+            window.workspace.refreshToolboxSelection?.();
+            window.workspace.getToolbox?.()?.refreshSelection?.();
+        } catch {}
         setTimeout(() => {
             try {
                 Blockly.svgResize(window.workspace);
@@ -1657,14 +1687,23 @@ function fallbackInjection() {
     }
 }
 
-function saveWorkspace() {
+async function saveWorkspace() {
     if (!window.workspace) return;
 
-    // Prefer JSON serialization (matches the "Save JSON" button label).
+    // Ensure docs/specs are available for best-effort Portal-compatible export.
+    try { await loadBlockDocs(); } catch {}
+
+    // Prefer JSON serialization.
     if (Blockly?.serialization?.workspaces?.save) {
         try {
-            const state = Blockly.serialization.workspaces.save(window.workspace);
-            const jsonText = JSON.stringify(state, null, 2);
+            const internalState = Blockly.serialization.workspaces.save(window.workspace);
+
+            // Export Portal/community compatible JSON by default so the output can be
+            // imported into other Portal editors.
+            // Also keep it round-trippable by converting back on import.
+            const portalState = convertWorkspaceStateInternalToPortal(internalState);
+            const wrapped = { mod: portalState };
+            const jsonText = JSON.stringify(wrapped, null, 2);
             downloadText(jsonText, 'bf6_portal_rules.json', 'application/json');
             return;
         } catch (e) {
@@ -1683,9 +1722,10 @@ function handleFileUpload(event) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(e) {
-        const text = String(e.target.result ?? '');
-        const cleaned = text.replace(/^\uFEFF/, '');
-        if (!window.workspace) return;
+        (async () => {
+            const text = String(e.target.result ?? '');
+            const cleaned = text.replace(/^\uFEFF/, '');
+            if (!window.workspace) return;
 
         // Allow re-loading the same file consecutively.
         try {
@@ -1701,7 +1741,17 @@ function handleFileUpload(event) {
         if (!looksLikeXml && looksLikeJson && Blockly?.serialization?.workspaces?.load) {
             try {
                 const parsed = JSON.parse(cleaned);
-                const state = normalizeWorkspaceState(parsed);
+                let state = normalizeWorkspaceState(parsed);
+
+                // If this looks like a Portal/community export (including our own
+                // mod-wrapped exports), convert it to this tool's internal schema
+                // so it loads with correct connections.
+                const portalWrapped = looksLikePortalWrappedExport(parsed);
+                const portalShaped = portalWrapped || looksLikePortalWorkspaceState(state);
+                if (portalShaped) {
+                    try { await loadBlockDocs(); } catch {}
+                    try { state = convertWorkspaceStatePortalToInternal(state); } catch {}
+                }
                 const expectedBlockCount = (() => {
                     try {
                         const arr = state?.blocks?.blocks;
@@ -1729,6 +1779,11 @@ function handleFileUpload(event) {
                 } finally {
                     Blockly.Events.enable();
                 }
+
+                try {
+                    window.workspace.refreshToolboxSelection?.();
+                    window.workspace.getToolbox?.()?.refreshSelection?.();
+                } catch {}
 
                 // Ensure the SVG recalculates size after a big load.
                 setTimeout(() => {
@@ -1779,7 +1834,7 @@ function handleFileUpload(event) {
                     // ignore
                 }
 
-                alert('Failed to load JSON. This expects a Blockly workspace JSON export from this tool.');
+                alert('Failed to load JSON. This expects a Portal/community workspace JSON export (mod-wrapped) or a JSON export from this tool.');
                 return;
             }
         }
@@ -1804,6 +1859,10 @@ function handleFileUpload(event) {
         }
 
         alert('Unrecognized file format. Please load a Blockly workspace JSON (.json) or legacy XML (.xml).');
+        })().catch((err) => {
+            console.warn('[BF6] File load handler failed:', err);
+            alert('Failed to load file.');
+        });
     };
     reader.readAsText(file);
 }
@@ -1883,6 +1942,410 @@ function normalizeWorkspaceState(state) {
         }
     }
     return state;
+}
+
+// --- Portal compatibility: convert between this tool's internal block schema and
+// community/Portal-compatible JSON (as used by built-in presets).
+
+function looksLikePortalWrappedExport(obj) {
+    try {
+        return !!(obj && typeof obj === 'object' && obj.mod && typeof obj.mod === 'object');
+    } catch {
+        return false;
+    }
+}
+
+function looksLikePortalWorkspaceState(state) {
+    // Heuristics: portal exports commonly use VALUE-0 style inputs and
+    // modBlock/ruleBlock/conditionBlock structural block types.
+    try {
+        const blocks = state?.blocks?.blocks;
+        if (!Array.isArray(blocks) || blocks.length === 0) return false;
+        const stack = [...blocks];
+        let checked = 0;
+        while (stack.length && checked < 50) {
+            const b = stack.pop();
+            checked++;
+            if (!b || typeof b !== 'object') continue;
+            const t = String(b.type || '');
+            if (t === 'modBlock' || t === 'ruleBlock' || t === 'conditionBlock' || t === 'subroutineBlock') return true;
+            const ins = b.inputs || {};
+            for (const k of Object.keys(ins)) {
+                if (/^VALUE-\d+$/.test(k)) return true;
+                const child = ins[k]?.block;
+                if (child) stack.push(child);
+            }
+            const next = b.next?.block;
+            if (next) stack.push(next);
+        }
+    } catch {
+        // ignore
+    }
+    return false;
+}
+
+let BF6_PORTAL_SPECS_BY_TYPE = null;
+let __BF6_INTERNAL_SHAPES = null;
+
+function buildPortalSpecsFromDocsArray(arr) {
+    // Build a compact map: portalType -> { valueInputs: [names], statementInputs: [names] }
+    // using bf6portal_blocks.json (args_json).
+    const specs = new Map();
+    if (!Array.isArray(arr)) return specs;
+    for (const item of arr) {
+        try {
+            const name = item?.name;
+            if (typeof name !== 'string' || !name.trim()) continue;
+            const portalType = name.trim().split(/\s+/)[0];
+            if (!portalType) continue;
+            let args = [];
+            if (typeof item.args_json === 'string' && item.args_json.trim()) {
+                try {
+                    args = JSON.parse(item.args_json);
+                } catch {
+                    args = [];
+                }
+            }
+            const valueInputs = [];
+            const statementInputs = [];
+            if (Array.isArray(args)) {
+                for (const a of args) {
+                    if (!a || typeof a !== 'object') continue;
+                    const at = String(a.type || '');
+                    const an = String(a.name || '');
+                    if (!an) continue;
+                    if (at === 'input_value') valueInputs.push(an);
+                    if (at === 'input_statement') statementInputs.push(an);
+                }
+            }
+
+            // Prefer the spec with the most information.
+            const prev = specs.get(portalType);
+            if (!prev || (valueInputs.length + statementInputs.length) > ((prev.valueInputs?.length || 0) + (prev.statementInputs?.length || 0))) {
+                specs.set(portalType, { valueInputs, statementInputs });
+            }
+        } catch {
+            // ignore
+        }
+    }
+    return specs;
+}
+
+function getPortalSpec(portalType) {
+    try {
+        if (!BF6_PORTAL_SPECS_BY_TYPE) {
+            // If docs haven't loaded yet, we can't build portal specs.
+            // Ensure loadBlockDocs() has run.
+            return null;
+        }
+        return BF6_PORTAL_SPECS_BY_TYPE.get(portalType) || null;
+    } catch {
+        return null;
+    }
+}
+
+function ensureInternalShapeCache() {
+    if (__BF6_INTERNAL_SHAPES) return;
+    __BF6_INTERNAL_SHAPES = new Map();
+}
+
+function getInternalShape(type) {
+    ensureInternalShapeCache();
+    if (__BF6_INTERNAL_SHAPES.has(type)) return __BF6_INTERNAL_SHAPES.get(type);
+
+    // Default empty (cached even on failure to avoid repeated work).
+    const empty = { valueInputs: [], statementInputs: [] };
+    __BF6_INTERNAL_SHAPES.set(type, empty);
+
+    try {
+        if (!Blockly || typeof Blockly.Workspace !== 'function') return empty;
+        const ws = new Blockly.Workspace();
+        const block = ws.newBlock(type);
+        // Some blocks rely on init() being called by newBlock; just in case:
+        try { if (typeof block.initSvg === 'function') block.initSvg(); } catch {}
+
+        const valueInputs = [];
+        const statementInputs = [];
+        try {
+            const inputTypes = Blockly?.inputTypes;
+            for (const inp of (block.inputList || [])) {
+                if (!inp || !inp.name) continue;
+                if (inputTypes && inp.type === inputTypes.VALUE) valueInputs.push(inp.name);
+                else if (inputTypes && inp.type === inputTypes.STATEMENT) statementInputs.push(inp.name);
+            }
+        } catch {
+            // ignore
+        }
+
+        // Cleanup
+        try { block.dispose(false); } catch {}
+        try { ws.dispose(); } catch {}
+
+        const shape = { valueInputs, statementInputs };
+        __BF6_INTERNAL_SHAPES.set(type, shape);
+        return shape;
+    } catch {
+        return empty;
+    }
+}
+
+const PORTAL_TYPE_EXPORT_OVERRIDES = {
+    // Structural blocks: tool-internal -> portal/community
+    MOD_BLOCK: 'modBlock',
+    RULE_HEADER: 'ruleBlock',
+    CONDITION_BLOCK: 'conditionBlock',
+    condition: 'conditionBlock',
+    SUBROUTINE_BLOCK: 'subroutineBlock',
+    CALLSUBROUTINE: 'subroutineInstanceBlock',
+};
+
+const PORTAL_TYPE_IMPORT_OVERRIDES = {
+    // Structural blocks: portal/community -> tool-internal
+    modBlock: 'MOD_BLOCK',
+    ruleBlock: 'RULE_HEADER',
+    conditionBlock: 'condition',
+    subroutineBlock: 'SUBROUTINE_BLOCK',
+    subroutineInstanceBlock: 'CALLSUBROUTINE',
+};
+
+function resolvePortalTypeFromInternalType(internalType) {
+    const t = String(internalType || '').trim();
+    if (!t) return t;
+    if (Object.prototype.hasOwnProperty.call(PORTAL_TYPE_EXPORT_OVERRIDES, t)) return PORTAL_TYPE_EXPORT_OVERRIDES[t];
+
+    // Safety: only convert type names when the block's input arity looks compatible
+    // with the Portal spec. This avoids corrupting blocks that happen to share a
+    // similar name but use a different schema (fields vs value inputs, etc.).
+    try {
+        const candidate = (function() {
+            const doc = BF6_BLOCK_DOCS ? (BF6_BLOCK_DOCS.get(t) || BF6_BLOCK_DOCS.get(t.toUpperCase()) || BF6_BLOCK_DOCS.get(t.toLowerCase())) : null;
+            if (doc && typeof doc.type === 'string' && doc.type.trim()) return doc.type.trim();
+            return t;
+        })();
+
+        if (candidate && candidate !== t) {
+            const spec = getPortalSpec(candidate);
+            if (spec) {
+                const internalShape = getInternalShape(t);
+                const want = (spec.valueInputs?.length || 0) + (spec.statementInputs?.length || 0);
+                const have = (internalShape.valueInputs?.length || 0) + (internalShape.statementInputs?.length || 0);
+                // If portal expects inputs but internal doesn't match, skip conversion.
+                if (want > 0 && have !== want) return t;
+            }
+        }
+
+        return candidate || t;
+    } catch {
+        return t;
+    }
+}
+
+function resolveInternalTypeFromPortalType(portalType) {
+    const t = String(portalType || '').trim();
+    if (!t) return t;
+    if (Object.prototype.hasOwnProperty.call(PORTAL_TYPE_IMPORT_OVERRIDES, t)) return PORTAL_TYPE_IMPORT_OVERRIDES[t];
+
+    // Prefer a type that exists in this build and is schema-compatible with the
+    // portal spec (so we don't map a Portal value-input block onto a local
+    // field-only block).
+    try {
+        const spec = getPortalSpec(t);
+        const candidates = [];
+        if (Blockly?.Blocks && Object.prototype.hasOwnProperty.call(Blockly.Blocks, t)) candidates.push(t);
+        const up = t.toUpperCase();
+        if (Blockly?.Blocks && Object.prototype.hasOwnProperty.call(Blockly.Blocks, up)) candidates.push(up);
+
+        if (!spec) {
+            // No spec information: fall back to "exists" preference.
+            return candidates[0] || t;
+        }
+
+        const want = (spec.valueInputs?.length || 0) + (spec.statementInputs?.length || 0);
+        for (const cand of candidates) {
+            const shape = getInternalShape(cand);
+            const have = (shape.valueInputs?.length || 0) + (shape.statementInputs?.length || 0);
+            if (want === 0 || have === want) return cand;
+        }
+
+        // If nothing matched, keep portal type so placeholder blocks retain
+        // the correct Portal-shaped inputs.
+        return t;
+    } catch {
+        return t;
+    }
+}
+
+function remapInputsByPosition(inputsObj, fromNames, toNames) {
+    // Rename input keys in `inputsObj` based on positional mapping.
+    // Only renames existing keys; leaves extra keys untouched.
+    if (!inputsObj || typeof inputsObj !== 'object') return inputsObj;
+    if (!Array.isArray(fromNames) || !Array.isArray(toNames)) return inputsObj;
+
+    const out = { ...inputsObj };
+    const n = Math.min(fromNames.length, toNames.length);
+    for (let i = 0; i < n; i++) {
+        const from = fromNames[i];
+        const to = toNames[i];
+        if (!from || !to || from === to) continue;
+        if (!Object.prototype.hasOwnProperty.call(out, from)) continue;
+        if (Object.prototype.hasOwnProperty.call(out, to)) continue;
+        out[to] = out[from];
+        delete out[from];
+    }
+    return out;
+}
+
+function convertBlockTreeInternalToPortal(blockObj) {
+    if (!blockObj || typeof blockObj !== 'object') return blockObj;
+
+    const internalType = String(blockObj.type || '');
+    const portalType = resolvePortalTypeFromInternalType(internalType);
+
+    // Convert children first (so we don't lose structure).
+    if (blockObj.inputs && typeof blockObj.inputs === 'object') {
+        const newInputs = {};
+        for (const [k, v] of Object.entries(blockObj.inputs)) {
+            if (v && typeof v === 'object' && v.block) {
+                newInputs[k] = { ...v, block: convertBlockTreeInternalToPortal(v.block) };
+            } else {
+                newInputs[k] = v;
+            }
+        }
+        blockObj = { ...blockObj, inputs: newInputs };
+    }
+    if (blockObj.next && blockObj.next.block) {
+        blockObj = { ...blockObj, next: { ...blockObj.next, block: convertBlockTreeInternalToPortal(blockObj.next.block) } };
+    }
+
+    // Structural field remaps.
+    if (internalType === 'RULE_HEADER' && blockObj.fields && typeof blockObj.fields === 'object') {
+        const f = { ...blockObj.fields };
+        if (Object.prototype.hasOwnProperty.call(f, 'RULE_NAME') && !Object.prototype.hasOwnProperty.call(f, 'NAME')) {
+            f.NAME = f.RULE_NAME;
+            delete f.RULE_NAME;
+        }
+        if (Object.prototype.hasOwnProperty.call(f, 'EVENT_TYPE') && !Object.prototype.hasOwnProperty.call(f, 'EVENTTYPE')) {
+            f.EVENTTYPE = f.EVENT_TYPE;
+            delete f.EVENT_TYPE;
+        }
+        // Some builds used SCOPE instead of SCOPE_TYPE.
+        if (Object.prototype.hasOwnProperty.call(f, 'SCOPE') && !Object.prototype.hasOwnProperty.call(f, 'OBJECTTYPE')) {
+            f.OBJECTTYPE = f.SCOPE;
+            delete f.SCOPE;
+        }
+        if (Object.prototype.hasOwnProperty.call(f, 'SCOPE_TYPE') && !Object.prototype.hasOwnProperty.call(f, 'OBJECTTYPE')) {
+            f.OBJECTTYPE = f.SCOPE_TYPE;
+            delete f.SCOPE_TYPE;
+        }
+        blockObj = { ...blockObj, fields: f };
+    }
+
+    // Input renames based on portal spec + internal shape.
+    try {
+        if (portalType !== internalType && blockObj.inputs && typeof blockObj.inputs === 'object') {
+            const spec = getPortalSpec(portalType);
+            if (spec) {
+                const internalShape = getInternalShape(internalType);
+                const remapped = remapInputsByPosition(blockObj.inputs, internalShape.valueInputs, spec.valueInputs);
+                const remapped2 = remapInputsByPosition(remapped, internalShape.statementInputs, spec.statementInputs);
+                blockObj = { ...blockObj, inputs: remapped2 };
+            }
+        }
+    } catch {
+        // ignore
+    }
+
+    if (portalType && portalType !== internalType) {
+        blockObj = { ...blockObj, type: portalType };
+    }
+    return blockObj;
+}
+
+function convertBlockTreePortalToInternal(blockObj) {
+    if (!blockObj || typeof blockObj !== 'object') return blockObj;
+
+    const portalType = String(blockObj.type || '');
+    const internalType = resolveInternalTypeFromPortalType(portalType);
+
+    // Convert children first.
+    if (blockObj.inputs && typeof blockObj.inputs === 'object') {
+        const newInputs = {};
+        for (const [k, v] of Object.entries(blockObj.inputs)) {
+            if (v && typeof v === 'object' && v.block) {
+                newInputs[k] = { ...v, block: convertBlockTreePortalToInternal(v.block) };
+            } else {
+                newInputs[k] = v;
+            }
+        }
+        blockObj = { ...blockObj, inputs: newInputs };
+    }
+    if (blockObj.next && blockObj.next.block) {
+        blockObj = { ...blockObj, next: { ...blockObj.next, block: convertBlockTreePortalToInternal(blockObj.next.block) } };
+    }
+
+    // Structural field remaps.
+    if (portalType === 'ruleBlock' && internalType === 'RULE_HEADER' && blockObj.fields && typeof blockObj.fields === 'object') {
+        const f = { ...blockObj.fields };
+        if (Object.prototype.hasOwnProperty.call(f, 'NAME') && !Object.prototype.hasOwnProperty.call(f, 'RULE_NAME')) {
+            f.RULE_NAME = f.NAME;
+            delete f.NAME;
+        }
+        if (Object.prototype.hasOwnProperty.call(f, 'EVENTTYPE') && !Object.prototype.hasOwnProperty.call(f, 'EVENT_TYPE')) {
+            f.EVENT_TYPE = f.EVENTTYPE;
+            delete f.EVENTTYPE;
+        }
+        if (Object.prototype.hasOwnProperty.call(f, 'OBJECTTYPE') && !Object.prototype.hasOwnProperty.call(f, 'SCOPE')) {
+            f.SCOPE = f.OBJECTTYPE;
+            delete f.OBJECTTYPE;
+        }
+        blockObj = { ...blockObj, fields: f };
+    }
+
+    // Input renames based on portal spec + internal shape.
+    try {
+        if (portalType !== internalType && blockObj.inputs && typeof blockObj.inputs === 'object') {
+            const spec = getPortalSpec(portalType);
+            if (spec) {
+                const internalShape = getInternalShape(internalType);
+                const remapped = remapInputsByPosition(blockObj.inputs, spec.valueInputs, internalShape.valueInputs);
+                const remapped2 = remapInputsByPosition(remapped, spec.statementInputs, internalShape.statementInputs);
+                blockObj = { ...blockObj, inputs: remapped2 };
+            }
+        }
+    } catch {
+        // ignore
+    }
+
+    if (internalType && internalType !== portalType) {
+        blockObj = { ...blockObj, type: internalType };
+    }
+    return blockObj;
+}
+
+function convertWorkspaceStateInternalToPortal(state) {
+    try {
+        const s = state && typeof state === 'object' ? JSON.parse(JSON.stringify(state)) : state;
+        const blocksArr = s?.blocks?.blocks;
+        if (s?.blocks && Array.isArray(blocksArr)) {
+            s.blocks.blocks = blocksArr.map(b => convertBlockTreeInternalToPortal(b));
+        }
+        return s;
+    } catch {
+        return state;
+    }
+}
+
+function convertWorkspaceStatePortalToInternal(state) {
+    try {
+        const s = state && typeof state === 'object' ? JSON.parse(JSON.stringify(state)) : state;
+        const blocksArr = s?.blocks?.blocks;
+        if (s?.blocks && Array.isArray(blocksArr)) {
+            s.blocks.blocks = blocksArr.map(b => convertBlockTreePortalToInternal(b));
+        }
+        return s;
+    } catch {
+        return state;
+    }
 }
 
 function describeMissingBlockTypes(state) {
@@ -2252,6 +2715,13 @@ async function loadBlockDocs() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const arr = await res.json();
 
+        // Build portal input specs (used for JSON import/export compatibility).
+        try {
+            BF6_PORTAL_SPECS_BY_TYPE = buildPortalSpecsFromDocsArray(arr);
+        } catch {
+            BF6_PORTAL_SPECS_BY_TYPE = new Map();
+        }
+
         const map = new Map();
         const upsert = (key, doc) => {
             if (!key || typeof key !== 'string') return;
@@ -2348,16 +2818,48 @@ function closeHelpModal() {
     if (modal) modal.style.display = 'none';
 }
 
+function __bf6NormalizeHelpKey(s) {
+    return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function __bf6ResolveHelpDoc(type) {
+    try {
+        if (!BF6_BLOCK_DOCS) return null;
+        const t = String(type || '').trim();
+        if (!t) return null;
+
+        // Fast path: common exact/case variants.
+        return (
+            BF6_BLOCK_DOCS.get(t) ||
+            BF6_BLOCK_DOCS.get(t.toUpperCase()) ||
+            BF6_BLOCK_DOCS.get(t.toLowerCase()) ||
+            (() => {
+                // Last resort: normalized comparison (handles mod_* / casing / underscores).
+                const want = __bf6NormalizeHelpKey(t);
+                if (!want) return null;
+                for (const [k, v] of BF6_BLOCK_DOCS.entries()) {
+                    if (__bf6NormalizeHelpKey(k) === want) return v;
+                }
+                return null;
+            })()
+        );
+    } catch {
+        return null;
+    }
+}
+
 function showHelpForBlockType(type) {
     const titleEl = document.getElementById('helpTitle');
     const bodyEl = document.getElementById('helpBody');
     if (!titleEl || !bodyEl) return;
 
-    const doc = BF6_BLOCK_DOCS ? BF6_BLOCK_DOCS.get(type) : null;
+    const doc = __bf6ResolveHelpDoc(type);
     titleEl.textContent = doc?.displayName || type || 'Block Help';
 
     const category = doc?.category ? `<div style="opacity:.85; margin-bottom:8px;">Category: <strong>${escapeHtml(doc.category)}</strong></div>` : '';
-    const tooltip = doc?.tooltip ? `<div style="line-height:1.35;">${renderSimpleMarkdown(doc.tooltip)}</div>` : '<div style="opacity:.85;">No documentation found for this block type in the local docs yet.</div>';
+    const tooltip = doc?.tooltip
+        ? `<div style="line-height:1.35;">${renderSimpleMarkdown(doc.tooltip)}</div>`
+        : '<div style="opacity:.85;">No documentation found for this block type in the local docs yet. Try the Help index (top bar) and search by name, or update the local docs dataset.</div>';
 
     bodyEl.innerHTML = `${category}${tooltip}`;
     openHelpModal();
@@ -2429,20 +2931,25 @@ async function initHelpUI() {
         });
     }
 
-    // Add a context-menu item for blocks (both in workspace and flyouts).
+    // Add/override a context-menu item for blocks (both in workspace and flyouts).
     try {
         if (Blockly?.ContextMenuRegistry?.registry) {
             const registry = Blockly.ContextMenuRegistry.registry;
-            const id = 'bf6portal.helpForBlock';
-            // Avoid duplicate registration if hot-reloaded.
-            if (!registry.getItem(id)) {
+
+            // Prefer to replace Blockly's default help item so users don't see
+            // "no help" even when we have local docs.
+            const preferredId = 'blockHelp';
+            try {
+                if (registry.getItem(preferredId)) registry.unregister(preferredId);
+            } catch {
+                // ignore
+            }
+
+            if (!registry.getItem(preferredId)) {
                 registry.register({
-                    id,
+                    id: preferredId,
                     scopeType: Blockly.ContextMenuRegistry.ScopeType.BLOCK,
-                    displayText: (scope) => {
-                        const t = scope?.block?.type;
-                        return t ? `Help: ${t}` : 'Help for this block';
-                    },
+                    displayText: () => 'Help',
                     preconditionFn: (scope) => (scope?.block?.type ? 'enabled' : 'hidden'),
                     callback: (scope) => {
                         try {
@@ -2452,6 +2959,7 @@ async function initHelpUI() {
                             console.warn('[BF6] Help context menu failed:', e);
                         }
                     },
+                    // Keep roughly the default position.
                     weight: 100,
                 });
             }

@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import * as Blockly from 'blockly/core';
+import * as Blockly from 'blockly';
+import { ensureCriticalPortalStructuralBlocks, ensurePortalBlocksRegisteredFromState } from './portal_block_registry';
+import { convertInternalStateToPortalWrappedExport, looksLikePortalJson } from './portal_json';
 
 const storageKey = 'mainWorkspace';
 
@@ -52,19 +54,61 @@ export const load = async function (workspace: Blockly.Workspace) {
   }
 };
 
+function normalizeWorkspaceState(state: any): any {
+  // Blockly JSON serialization format (preferred):
+  // { blocks: { languageVersion: 0, blocks: [...] }, variables: [...] }
+  if (state && typeof state === 'object') {
+    // Unwrap common community/container formats.
+    if (state.mod && typeof state.mod === 'object') {
+      return normalizeWorkspaceState(state.mod);
+    }
+    if (state.workspace && typeof state.workspace === 'object') {
+      return normalizeWorkspaceState(state.workspace);
+    }
+
+    if (state.blocks && typeof state.blocks === 'object' && Array.isArray(state.blocks.blocks)) {
+      if (!('languageVersion' in state.blocks)) {
+        state.blocks.languageVersion = 0;
+      }
+      if (!Array.isArray(state.variables)) {
+        state.variables = [];
+      }
+      return state;
+    }
+
+    // Some exports provide the blocks array directly.
+    if (Array.isArray((state as any).blocks)) {
+      return {
+        blocks: { languageVersion: 0, blocks: (state as any).blocks },
+        variables: Array.isArray((state as any).variables) ? (state as any).variables : [],
+      };
+    }
+  }
+  return state;
+}
+
 /**
  * Saves the workspace to a JSON file and triggers a download.
  * @param workspace Blockly workspace to save.
  */
-export const saveToFile = function (workspace: Blockly.Workspace) {
+export const saveToFile = async function (workspace: Blockly.Workspace) {
   const data = Blockly.serialization.workspaces.save(workspace);
-  const json = JSON.stringify(data, null, 2);
+  let exportObj: any = data;
+  try {
+    // Export Portal/community-compatible JSON by default.
+    exportObj = await convertInternalStateToPortalWrappedExport(data);
+  } catch (e) {
+    console.warn('[BF6] Failed to convert export to Portal JSON; exporting internal JSON instead:', e);
+    exportObj = data;
+  }
+
+  const json = JSON.stringify(exportObj, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'bf6portal_workspace.json';
+  a.download = 'bf6portal_mod.json';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -76,9 +120,24 @@ export const saveToFile = function (workspace: Blockly.Workspace) {
  * @param workspace Blockly workspace to load into.
  * @param jsonContent The JSON string content of the file.
  */
-export const loadFromFile = function (workspace: Blockly.Workspace, jsonContent: string) {
+export const loadFromFile = async function (workspace: Blockly.Workspace, jsonContent: string) {
   try {
-    const data = JSON.parse(jsonContent);
+    const parsed = JSON.parse(jsonContent);
+    const isPortal = looksLikePortalJson(parsed);
+    const data = isPortal ? normalizeWorkspaceState(parsed) : parsed;
+
+    // If this looks like Portal/community JSON, auto-register any missing block
+    // types/fields so Blockly can deserialize without throwing.
+    if (isPortal) {
+      try {
+        ensureCriticalPortalStructuralBlocks();
+        const r = ensurePortalBlocksRegisteredFromState(data);
+        if (r?.created) console.log(`[BF6] Auto-registered ${r.created} block types for JSON import.`);
+      } catch (e) {
+        console.warn('[BF6] Failed to auto-register block types for JSON import:', e);
+      }
+    }
+
     Blockly.Events.disable();
     Blockly.serialization.workspaces.load(data, workspace, undefined);
     Blockly.Events.enable();

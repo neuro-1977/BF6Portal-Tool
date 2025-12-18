@@ -335,6 +335,14 @@ export function registerSelectionListExtensions(): void {
   (Blockly as any).__bf6_selection_lists_registered = true;
 
   Blockly.Extensions.register('bf6_selection_list_dropdown', function(this: Blockly.Block) {
+    // All selection list dropdown blocks are the same *kind* of thing (enum selector).
+    // Give them a consistent, neutral-ish colour so they visually group together.
+    try {
+      (this as any).setColour?.('#4CAF50');
+    } catch {
+      // ignore
+    }
+
     const field = this.getField('OPTION') as any;
     if (!field) return;
 

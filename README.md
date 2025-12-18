@@ -21,7 +21,9 @@ Changelog: see `CHANGELOG.md`.
 - **Resilient template loading:** missing block `type`s are auto-registered as **placeholder blocks** so templates can still render.
 - **Presets:** 3 locked built-ins (Andy6170 templates) + user save/delete via `localStorage`.
 - **Help modal + right-click help:** offline docs from `bf6portal_blocks.json` and per-block “Help: <type>”.
+- **Toolbox search:** a search box above the toolbox for quickly filtering blocks/categories.
 - **Code Preview drawer:** resizable bottom drawer showing a TypeScript export of the current workspace state.
+- **TypeScript import:** **coming soon** (UI shows the button, but the feature is intentionally disabled until correctness can be guaranteed).
 
 ## Installation & setup
 

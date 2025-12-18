@@ -7,6 +7,16 @@
 
 ## Upcoming (target: v1.3.0)
 
+- [x] **Toolbox search:** restore the search box above the toolbox (above **RULES**) and keep it working in packaged Electron builds.
+
+- [x] **Custom variables imports:** ensure variables from Andy6170 presets (and other imported JSON) are visible in the **VARIABLES** toolbox category and variable dropdowns.
+
+- [x] **Right-click Help:** right-clicking a block should open the local Help topic (not “no help info yet” when we have docs).
+
+- [x] **Selection list colours:** selection-list dropdown blocks (e.g. **Vehicles**) should use a consistent colour (no random red outlier).
+
+- [ ] **TypeScript import:** add a TypeScript → Blocks import flow. For now, show an **Import TS (Coming soon)** button until we can guarantee correctness.
+
 - [ ] **External reference:** review `deluca-mike/bf6-portal-scripting-template` for ideas (TS bundling, debug UI patterns). **Do not reuse code** unless a license/permission is clarified; keep notes/attribution up to date.
 
 - [ ] **Project cleanup / stabilization (v1.3.0 goal):**

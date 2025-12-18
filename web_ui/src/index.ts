@@ -1,7 +1,3 @@
-
-console.log('YOLO BUNDLE TEST');
-(window as any)['YOLO_BLOCK'] = 42;
-
 /**
  * @license
  * Copyright 2023 Google LLC
@@ -29,6 +25,69 @@ import { openVariablesManager } from './variables_manager';
 import { installBlocklyDialogs, promptText, alertText } from './dialogs';
 import './index.css';
 import './components/MenuBar.css';
+
+function installToolboxSearchUI(workspace: Blockly.WorkspaceSvg, filterToolboxFn: (term: string) => any): void {
+  try {
+    const anyW: any = window as any;
+    if (anyW.__bf6_toolbox_search_ui_installed) return;
+    anyW.__bf6_toolbox_search_ui_installed = true;
+
+    const toolboxDiv = document.querySelector('.blocklyToolboxDiv') as HTMLElement | null;
+    if (!toolboxDiv) return;
+    if (document.getElementById('bf6ToolboxSearchContainer')) return;
+
+    // Make room for a fixed search bar at the top of the toolbox.
+    toolboxDiv.style.position = toolboxDiv.style.position || 'absolute';
+    toolboxDiv.style.overflow = 'hidden';
+    toolboxDiv.style.paddingTop = '44px';
+
+    const container = document.createElement('div');
+    container.id = 'bf6ToolboxSearchContainer';
+    container.style.position = 'absolute';
+    container.style.left = '0';
+    container.style.right = '0';
+    container.style.top = '0';
+    container.style.height = '44px';
+    container.style.padding = '8px 10px';
+    container.style.background = '#23272e';
+    container.style.borderBottom = '1px solid #181a1b';
+    container.style.zIndex = '10';
+    container.style.boxSizing = 'border-box';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Search…';
+    input.autocomplete = 'off';
+    (input as any).spellcheck = false;
+    input.style.width = '100%';
+    input.style.height = '28px';
+    input.style.boxSizing = 'border-box';
+    input.style.borderRadius = '6px';
+    input.style.border = '1px solid #333';
+    input.style.background = '#181a1b';
+    input.style.color = '#e0e0e0';
+    input.style.padding = '6px 10px';
+    input.style.fontFamily = 'Segoe UI, Consolas, monospace';
+
+    container.appendChild(input);
+    toolboxDiv.appendChild(container);
+
+    let timer: number | null = null;
+    input.addEventListener('input', () => {
+      if (timer) window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        try {
+          const nextToolbox = filterToolboxFn(input.value);
+          workspace.updateToolbox(nextToolbox);
+        } catch (e) {
+          console.warn('[BF6] Toolbox search failed:', e);
+        }
+      }, 80);
+    });
+  } catch (e) {
+    console.warn('[BF6] Failed to install toolbox search UI:', e);
+  }
+}
 
 function registerHelpContextMenus(): void {
   try {
@@ -229,6 +288,16 @@ try {
   // Expose workspace globally
   (window as any).workspace = ws;
 
+  // Toolbox search box (above RULES). Install after injection so the toolbox DOM exists.
+  try {
+    requestAnimationFrame(() => {
+      installToolboxSearchUI(ws, filterToolbox);
+    });
+  } catch {
+    // Fallback
+    setTimeout(() => installToolboxSearchUI(ws, filterToolbox), 0);
+  }
+
   // Legacy `web_ui/main.js` owns the Code Preview drawer implementation.
   // When the workspace is created by this bundle, explicitly kick the preview on.
   try {
@@ -284,51 +353,94 @@ try {
     xmlList.push(btn);
 
     // 2. Portal-compatible variable blocks (dynamic per variable)
-    // The Portal block set uses GETVARIABLE/SETVARIABLE with field_variable.
+    // Use the legacy-compatible schema we ship in `src/blocks/portal_variables.ts`:
+    //  - variableReferenceBlock (fields: OBJECTTYPE, VAR; input: OBJECT)
+    //  - SetVariable (inputs: VALUE-0=Variable ref, VALUE-1=value)
+    //  - GetVariable (inputs: VALUE-0=Variable ref)
     const anyWs: any = workspace as any;
     const varMap = typeof anyWs.getVariableMap === 'function' ? anyWs.getVariableMap() : null;
     const vars = (varMap && typeof varMap.getAllVariables === 'function')
       ? varMap.getAllVariables()
       : (typeof anyWs.getAllVariables === 'function' ? anyWs.getAllVariables() : []);
 
+    const normalizeObjType = (t: any): 'Global' | 'Player' | 'Team' => {
+      const s = String(t || '').trim();
+      if (s.toLowerCase() === 'player') return 'Player';
+      if (s.toLowerCase() === 'team') return 'Team';
+      return 'Global';
+    };
+
+    const makeVarRef = (v: any): Element => {
+      const varName = String((v && (v.name ?? (typeof v.getName === 'function' ? v.getName() : ''))) || '');
+      const varId = String((v && (v.id ?? (typeof v.getId === 'function' ? v.getId() : ''))) || '');
+      const varType = normalizeObjType(v && (v.type ?? (typeof v.getType === 'function' ? v.getType() : '')));
+
+      const ref = xmlEl('block');
+      ref.setAttribute('type', 'variableReferenceBlock');
+
+      const obj = xmlEl('field');
+      obj.setAttribute('name', 'OBJECTTYPE');
+      obj.textContent = varType;
+      ref.appendChild(obj);
+
+      const f = xmlEl('field');
+      f.setAttribute('name', 'VAR');
+      if (varId) f.setAttribute('id', varId);
+      f.textContent = varName;
+      ref.appendChild(f);
+      return ref;
+    };
+
+    const makeSetVarBlock = (v: any): Element => {
+      const block = xmlEl('block');
+      block.setAttribute('type', 'SetVariable');
+      const value = xmlEl('value');
+      value.setAttribute('name', 'VALUE-0');
+      value.appendChild(makeVarRef(v));
+      block.appendChild(value);
+      return block;
+    };
+
+    const makeGetVarBlock = (v: any): Element => {
+      const block = xmlEl('block');
+      block.setAttribute('type', 'GetVariable');
+      const value = xmlEl('value');
+      value.setAttribute('name', 'VALUE-0');
+      value.appendChild(makeVarRef(v));
+      block.appendChild(value);
+      return block;
+    };
+
     if (!Array.isArray(vars) || vars.length === 0) {
       const label = xmlEl('label');
       label.setAttribute('text', 'No variables yet (click “Manage Variables”)');
       xmlList.push(label);
 
-      // Still show generic blocks so users see what’s available.
-      const blockSet = xmlEl('block');
-      blockSet.setAttribute('type', 'SETVARIABLE');
-      xmlList.push(blockSet);
+      const ref = xmlEl('block');
+      ref.setAttribute('type', 'variableReferenceBlock');
+      xmlList.push(ref);
 
-      const blockGet = xmlEl('block');
-      blockGet.setAttribute('type', 'GETVARIABLE');
-      xmlList.push(blockGet);
+      const setB = xmlEl('block');
+      setB.setAttribute('type', 'SetVariable');
+      xmlList.push(setB);
+
+      const getB = xmlEl('block');
+      getB.setAttribute('type', 'GetVariable');
+      xmlList.push(getB);
 
       return xmlList;
     }
 
-    for (const v of vars) {
-      const varName = String((v && (v.name ?? (typeof v.getName === 'function' ? v.getName() : ''))) || '');
-      const varId = String((v && (v.id ?? (typeof v.getId === 'function' ? v.getId() : ''))) || '');
+    // Keep a stable, human-friendly order.
+    const sorted = [...vars].sort((a: any, b: any) => {
+      const an = String(a?.name ?? a?.getName?.() ?? '').toLowerCase();
+      const bn = String(b?.name ?? b?.getName?.() ?? '').toLowerCase();
+      return an.localeCompare(bn);
+    });
 
-      const setBlock = xmlEl('block');
-      setBlock.setAttribute('type', 'SETVARIABLE');
-      const setField = xmlEl('field');
-      setField.setAttribute('name', 'VARIABLE');
-      if (varId) setField.setAttribute('id', varId);
-      setField.textContent = varName;
-      setBlock.appendChild(setField);
-      xmlList.push(setBlock);
-
-      const getBlock = xmlEl('block');
-      getBlock.setAttribute('type', 'GETVARIABLE');
-      const getField = xmlEl('field');
-      getField.setAttribute('name', 'VARIABLE_NAME');
-      if (varId) getField.setAttribute('id', varId);
-      getField.textContent = varName;
-      getBlock.appendChild(getField);
-      xmlList.push(getBlock);
+    for (const v of sorted) {
+      xmlList.push(makeSetVarBlock(v));
+      xmlList.push(makeGetVarBlock(v));
     }
     
     return xmlList;

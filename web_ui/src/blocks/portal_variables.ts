@@ -43,7 +43,9 @@ export function registerPortalVariableBlocks(): void {
               ]),
               'OBJECTTYPE',
             )
-            .appendField(new (Blockly as any).FieldVariable('item'), 'VAR');
+            // Pass `null` as the variable type filter so *typed* variables from
+            // presets (e.g. type: "Team" / "Player") appear in the dropdown.
+            .appendField(new (Blockly as any).FieldVariable('item', undefined, null), 'VAR');
 
           this.appendValueInput('OBJECT').appendField('of');
           this.setInputsInline(true);

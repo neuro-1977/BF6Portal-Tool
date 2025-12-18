@@ -7,11 +7,14 @@ This project follows a pragmatic changelog style (human-written notes) rather th
 ### Fixes
 - **AI behaviour blocks:** fixed `AIDEFENDPOSITIONBEHAVIOUR` showing as a blank yellow tab with no connections.
 - **Breakthrough preset load:** hardened placeholder block registration so imported/preset JSON that references many block fields no longer fails to deserialize.
-- **Custom variables list:** ensure all custom/user variables are shown consistently (toolbox + manager + preset imports).
-- **Selection Lists dropdowns:** continue hardening edge cases where dropdowns can get stuck on “(loading selection lists…)” under Electron `file://` contexts.
+- **Toolbox search:** restored the search box above the toolbox (above **RULES**) for quick block discovery.
+- **Custom variables (Andy6170 presets):** variables imported with presets/JSON are now visible in the **VARIABLES** toolbox category and variable dropdowns (including typed Team/Player/Global variables).
+- **Selection list colours:** selection-list dropdown blocks now use a consistent colour (e.g. **Vehicles** no longer shows as a red outlier).
+- **Right-click block help:** context-menu **Help** now opens the local Help topic (using the offline docs dataset) instead of showing “no help”.
 
 ### Improvements
 - **Presets:** richer preset UX (save-as copy / overwrite flow for built-ins, better naming + metadata).
+- **TypeScript import UX:** added an **Import TS (Coming soon)** button placeholder (feature will stay disabled until correctness can be guaranteed).
 
 ### Credits
 - Add explicit credit for the **Portal Docs** dataset used to populate block help/tooltips:
