@@ -31,6 +31,8 @@
     - [ ] Next: make the call block use a dropdown of existing collections (avoid typos).
     - [ ] Next: optional “Export for Portal” flow that expands collections and strips tool-only blocks.
 
+- [x] **Navigation / Teleport (right-click):** add jump-to-definition style navigation for **Subroutines** (Call ↔ Definition) to quickly move around the canvas.
+
 - [ ] **External reference:** review `deluca-mike/bf6-portal-scripting-template` for ideas (TS bundling, debug UI patterns). **Do not reuse code** unless a license/permission is clarified; keep notes/attribution up to date.
 
 - [ ] **Project cleanup / stabilization (v1.3.0 goal):**

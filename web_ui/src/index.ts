@@ -22,6 +22,7 @@ import {MenuBar} from './components/MenuBar';
 import { preloadSelectionLists, registerSelectionListExtensions } from './selection_lists';
 import { initPresetsUI } from './presets';
 import { registerCollectionsContextMenus } from './collections';
+import { registerSubroutineNavigationContextMenus } from './subroutine_navigation';
 import './index.css';
 import './components/MenuBar.css';
 
@@ -165,6 +166,13 @@ try {
     registerCollectionsContextMenus(ws);
   } catch (e) {
     console.warn('[BF6] Failed to register Collections context menus:', e);
+  }
+
+  // Navigation / teleport: subroutine call <-> definition
+  try {
+    registerSubroutineNavigationContextMenus(ws);
+  } catch (e) {
+    console.warn('[BF6] Failed to register Subroutine navigation menus:', e);
   }
 
   // Legacy `web_ui/main.js` owns the Code Preview drawer implementation.
