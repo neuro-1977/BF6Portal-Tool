@@ -7,6 +7,8 @@
 
 ## Upcoming (target: v1.3.0)
 
+- [ ] **External reference:** review `deluca-mike/bf6-portal-scripting-template` for ideas (TS bundling, debug UI patterns). **Do not reuse code** unless a license/permission is clarified; keep notes/attribution up to date.
+
 - [ ] **Project cleanup / stabilization (v1.3.0 goal):**
     - remove unnecessary comments, dead code paths, and stale file references
     - consolidate duplicate logic (especially toolbox/presets/selection-lists)

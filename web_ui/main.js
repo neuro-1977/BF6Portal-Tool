@@ -1926,7 +1926,9 @@ function ensurePortalBlocksRegisteredFromState(state) {
 
                 // Fields (best-effort)
                 const fieldNames = Array.isArray(info.fieldNames) ? info.fieldNames : [];
-                for (const fname of fieldNames.slice(0, 12)) {
+                // Important: placeholders must create *all* fields referenced by the
+                // incoming JSON, otherwise Blockly serialization throws (field not found).
+                for (const fname of fieldNames) {
                     try {
                         this.appendDummyInput()
                             .appendField(`${fname}:`)

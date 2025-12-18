@@ -185,6 +185,16 @@ export const bf6PortalExpandedBlocks = Blockly.common.createBlockDefinitionsFrom
     "type": "AIBATTLEFIELDBEHAVIOUR"
   },
 {
+    "message0": "AIDefendPositionBehaviour Player: %1",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "PLAYER",
+        "check": ["Boolean", "Number", "String", "GETGAMEMODE", "GETSCORE", "GETTIMELIMIT", "AND", "OR", "NOT", "TRUE", "FALSE", "GREATERTHANEQUAL", "LESSTHANEQUAL", "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "POWER", "SQUAREROOT", "ABSOLUTE", "MODULO", "GETOBJECTIVESTATE", "GETPLAYERBYID", "GETPLAYERNAME", "GETPLAYERHEALTH", "GETPLAYERTEAM", "VECTOR", "VECTORTOWARDS", "DISTANCEBETWEEN", "XCOMPONENTOF", "YCOMPONENTOF", "ZCOMPONENTOF", "NORMALIZE", "DOTPRODUCT", "CROSSPRODUCT", "VECTORMAGNITUDE", "UP", "DOWN", "LEFT", "RIGHT", "FORWARD", "BACKWARD", "EQUAL", "NOTEQUAL", "LESSTHAN"]
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
     "colour": "#FFD700",
     "type": "AIDEFENDPOSITIONBEHAVIOUR"
   },

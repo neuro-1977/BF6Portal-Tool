@@ -5,6 +5,8 @@ This project follows a pragmatic changelog style (human-written notes) rather th
 ## Unreleased (planned for v1.3.0)
 
 ### Fixes
+- **AI behaviour blocks:** fixed `AIDEFENDPOSITIONBEHAVIOUR` showing as a blank yellow tab with no connections.
+- **Breakthrough preset load:** hardened placeholder block registration so imported/preset JSON that references many block fields no longer fails to deserialize.
 - **Custom variables list:** ensure all custom/user variables are shown consistently (toolbox + manager + preset imports).
 - **Selection Lists dropdowns:** continue hardening edge cases where dropdowns can get stuck on “(loading selection lists…)” under Electron `file://` contexts.
 
