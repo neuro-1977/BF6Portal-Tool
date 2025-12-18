@@ -165,7 +165,7 @@ const PRESET_STORAGE_KEY = 'bf6portal.presets.user.v1';
 function getBuiltInPresets() {
     return [
         { id: 'builtin:rush', name: 'Andy6170 - Rush (V1.0)', url: 'presets/custom_rush_V1.0.json', locked: true },
-        { id: 'builtin:conquest', name: 'Andy6170 - Conquest (7.2)', url: 'presets/custom_conquest_template_7.2.json', locked: true },
+        { id: 'builtin:conquest', name: 'Andy6170 - Conquest (V8.0)', url: 'presets/custom_conquest_template_V8.0.json', locked: true },
         { id: 'builtin:breakthrough', name: 'Andy6170 - Breakthrough (V1.1)', url: 'presets/custom_breakthrough_V1.1.json', locked: true },
     ];
 }
