@@ -1,7 +1,3 @@
-
-console.log('YOLO BUNDLE TEST');
-(window as any)['YOLO_BLOCK'] = 42;
-
 /**
  * @license
  * Copyright 2023 Google LLC
