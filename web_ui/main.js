@@ -1912,7 +1912,10 @@ function showHelpForBlockType(type) {
     const bodyEl = document.getElementById('helpBody');
     if (!titleEl || !bodyEl) return;
 
-    const doc = BF6_BLOCK_DOCS ? BF6_BLOCK_DOCS.get(type) : null;
+    const key = String(type || '');
+    const doc = BF6_BLOCK_DOCS
+        ? (BF6_BLOCK_DOCS.get(key) || BF6_BLOCK_DOCS.get(key.toUpperCase()) || BF6_BLOCK_DOCS.get(key.toLowerCase()))
+        : null;
     titleEl.textContent = doc?.displayName || type || 'Block Help';
 
     const category = doc?.category ? `<div style="opacity:.85; margin-bottom:8px;">Category: <strong>${escapeHtml(doc.category)}</strong></div>` : '';
@@ -1955,7 +1958,20 @@ function showHelpIndex(filterText) {
         searchEl.oninput = (ev) => {
             showHelpIndex(ev.target.value);
         };
-        setTimeout(() => { try { searchEl.focus(); } catch {} }, 0);
+        // Re-rendering this modal on every keystroke recreates the <input>.
+        // If we don't restore the caret, the next keystroke can be inserted at
+        // the start (making "MOD" look like "DOM" and vice versa).
+        setTimeout(() => {
+            try {
+                searchEl.focus();
+                const len = searchEl.value.length;
+                if (typeof searchEl.setSelectionRange === 'function') {
+                    searchEl.setSelectionRange(len, len);
+                }
+            } catch {
+                // ignore
+            }
+        }, 0);
     }
 
     bodyEl.querySelectorAll('[data-help-type]').forEach((el) => {
@@ -1992,6 +2008,17 @@ async function initHelpUI() {
     try {
         if (Blockly?.ContextMenuRegistry?.registry) {
             const registry = Blockly.ContextMenuRegistry.registry;
+
+            // Remove Blockly's default "Help" item to avoid having two help menu entries.
+            // We'll provide our own help menu that pulls from the local docs / main help.
+            try {
+                if (registry.getItem && registry.getItem('blockHelp')) {
+                    registry.unregister('blockHelp');
+                }
+            } catch {
+                // ignore
+            }
+
             const id = 'bf6portal.helpForBlock';
             // Avoid duplicate registration if hot-reloaded.
             if (!registry.getItem(id)) {
@@ -1999,8 +2026,7 @@ async function initHelpUI() {
                     id,
                     scopeType: Blockly.ContextMenuRegistry.ScopeType.BLOCK,
                     displayText: (scope) => {
-                        const t = scope?.block?.type;
-                        return t ? `Help: ${t}` : 'Help for this block';
+                        return (Blockly?.Msg?.HELP || 'Help');
                     },
                     preconditionFn: (scope) => (scope?.block?.type ? 'enabled' : 'hidden'),
                     callback: (scope) => {
@@ -2011,7 +2037,7 @@ async function initHelpUI() {
                             console.warn('[BF6] Help context menu failed:', e);
                         }
                     },
-                    weight: 100,
+                    weight: 8,
                 });
             }
         }
