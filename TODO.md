@@ -13,11 +13,18 @@
 
 - [x] **Right-click Help:** right-clicking a block should open the local Help topic (not “no help info yet” when we have docs).
 
+- [x] **Help search stability:** typing into Help search should not scramble text (e.g. `MOD` accidentally becoming `DOM` due to caret reset).
+
 - [x] **Selection list colours:** selection-list dropdown blocks (e.g. **Vehicles**) should use a consistent colour (no random red outlier).
 
 - [x] **Portal JSON compatibility:** exported/imported workspace JSON matches Portal-style wrapper (`{"mod":{"blocks":...}}`), and importer accepts both wrapped and raw Blockly workspace formats.
 
 - [ ] **TypeScript import:** add a TypeScript → Blocks import flow. For now, show an **Import TS (Coming soon)** button until we can guarantee correctness.
+
+- [ ] **Collections / Snippets (macro library):** let users save a selection of blocks as a reusable “collection” and insert/execute it later.
+    - UX idea: right-click selection / block → **Save as Collection…**, then a toolbox menu **Collections**.
+    - Safety: prevent naming collisions with existing block types + reserved names.
+    - Visual: distinct styling (e.g. bright green outline / unique shape) so collections stand out.
 
 - [ ] **External reference:** review `deluca-mike/bf6-portal-scripting-template` for ideas (TS bundling, debug UI patterns). **Do not reuse code** unless a license/permission is clarified; keep notes/attribution up to date.
 
