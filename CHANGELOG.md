@@ -2,9 +2,22 @@
 
 This project follows a pragmatic changelog style (human-written notes) rather than auto-generated commit dumps.
 
-## Unreleased (planned for v1.2.9)
+## Unreleased (planned for v1.3.0)
+
+### Features & Improvements
+- **Collections / Bookmarks (MVP):** convert a stack into an offscreen collection definition and leave a compact call/bookmark block in place.
+  - Right-click: **Convert to collection (bookmark + move stack)**
+  - Right-click: **Jump to collection definition** (teleport)
+- **Canvas navigation (right-click teleport):** fast jumping around large workspaces.
+  - MOD: jump to the MOD container
+  - Rules: jump to owning Rule / first Rule
+  - Variables: jump between first getter/setter
+  - Generic: jump to stack root
+  - Subroutines: jump Call ↔ Definition
 
 ### Fixes
+- **Portal JSON compatibility:** export wrapped Portal-style JSON (`{"mod":{"blocks":...}}`) and accept both wrapped + raw Blockly workspace JSON on import.
+- **Help system:** stable search input (no scrambled text while typing) and right-click help opens the same local docs as the main Help UI.
 - **Selection Lists dropdowns:** address cases where dropdowns get stuck on “(loading selection lists…)” by improving runtime asset loading for Electron `file://` contexts.
 - **Presets:** allow saving after loading and editing a built-in preset (save-as copy / overwrite flow).
 
