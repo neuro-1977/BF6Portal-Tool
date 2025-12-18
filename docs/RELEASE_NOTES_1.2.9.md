@@ -1,5 +1,25 @@
 # Release Notes - v1.2.9
 
+## Hotfix 1 (2025-12-18)
+
+This is a **v1.2.9 hotfix** (the installer still reports **1.2.9**). It focuses on Portal/community JSON interoperability and small editor UX fixes.
+
+### Portal / community JSON interoperability (in progress)
+
+- **TS/webpack runtime “Save JSON” now exports Portal/community wrapped JSON** by default:
+  - `{ "mod": { "blocks": { "blocks": [...] }, "variables": [...] } }`
+- **Portal-shaped JSON imports are hardened**:
+  - unknown Portal block types (e.g. `modBlock`, `ruleBlock`, `conditionBlock`, `Wait`, etc.) are auto-registered as **placeholder blocks** during import so deserialization doesn’t crash.
+
+> Note: official Portal import/export compatibility is still being validated in the wild. If a file imports but loses block details/options, please report the JSON + what blocks were involved.
+
+### UX fixes
+
+- **Toolbox search** restored (search box above the toolbox).
+- **Right-click Help** now opens local/offline docs when available.
+- **Selection list dropdown colour** made consistent across enum blocks.
+- **Preset/import variable visibility** improved for presets that include typed variables.
+
 ## Summary
 
 This release focuses on **packaged-app reliability** (Electron), and restores key editor workflows: **Subroutines**, **Variables**, and **Preset imports** (including Conquest).
@@ -33,7 +53,10 @@ This release focuses on **packaged-app reliability** (Electron), and restores ke
 
 - Custom/user variables may not yet appear in every list/context consistently (planned for v1.3.0).
 
+- Official Portal editor compatibility for *all* block types is still a work-in-progress:
+  - some blocks may import but appear as defaults if their field/value mappings differ from the official schema.
+
 ## Credits
 
 - Portal data and block help/tooltips are derived from **Portal Docs** by the Battlefield Portal Community:
-  - https://github.com/battlefield-portal-community/portal-docs
+  - <https://github.com/battlefield-portal-community/portal-docs>
