@@ -25,6 +25,24 @@ const cache: Cache = {
   mapCI: {},
 };
 
+let didLogLoadSummary = false;
+let lastSelectionListSource: string | undefined;
+
+function publishSelectionListDiag(source?: string): void {
+  try {
+    if (source) lastSelectionListSource = source;
+    (globalThis as any).__bf6_selection_lists_status = {
+      loaded: cache.loaded,
+      loading: cache.loading,
+      lastError: cache.lastError,
+      enumsCount: Object.keys(cache.map || {}).length,
+      source: (source || lastSelectionListSource) || null,
+    };
+  } catch {
+    // ignore
+  }
+}
+
 // Some enums are named differently between our block output types (from bf6portal_blocks.json)
 // and the upstream portal-docs TypeScript definitions.
 // This keeps dropdowns populated without needing a full rename across the project.
@@ -281,18 +299,79 @@ async function fetchText(url: string): Promise<string> {
   }
 }
 
+function refreshSelectionListDropdownFields(): void {
+  // If selection lists finished loading after a workspace was created,
+  // existing dropdown fields might still be set to the placeholder value.
+  // Refresh those fields so the UI immediately reflects real options.
+  try {
+    const getAll = (Blockly as any).getAllWorkspaces as undefined | (() => any[]);
+    const getMain = (Blockly as any).getMainWorkspace as undefined | (() => any);
+
+    const workspaces: any[] = [];
+    if (typeof getAll === 'function') {
+      try { workspaces.push(...(getAll() || [])); } catch { /* ignore */ }
+    }
+    if (workspaces.length === 0 && typeof getMain === 'function') {
+      try {
+        const ws = getMain();
+        if (ws) workspaces.push(ws);
+      } catch {
+        // ignore
+      }
+    }
+
+    const isPlaceholder = (v: any) => {
+      const s = String(v ?? '');
+      return !s || s === '__loading__' || s === '__error__' || s === '__missing__' || s === '__empty__';
+    };
+
+    for (const ws of workspaces) {
+      if (!ws || typeof ws.getAllBlocks !== 'function') continue;
+      const blocks = ws.getAllBlocks(false) || [];
+      for (const b of blocks) {
+        try {
+          const field: any = b?.getField?.('OPTION');
+          if (!field || typeof field.getValue !== 'function') continue;
+          if (!isPlaceholder(field.getValue())) continue;
+
+          const gen = field.menuGenerator_;
+          const opts = typeof gen === 'function' ? gen() : (Array.isArray(gen) ? gen : null);
+          if (!Array.isArray(opts) || opts.length === 0) continue;
+
+          // Pick the first non-sentinel value.
+          const firstReal = opts.find((o: any) => Array.isArray(o) && o[1] && !String(o[1]).startsWith('__'));
+          if (firstReal && firstReal[1]) {
+            try { field.setValue(firstReal[1]); } catch { /* ignore */ }
+          }
+        } catch {
+          // ignore per block
+        }
+      }
+
+      // If the user currently has the selection list toolbox open, refresh it so
+      // dynamically-registered enum blocks appear without needing a manual reselect.
+      try { ws.refreshToolboxSelection?.(); } catch { /* ignore */ }
+    }
+  } catch {
+    // ignore
+  }
+}
+
 export async function preloadSelectionLists(): Promise<void> {
   if (cache.loaded || cache.loading) return;
   cache.loading = true;
   cache.lastError = undefined;
+  publishSelectionListDiag();
   try {
     // Copied into dist by webpack (see `web_ui/webpack.config.js`).
     // NOTE: Electron packaging excludes *.md by default in this repo, so we ship a
     // `.txt` copy for runtime and fall back to `.md` for dev.
     let md: string | null = null;
+    let source: string = 'selection-lists.txt';
     try {
       md = await fetchText('selection-lists.txt');
     } catch {
+      source = 'selection-lists.md';
       md = await fetchText('selection-lists.md');
     }
     cache.map = parseSelectionListsMarkdown(md);
@@ -319,10 +398,33 @@ export async function preloadSelectionLists(): Promise<void> {
     } catch (e) {
       console.warn('[BF6] Failed to register selection list enum blocks:', e);
     }
+
+    // One-time diagnostic summary (helps confirm we loaded the right asset in packaged builds).
+    if (!didLogLoadSummary) {
+      didLogLoadSummary = true;
+      try {
+        const count = Object.keys(cache.map || {}).length;
+        console.log(`[BF6] Selection lists loaded: ${count} enums (${source})`);
+      } catch {
+        // ignore
+      }
+    }
+
+    publishSelectionListDiag(source);
+
+    // Refresh any existing dropdown fields that were created before load finished.
+    refreshSelectionListDropdownFields();
   } catch (e: any) {
     cache.lastError = String(e?.message || e);
+    publishSelectionListDiag();
+    try {
+      console.warn('[BF6] Selection lists failed to load:', cache.lastError);
+    } catch {
+      // ignore
+    }
   } finally {
     cache.loading = false;
+    publishSelectionListDiag();
   }
 }
 
@@ -483,7 +585,7 @@ export function registerSelectionListExtensions(): void {
     // Ensure there is *some* value set.
     try {
       const cur = String(field.getValue?.() ?? '');
-      if (!cur || cur === '__loading__' || cur === '__error__' || cur === '__missing__') {
+      if (!cur || cur === '__loading__' || cur === '__error__' || cur === '__missing__' || cur === '__empty__') {
         const opts = field.menuGenerator_();
         if (Array.isArray(opts) && opts.length > 0) {
           const v = opts[0][1];

@@ -182,6 +182,8 @@ function createWindow() {
                                 toolboxConfigMeta = { error: String(e && e.message ? e.message : e) };
                             }
 
+                            const selectionLists = window.__bf6_selection_lists_status || null;
+
                             return {
                                 hasBlockly,
                                 hasToolboxConfig,
@@ -194,6 +196,7 @@ function createWindow() {
                                 toolboxApi,
                                 toolboxLabelsCount: labelTexts.length,
                                 toolboxLabelSample: labelSample,
+                                selectionLists,
                                 blocklyDivRect
                             };
                         })()`

@@ -5,11 +5,11 @@
   "main": "electron-main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "npm run build --prefix web_ui && electron-builder",
-    "dist:unpacked": "npm run build --prefix web_ui && electron-builder --win --x64 --dir --config.directories.output=dist-dev",
-    "dist:test": "npm run build --prefix web_ui && electron-builder --config.directories.output=dist-test",
+    "dist": "npm --prefix web_ui run build && electron-builder",
+    "dist:unpacked": "npm --prefix web_ui run build && electron-builder --win --x64 --dir --config.directories.output=dist-dev",
+    "dist:test": "npm --prefix web_ui run build && electron-builder --config.directories.output=dist-test",
     "build": "npm run dist",
-    "test": "npm test --prefix web_ui",
+    "test": "npm --prefix web_ui test",
     "update:andy-vars": "python tools/update_andy6170_unlimited_variables.py"
   },
   "author": "Neuro",
