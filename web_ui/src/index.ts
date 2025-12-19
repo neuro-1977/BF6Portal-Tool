@@ -1054,6 +1054,8 @@ try {
     return Array.from(out).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
   })();
 
+  const xmlEl = (tagName: string): Element => document.createElement(tagName);
+
   ws.registerToolboxCategoryCallback('SELECTION_LISTS_CATEGORY', (workspace) => {
     const xmlList: Element[] = [];
 
@@ -1164,6 +1166,27 @@ try {
         // ignore
       }
       resolve(null);
+    });
+  };
+
+  const alertText = (title: string, message: string): Promise<void> => {
+    return new Promise((resolve) => {
+      try {
+        const dialog: any = (Blockly as any).dialog;
+        if (dialog?.alert && typeof dialog.alert === 'function') {
+          dialog.alert(`${title}\n\n${message}`, () => resolve());
+          return;
+        }
+      } catch {
+        // ignore
+      }
+
+      try {
+        window.alert(`${title}\n\n${message}`);
+      } catch {
+        // ignore
+      }
+      resolve();
     });
   };
 

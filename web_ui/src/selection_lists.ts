@@ -64,6 +64,98 @@ const EXTRA_SELECTION_LISTS: SelectionListMap = {
   VehicleTypes: ['Airplane', 'Helicopter', 'Light', 'Medium', 'Heavy', 'Stationary'],
 };
 
+const SELECTION_LIST_BLOCK_PREFIX = 'bf6_sel_';
+
+function normalizeEnumKey(name: string): string {
+  const s = String(name || '').trim();
+  if (!s) return '';
+  return s.endsWith('Item') ? s.slice(0, -4) : s;
+}
+
+function getCanonicalEnumNamesFromMap(map: SelectionListMap): string[] {
+  const names = new Set<string>();
+  for (const rawKey of Object.keys(map || {})) {
+    const norm = normalizeEnumKey(rawKey);
+    if (!norm) continue;
+    // Ignore alternate index keys.
+    if (norm.startsWith('Enum_')) continue;
+    // Prefer the canonical cased version over lower-case duplicates.
+    if (norm.toLowerCase() === norm) continue;
+    if (!/^[A-Za-z0-9_]+$/.test(norm)) continue;
+    const vals = (map as any)[rawKey];
+    if (!Array.isArray(vals) || vals.length === 0) continue;
+    names.add(norm);
+  }
+  return Array.from(names).sort((a, b) => a.localeCompare(b));
+}
+
+function getConnectionChecksForEnum(enumName: string): string[] {
+  const norm = normalizeEnumKey(enumName);
+  const checks = new Set<string>();
+  const add = (s: string) => {
+    const v = String(s || '').trim();
+    if (v) checks.add(v);
+  };
+
+  add(norm);
+  add(`${norm}Item`);
+  add(`Enum_${norm}`);
+  add(`Enum_${norm}Item`);
+
+  // Known naming drift in older exports/tooling.
+  if (norm === 'InputRestrictions') {
+    add('RestrictedInputs');
+    add('RestrictedInputsItem');
+  }
+  if (norm === 'RestrictedInputs') {
+    add('InputRestrictions');
+    add('InputRestrictionsItem');
+  }
+
+  return Array.from(checks);
+}
+
+function registerSelectionListEnumBlocks(): void {
+  // Register once per Blockly instance.
+  const anyB: any = Blockly as any;
+  if (anyB.__bf6_selection_list_enum_blocks_registered) return;
+  if (!cache.loaded) return;
+  anyB.__bf6_selection_list_enum_blocks_registered = true;
+
+  const names = getCanonicalEnumNamesFromMap(cache.map);
+  for (const enumName of names) {
+    const blockType = `${SELECTION_LIST_BLOCK_PREFIX}${enumName}`;
+
+    if ((Blockly as any).Blocks && Object.prototype.hasOwnProperty.call((Blockly as any).Blocks, blockType)) {
+      continue;
+    }
+
+    (Blockly as any).Blocks[blockType] = {
+      init: function () {
+        this.appendDummyInput()
+          .appendField(enumName)
+          .appendField(new (Blockly as any).FieldDropdown([['(loading selection lists...)', '__loading__']]), 'OPTION');
+
+        // Allow connections to both EnumName and EnumNameItem.
+        this.setOutput(true, getConnectionChecksForEnum(enumName));
+        this.setColour(330);
+        this.setTooltip(`Selection list: ${enumName}`);
+
+        try {
+          Blockly.Extensions.apply('bf6_selection_list_dropdown', this, false);
+        } catch {
+          // ignore
+        }
+      },
+    };
+
+    (javascriptGenerator.forBlock as any)[blockType] = function (block: any, generator: any) {
+      const value = String(block.getFieldValue('OPTION') || '');
+      return [generator.quote_(value), Order.ATOMIC];
+    };
+  }
+}
+
 function ensureDerivedSelectionLists(map: SelectionListMap): void {
   // Derive inventory dropdowns from the available master lists.
   const weapons = map['Weapons'];

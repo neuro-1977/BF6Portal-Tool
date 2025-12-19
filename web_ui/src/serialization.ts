@@ -75,39 +75,6 @@ export const load = async function (workspace: Blockly.Workspace) {
   }
 };
 
-function normalizeWorkspaceState(state: any): any {
-  // Blockly JSON serialization format (preferred):
-  // { blocks: { languageVersion: 0, blocks: [...] }, variables: [...] }
-  if (state && typeof state === 'object') {
-    // Unwrap common community/container formats.
-    if (state.mod && typeof state.mod === 'object') {
-      return normalizeWorkspaceState(state.mod);
-    }
-    if (state.workspace && typeof state.workspace === 'object') {
-      return normalizeWorkspaceState(state.workspace);
-    }
-
-    if (state.blocks && typeof state.blocks === 'object' && Array.isArray(state.blocks.blocks)) {
-      if (!('languageVersion' in state.blocks)) {
-        state.blocks.languageVersion = 0;
-      }
-      if (!Array.isArray(state.variables)) {
-        state.variables = [];
-      }
-      return state;
-    }
-
-    // Some exports provide the blocks array directly.
-    if (Array.isArray((state as any).blocks)) {
-      return {
-        blocks: { languageVersion: 0, blocks: (state as any).blocks },
-        variables: Array.isArray((state as any).variables) ? (state as any).variables : [],
-      };
-    }
-  }
-  return state;
-}
-
 /**
  * Saves the workspace to a JSON file and triggers a download.
  * @param workspace Blockly workspace to save.
