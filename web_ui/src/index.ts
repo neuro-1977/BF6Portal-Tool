@@ -418,6 +418,91 @@ try {
 
 let menuBar: MenuBar | undefined;
 
+function installSelectionListsStatusIndicator(): void {
+  try {
+    const existing = document.getElementById('bf6SelectionListsStatus');
+    if (existing) return;
+
+    const host = (document.getElementById('headerRight') || document.getElementById('header')) as HTMLElement | null;
+    if (!host) return;
+
+    const el = document.createElement('span');
+    el.id = 'bf6SelectionListsStatus';
+    el.style.fontSize = '0.82em';
+    el.style.opacity = '0.92';
+    el.style.color = '#b0e0ff';
+    el.style.border = '1px solid rgba(255,255,255,0.14)';
+    el.style.borderRadius = '10px';
+    el.style.padding = '4px 8px';
+    el.style.background = 'rgba(255,255,255,0.06)';
+    el.style.userSelect = 'none';
+    el.style.cursor = 'pointer';
+    el.title = 'Selection lists status (click to refresh UI)';
+
+    const render = () => {
+      const st: any = (window as any).__bf6_selection_lists_status;
+      const blocksCount: any = (window as any).__bf6_selection_list_block_types_count;
+      if (!st) {
+        el.textContent = 'Lists: (unknown)';
+        return;
+      }
+      if (st.lastError) {
+        el.textContent = `Lists: ERROR`;
+        el.title = `Selection lists failed to load: ${String(st.lastError)} (click to refresh UI)`;
+        return;
+      }
+      if (st.loading && !st.loaded) {
+        el.textContent = 'Lists: loading…';
+        return;
+      }
+      if (st.loaded) {
+        const src = st.source ? String(st.source) : 'unknown';
+        const enums = typeof st.enumsCount === 'number' ? st.enumsCount : '?';
+        const blocks = (typeof blocksCount === 'number') ? blocksCount : '?';
+        el.textContent = `Lists: ${enums} (${src}) · blocks: ${blocks}`;
+        return;
+      }
+      el.textContent = 'Lists: not loaded';
+    };
+
+    host.appendChild(el);
+    render();
+
+    // Poll briefly; in packaged builds users may not have a console/terminal.
+    const timer = window.setInterval(() => {
+      try {
+        render();
+        const st: any = (window as any).__bf6_selection_lists_status;
+        if (st && (st.loaded || st.lastError)) window.clearInterval(timer);
+      } catch {
+        // ignore
+      }
+    }, 400);
+
+    el.addEventListener('click', (e) => {
+      try {
+        e.preventDefault();
+        e.stopPropagation();
+      } catch {
+        // ignore
+      }
+      try {
+        (window as any).bf6RefreshUi?.();
+      } catch {
+        // ignore
+      }
+      try {
+        // Re-trigger preload in case the user clicked very early.
+        void preloadSelectionLists();
+      } catch {
+        // ignore
+      }
+    });
+  } catch {
+    // ignore
+  }
+}
+
 // Initialize Menu Bar
 try {
   // This repo has multiple UI variants. The shipped `web_ui/index.html` (Awesome UI)
@@ -492,6 +577,8 @@ try {
   // Best-effort preload so dropdowns are ready by the time a user opens them.
   // (If it fails, dropdowns show an inline error message.)
   void preloadSelectionLists();
+  // Visible status pill in the header (helps when users don't have DevTools open).
+  try { installSelectionListsStatusIndicator(); } catch { /* ignore */ }
   Blockly.common.defineBlocks(textBlocks);
   Blockly.common.defineBlocks(homeBlocks);
   Blockly.common.defineBlocks(variableBlocks);
@@ -542,6 +629,9 @@ try {
   
   // Expose workspace globally
   (window as any).workspace = ws;
+
+  // Ensure the status pill exists after workspace creation as well.
+  try { installSelectionListsStatusIndicator(); } catch { /* ignore */ }
 
   // Remember the last selected block so toolbox flyout buttons can still act on it
   // even if clicking the toolbox clears the active selection.
@@ -1053,6 +1143,13 @@ try {
     collect(generatedBlocks as any);
     return Array.from(out).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
   })();
+
+  try {
+    (window as any).__bf6_selection_list_block_types = selectionListBlockTypes;
+    (window as any).__bf6_selection_list_block_types_count = selectionListBlockTypes.length;
+  } catch {
+    // ignore
+  }
 
   const xmlEl = (tagName: string): Element => document.createElement(tagName);
 

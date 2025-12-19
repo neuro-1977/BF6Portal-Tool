@@ -167,6 +167,19 @@ function registerSelectionListEnumBlocks(): void {
       },
     };
 
+    // Blockly v12+ primarily instantiates blocks via the common registry.
+    // Defining only on Blockly.Blocks can result in "Invalid block definition"
+    // when the toolbox/flyout tries to create the block.
+    try {
+      if (Blockly.common && typeof Blockly.common.defineBlocks === 'function') {
+        const defs: any = {};
+        defs[blockType] = (Blockly as any).Blocks[blockType];
+        Blockly.common.defineBlocks(defs);
+      }
+    } catch {
+      // ignore
+    }
+
     (javascriptGenerator.forBlock as any)[blockType] = function (block: any, generator: any) {
       const value = String(block.getFieldValue('OPTION') || '');
       return [generator.quote_(value), Order.ATOMIC];
@@ -318,6 +331,16 @@ function refreshSelectionListDropdownFields(): void {
       } catch {
         // ignore
       }
+    }
+
+    // This app exposes its primary workspace on window.workspace.
+    // Include it explicitly to ensure we refresh the real UI even if Blockly
+    // cannot enumerate workspaces for some reason.
+    try {
+      const wws = (globalThis as any).workspace;
+      if (wws && !workspaces.includes(wws)) workspaces.push(wws);
+    } catch {
+      // ignore
     }
 
     const isPlaceholder = (v: any) => {
