@@ -3,11 +3,84 @@ import * as Blockly from 'blockly';
 const MOD_TYPES = ['MOD_BLOCK', 'modBlock'];
 const RULE_TYPE = 'RULE_HEADER';
 
+function scrollToBlockTop(workspace: Blockly.Workspace, block: Blockly.Block, padding = 56): boolean {
+  const wsAny: any = workspace as any;
+  const bAny: any = block as any;
+  if (!wsAny || !bAny) return false;
+
+  let top: number | null = null;
+  try {
+    if (typeof bAny.getBoundingRectangle === 'function') {
+      const r = bAny.getBoundingRectangle();
+      if (r && typeof r.top === 'number') top = r.top;
+    }
+  } catch {
+    // ignore
+  }
+  if (top == null) {
+    try {
+      if (typeof bAny.getRelativeToSurfaceXY === 'function') {
+        const p = bAny.getRelativeToSurfaceXY();
+        if (p && typeof p.y === 'number') top = p.y;
+      }
+    } catch {
+      // ignore
+    }
+  }
+  if (top == null) return false;
+
+  // Keep the current horizontal scroll if possible.
+  let x = 0;
+  try {
+    const m = typeof wsAny.getMetrics === 'function' ? wsAny.getMetrics() : null;
+    if (m && typeof m.viewLeft === 'number') x = m.viewLeft;
+  } catch {
+    // ignore
+  }
+
+  const y = Math.max(0, top - padding);
+  try {
+    if (wsAny.scrollbar && typeof wsAny.scrollbar.set === 'function') {
+      wsAny.scrollbar.set(x, y);
+      return true;
+    }
+  } catch {
+    // ignore
+  }
+
+  try {
+    if (typeof wsAny.scroll === 'function') {
+      wsAny.scroll(x, y);
+      return true;
+    }
+  } catch {
+    // ignore
+  }
+
+  return false;
+}
+
 function centerOnBlock(workspace: Blockly.Workspace, block: Blockly.Block) {
   const wsAny: any = workspace as any;
   try {
     if (typeof wsAny.centerOnBlock === 'function') {
       wsAny.centerOnBlock((block as any).id);
+    }
+  } catch {
+    // ignore
+  }
+
+  // Prefer aligning to the *top* of the target block, so it doesn't end up hidden
+  // under the fixed header/toolbox.
+  try {
+    scrollToBlockTop(workspace, block);
+  } catch {
+    // ignore
+  }
+
+  try {
+    if (typeof (block as any).select === 'function') {
+      (block as any).select();
     }
   } catch {
     // ignore

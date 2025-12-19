@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupAboutQuotes().catch((e) => console.warn('[BF6] setupAboutQuotes failed:', e));
     setupAboutModal();
     setupCodePreviewDrawer();
+    setupVersionLabel();
 
     // Prefer the simple injection path for stability.
     // If you want to switch back to StartupSequence later, you can.
@@ -16,8 +17,172 @@ document.addEventListener('DOMContentLoaded', () => {
     setupButtonListeners();
 });
 
+function getActiveWorkspace() {
+    return window.workspace || null;
+}
+
+function zoomWorkspaceStep(step) {
+    try {
+        const ws = getActiveWorkspace();
+        if (!ws || typeof ws.zoomCenter !== 'function') return;
+        ws.zoomCenter(Number(step) || 0);
+    } catch {
+        // ignore
+    }
+}
+
+function resetWorkspaceZoom() {
+    try {
+        const ws = getActiveWorkspace();
+        if (!ws) return;
+
+        // Match Blockly's zoom reset behavior (startScale) as closely as possible.
+        const startScale = (ws.options && ws.options.zoomOptions && typeof ws.options.zoomOptions.startScale === 'number')
+            ? ws.options.zoomOptions.startScale
+            : 1;
+        const scaleSpeed = (ws.options && ws.options.zoomOptions && typeof ws.options.zoomOptions.scaleSpeed === 'number')
+            ? ws.options.zoomOptions.scaleSpeed
+            : 1.2;
+
+        if (typeof ws.zoomCenter === 'function' && typeof ws.scale === 'number' && ws.scale > 0 && scaleSpeed > 0 && scaleSpeed !== 1) {
+            const steps = Math.log(startScale / ws.scale) / Math.log(scaleSpeed);
+            if (Number.isFinite(steps) && Math.abs(steps) > 1e-9) {
+                ws.zoomCenter(steps);
+            } else if (typeof ws.setScale === 'function') {
+                ws.setScale(startScale);
+            }
+        } else if (typeof ws.setScale === 'function') {
+            ws.setScale(startScale);
+        }
+
+        try {
+            if (typeof ws.scrollCenter === 'function') ws.scrollCenter();
+        } catch {
+            // ignore
+        }
+    } catch {
+        // ignore
+    }
+}
+
+function zoomToFitWorkspace() {
+    try {
+        const ws = getActiveWorkspace();
+        if (!ws) return;
+        if (typeof ws.zoomToFit === 'function') ws.zoomToFit();
+    } catch {
+        // ignore
+    }
+}
+
+function deleteSelectedBlock() {
+    try {
+        const ws = getActiveWorkspace();
+        if (!ws) return;
+
+        let selected = null;
+        if (typeof ws.getSelected === 'function') {
+            selected = ws.getSelected();
+        } else if (typeof Blockly !== 'undefined' && Blockly && typeof Blockly.getSelected === 'function') {
+            selected = Blockly.getSelected();
+        }
+
+        if (selected && typeof selected.dispose === 'function') {
+            selected.dispose(true);
+        }
+    } catch {
+        // ignore
+    }
+}
+
+function setupVersionLabel() {
+    const el = document.getElementById('appVersionLabel');
+    if (!el) return;
+
+    const v = getAppVersion();
+    if (!v) return;
+    el.textContent = `v${v}`;
+}
+
+function getAppVersion() {
+    try {
+        const req = (typeof window !== 'undefined' && window.require) ? window.require : (typeof require === 'function' ? require : null);
+        if (!req) return null;
+        const fs = req('fs');
+        const path = req('path');
+        const { fileURLToPath } = req('url');
+
+        const here = fileURLToPath(window.location.href);
+        const baseDir = path.dirname(here);
+
+        // App loads from either:
+        // - dev: <root>/web_ui/dist/index.html
+        // - packaged: <...>/resources/app.asar/web_ui/dist/index.html
+        // package.json is typically at:
+        // - dev: <root>/package.json
+        // - packaged: <...>/resources/app.asar/package.json
+        const candidates = [
+            path.resolve(baseDir, '..', '..', 'package.json'),       // packaged (app.asar)
+            path.resolve(baseDir, '..', '..', '..', 'package.json'), // dev
+            path.resolve(baseDir, 'package.json'),
+        ];
+
+        let raw = null;
+        for (const p of candidates) {
+            try {
+                if (fs.existsSync(p)) {
+                    raw = fs.readFileSync(p, 'utf8');
+                    break;
+                }
+            } catch {
+                // ignore
+            }
+        }
+        if (!raw) return null;
+        const pkg = JSON.parse(raw);
+        return pkg && pkg.version ? String(pkg.version) : null;
+    } catch {
+        return null;
+    }
+}
+
+function ensureCriticalPortalStructuralBlocks() {
+    // Some community/preset JSONs require `modBlock` to exist and expose a RULES statement input.
+    // If not present (or present but incompatible), define a safe structural version.
+    try {
+        Blockly.Blocks = Blockly.Blocks || {};
+        Blockly.Blocks['modBlock'] = {
+            init: function() {
+                this.appendDummyInput().appendField('MOD');
+                try {
+                    this.appendStatementInput('RULES').appendField('RULES');
+                } catch {
+                    this.appendStatementInput('RULES');
+                }
+                // Top-level container
+                try { this.setColour(getSuggestedPortalBlockColour('modBlock')); } catch {}
+                try { this.setTooltip('Portal template MOD container.'); } catch {}
+                try { this.setHelpUrl(''); } catch {}
+            }
+        };
+
+        // Blockly v12+ primarily looks at the common registry when creating blocks.
+        // Registering only via Blockly.Blocks can still result in "Invalid block definition".
+        try {
+            if (Blockly.common && typeof Blockly.common.defineBlocks === 'function') {
+                const defs = { modBlock: Blockly.Blocks['modBlock'] };
+                Blockly.common.defineBlocks(defs);
+            }
+        } catch {
+            // ignore
+        }
+    } catch {
+        // ignore
+    }
+}
+
 function setupCodePreviewDrawer() {
-    const toggleBtn = document.getElementById('terminal-toggle');
+    const toggleBtn = document.getElementById('codePreviewBtn') || document.getElementById('terminal-toggle');
     const container = document.getElementById('terminal-drawer');
     if (!toggleBtn || !container) return;
 
@@ -60,12 +225,21 @@ function setupButtonListeners() {
             if (input) input.click();
         },
         'saveBtn': () => saveWorkspace(),
+        'exportPortalBtn': () => exportToPortalJson(),
+        'importTsBtn': () => alert('Import TS is coming soon.\n\nFor now: use Load JSON to import workspaces, or Export TS to get a TypeScript snapshot.'),
         'exportTsBtn': () => exportToTypeScript(),
         'presetSaveBtn': () => saveCurrentWorkspaceAsPreset(),
         'presetDeleteBtn': () => deleteSelectedPreset(),
         'closeAboutModal': () => {
             closeAboutModal();
-        }
+        },
+
+        // Workspace controls (now in the header, top-right).
+        'zoomOutBtn': () => zoomWorkspaceStep(-1),
+        'zoomInBtn': () => zoomWorkspaceStep(1),
+        'zoomResetBtn': () => resetWorkspaceZoom(),
+        'zoomFitBtn': () => zoomToFitWorkspace(),
+        'trashBtn': () => deleteSelectedBlock(),
     };
 
     for (const [id, handler] of Object.entries(btnMap)) {
@@ -284,13 +458,32 @@ async function loadPresetById(id) {
     }
 
     if (info.kind === 'builtin' && info.url) {
-        const res = await fetch(info.url, { cache: 'no-store' });
-        if (!res.ok) {
-            alert(`Failed to load preset: HTTP ${res.status}`);
-            return;
+        let parsed = null;
+        try {
+            const res = await fetch(info.url, { cache: 'no-store' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            parsed = await res.json();
+        } catch (e) {
+            // In Electron/file:// contexts, fetch can fail. Fall back to Node fs.
+            try {
+                const req = (typeof window !== 'undefined' && window.require) ? window.require : (typeof require === 'function' ? require : null);
+                if (!req) throw e;
+                const fs = req('fs');
+                const path = req('path');
+                const { fileURLToPath } = req('url');
+                const here = fileURLToPath(window.location.href);
+                const baseDir = path.dirname(here);
+                const absPath = path.resolve(baseDir, info.url);
+                const raw = fs.readFileSync(absPath, 'utf8');
+                parsed = JSON.parse(raw);
+            } catch (e2) {
+                const msg = String(e2 && e2.message ? e2.message : e2);
+                alert(`Failed to load preset.\n\n${msg}`);
+                return;
+            }
         }
-        const parsed = await res.json();
         const state = normalizeWorkspaceState(parsed);
+        try { ensureCriticalPortalStructuralBlocks(); } catch {}
         try { ensurePortalBlocksRegisteredFromState(state); } catch {}
         Blockly.Events.disable();
         try {
@@ -312,6 +505,7 @@ async function loadPresetById(id) {
 
     if (info.kind === 'user' && info.state) {
         const state = normalizeWorkspaceState(info.state);
+        try { ensureCriticalPortalStructuralBlocks(); } catch {}
         try { ensurePortalBlocksRegisteredFromState(state); } catch {}
         Blockly.Events.disable();
         try {
@@ -336,7 +530,22 @@ function makeUserPresetId() {
     return `user:${Date.now()}:${Math.random().toString(16).slice(2)}`;
 }
 
-function saveCurrentWorkspaceAsPreset() {
+function bf6PromptAsync(message, defaultValue) {
+    return new Promise((resolve) => {
+        try {
+            if (Blockly?.dialog?.prompt && typeof Blockly.dialog.prompt === 'function') {
+                Blockly.dialog.prompt(message, defaultValue ?? '', (value) => resolve(value));
+                return;
+            }
+        } catch {
+            // ignore
+        }
+        // Native prompt is not supported in Electron; fail gracefully.
+        resolve(null);
+    });
+}
+
+async function saveCurrentWorkspaceAsPreset() {
     if (!window.workspace || !Blockly?.serialization?.workspaces?.save) return;
 
     const selected = getSelectedPresetInfo();
@@ -346,7 +555,7 @@ function saveCurrentWorkspaceAsPreset() {
     if (selected.kind === 'builtin' && selected.name) defaultName = `${selected.name} (Copy)`;
     if (selected.kind === 'user' && selected.name) defaultName = selected.name;
 
-    let name = prompt('Preset name:', defaultName);
+    let name = await bf6PromptAsync('Preset name:', defaultName);
     if (!name) return;
     name = name.trim();
     if (!name) return;
@@ -1182,14 +1391,14 @@ function fallbackInjection() {
                 snap: true
             },
             zoom: {
-                controls: true,
+                controls: false,
                 wheel: true,
                 startScale: 1.0,
                 maxScale: 3,
                 minScale: 0.3,
                 scaleSpeed: 1.2
             },
-            trashcan: true
+            trashcan: false
         });
         console.log("[BF6] Blockly injected successfully.");
 
@@ -1275,6 +1484,7 @@ function handleFileUpload(event) {
                 // Auto-register missing block types referenced by the imported JSON.
                 // This is especially important for community Portal templates.
                 try {
+                    try { ensureCriticalPortalStructuralBlocks(); } catch {}
                     const r = ensurePortalBlocksRegisteredFromState(state);
                     if (r && r.created) {
                         console.log(`[BF6] Auto-registered ${r.created} block types for import.`);
@@ -1474,9 +1684,11 @@ function ensurePortalBlocksRegisteredFromState(state) {
 
     let created = 0;
 
+    const FORCE_OVERRIDE_TYPES = new Set(['modBlock']);
+
     for (const [type, info] of model.entries()) {
         if (!type || typeof type !== 'string') continue;
-        if (Blockly?.Blocks && Object.prototype.hasOwnProperty.call(Blockly.Blocks, type)) {
+        if (!FORCE_OVERRIDE_TYPES.has(type) && Blockly?.Blocks && Object.prototype.hasOwnProperty.call(Blockly.Blocks, type)) {
             continue;
         }
 
@@ -1542,6 +1754,17 @@ function ensurePortalBlocksRegisteredFromState(state) {
                 this.setHelpUrl('');
             }
         };
+
+        // Also register into the common registry so workspace.newBlock/load works reliably.
+        try {
+            if (Blockly.common && typeof Blockly.common.defineBlocks === 'function') {
+                const defs = {};
+                defs[type] = Blockly.Blocks[type];
+                Blockly.common.defineBlocks(defs);
+            }
+        } catch {
+            // ignore
+        }
 
         created++;
     }
@@ -1772,6 +1995,26 @@ function downloadText(text, filename, mimeType) {
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 
+function exportToPortalJson() {
+    try {
+        // Provided by the webpack/TypeScript bundle (see web_ui/src/index.ts).
+        const fn = window.bf6ExportForPortal;
+        if (typeof fn === 'function') {
+            fn();
+            return;
+        }
+
+        alert(
+            'Export Portal is not available in this UI build.\n\n' +
+            'Tip: open the packaged app (or web_ui/dist/index.html) which loads the TypeScript bundle, then try again.'
+        );
+    } catch (e) {
+        console.warn('[BF6] Export Portal failed:', e);
+        const msg = (e && e.message) ? e.message : String(e);
+        alert(`Failed to export Portal JSON.\n\n${msg}`);
+    }
+}
+
 function exportToTypeScript() {
     try {
         const ts = generateTypeScriptFromWorkspace(window.workspace);
@@ -1807,9 +2050,32 @@ function renderSimpleMarkdown(text) {
 async function loadBlockDocs() {
     if (BF6_BLOCK_DOCS) return BF6_BLOCK_DOCS;
     try {
-        const res = await fetch('bf6portal_blocks.json', { cache: 'no-store' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const arr = await res.json();
+        let arr = null;
+        try {
+            const res = await fetch('bf6portal_blocks.json', { cache: 'no-store' });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            arr = await res.json();
+        } catch (fetchErr) {
+            // Electron packaged builds can run under file:// where fetch may be blocked.
+            // Fall back to reading the JSON directly from disk when Node integration is available.
+            try {
+                const req = (typeof require === 'function') ? require : (typeof window !== 'undefined' ? window.require : null);
+                if (!req) throw fetchErr;
+
+                const fs = req('fs');
+                const urlMod = req('url');
+                const fileUrl = new URL('bf6portal_blocks.json', window.location.href);
+                const filePath = (typeof urlMod.fileURLToPath === 'function')
+                    ? urlMod.fileURLToPath(fileUrl)
+                    : decodeURIComponent(fileUrl.pathname || '').replace(/^\//, '');
+
+                const txt = fs.readFileSync(filePath, 'utf8');
+                arr = JSON.parse(txt);
+            } catch (fsErr) {
+                console.warn('[BF6] Failed to load bf6portal_blocks.json via fetch and fs fallback:', fetchErr, fsErr);
+                throw fetchErr;
+            }
+        }
 
         const map = new Map();
         const upsert = (key, doc) => {

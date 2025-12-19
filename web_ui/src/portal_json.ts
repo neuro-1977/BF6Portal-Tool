@@ -75,6 +75,184 @@ export function normalizeWorkspaceState(state: any): any {
   return state;
 }
 
+/**
+ * Ensure variables from a serialized workspace state are present in the target
+ * workspace's variable map.
+ *
+ * This is a defensive step for community/Portal exports that sometimes omit
+ * variable map updates during load in certain environments.
+ */
+export function ensureVariablesExistFromState(workspace: Blockly.WorkspaceSvg, state: any): void {
+  try {
+    if (!workspace) return;
+    if (!state || typeof state !== 'object') return;
+
+    const map = (workspace as any).getVariableMap ? (workspace as any).getVariableMap() : null;
+    if (!map || typeof map.getAllVariables !== 'function') return;
+
+    const existingIds = new Set<string>();
+    const existingNamesLower = new Set<string>();
+    try {
+      const vars = map.getAllVariables();
+      for (const v of vars || []) {
+        try {
+          const vAny: any = v as any;
+          const id = vAny?.getId ? String(vAny.getId()) : String(vAny?.id ?? '');
+          const name = String(vAny?.name ?? '');
+          if (id) existingIds.add(id);
+          if (name) existingNamesLower.add(name.toLowerCase());
+        } catch {
+          // ignore
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    const upsert = (id: string, name: string, type: string) => {
+      const cleanName = String(name || '').trim();
+      if (!cleanName) return;
+      const cleanId = typeof id === 'string' ? id : '';
+      const cleanType = typeof type === 'string' ? type : '';
+      if (cleanId && existingIds.has(cleanId)) return;
+      if (!cleanId && existingNamesLower.has(cleanName.toLowerCase())) return;
+      try {
+        (workspace as any).createVariable?.(cleanName, cleanType || undefined, cleanId || undefined);
+        if (cleanId) existingIds.add(cleanId);
+        existingNamesLower.add(cleanName.toLowerCase());
+      } catch {
+        // ignore
+      }
+    };
+
+    // 1) Preferred: explicit `variables` array.
+    try {
+      if (Array.isArray((state as any).variables)) {
+        for (const v of (state as any).variables as any[]) {
+          if (!v || typeof v !== 'object') continue;
+          const id = typeof (v as any).id === 'string' ? (v as any).id : '';
+          const name = typeof (v as any).name === 'string' ? (v as any).name : '';
+          const type = typeof (v as any).type === 'string' ? (v as any).type : '';
+          upsert(id, name, type);
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    // 2) Defensive: scan serialized block fields for variable references.
+    // Some community presets/templates omit `variables: []` but still reference
+    // variables via field objects like {id,name,type} inside block.fields.
+    const visitBlock = (block: any) => {
+      if (!block || typeof block !== 'object') return;
+      try {
+        const fields = (block as any).fields;
+        if (fields && typeof fields === 'object') {
+          for (const value of Object.values(fields)) {
+            const v: any = value as any;
+            if (!v || typeof v !== 'object') continue;
+            const id = typeof v.id === 'string' ? v.id : '';
+            const name = typeof v.name === 'string' ? v.name : '';
+            const type = typeof v.type === 'string' ? v.type : '';
+            if (name) upsert(id, name, type);
+          }
+        }
+
+        const inputs = (block as any).inputs;
+        if (inputs && typeof inputs === 'object') {
+          for (const input of Object.values(inputs)) {
+            const child = (input as any)?.block || (input as any)?.shadow;
+            if (child) visitBlock(child);
+          }
+        }
+
+        const next = (block as any).next?.block;
+        if (next) visitBlock(next);
+      } catch {
+        // ignore
+      }
+    };
+
+    try {
+      const blocksRoot = (state as any)?.blocks;
+      if (blocksRoot && typeof blocksRoot === 'object' && Array.isArray((blocksRoot as any).blocks)) {
+        for (const top of (blocksRoot as any).blocks) visitBlock(top);
+      } else if (Array.isArray((state as any)?.blocks)) {
+        for (const top of (state as any).blocks) visitBlock(top);
+      }
+    } catch {
+      // ignore
+    }
+  } catch {
+    // ignore
+  }
+}
+
+/**
+ * Extra defensive pass: ensure that variables referenced by blocks that are
+ * already in the workspace have corresponding VariableModels.
+ *
+ * This is useful after deserialization in environments where the variable map
+ * doesn't fully hydrate.
+ */
+export function ensureVariablesExistFromWorkspaceFields(workspace: Blockly.WorkspaceSvg): void {
+  try {
+    if (!workspace) return;
+    const map = (workspace as any).getVariableMap ? (workspace as any).getVariableMap() : null;
+    if (!map) return;
+
+    const existingIds = new Set<string>();
+    try {
+      const vars = map.getAllVariables?.() || [];
+      for (const v of vars) {
+        try {
+          const vAny: any = v as any;
+          const id = vAny?.getId ? String(vAny.getId()) : String(vAny?.id ?? '');
+          if (id) existingIds.add(id);
+        } catch {
+          // ignore
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    const blocks: any[] = (workspace as any).getAllBlocks ? (workspace as any).getAllBlocks(false) : [];
+    for (const b of blocks || []) {
+      try {
+        const inputs = (b as any)?.inputList || [];
+        for (const input of inputs) {
+          const row = (input as any)?.fieldRow || [];
+          for (const field of row) {
+            const f: any = field as any;
+            // Blockly FieldVariable implements referencesVariables().
+            const refs = typeof f?.referencesVariables === 'function' ? !!f.referencesVariables() : false;
+            if (!refs) continue;
+
+            const id = String(f?.getValue?.() ?? '');
+            const name = String(f?.getText?.() ?? '').trim();
+            const type = String((f?.getVariableTypes?.()?.[0] ?? f?.getVariableType?.() ?? '') || '');
+
+            if (!name) continue;
+            if (id && existingIds.has(id)) continue;
+
+            try {
+              (workspace as any).createVariable?.(name, type || undefined, id || undefined);
+              if (id) existingIds.add(id);
+            } catch {
+              // ignore
+            }
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+  } catch {
+    // ignore
+  }
+}
+
 type PortalBlockModelInfo = {
   fieldNames: string[];
   statementInputs: string[];
@@ -207,6 +385,25 @@ export function ensurePortalBlocksRegisteredFromState(state: any): { created: nu
     'modBlock',
   ]);
 
+  const defineCompat = (type: string, def: any) => {
+    try {
+      (Blockly as any).Blocks = (Blockly as any).Blocks || {};
+      (Blockly as any).Blocks[type] = def;
+    } catch {
+      // ignore
+    }
+
+    // Blockly v12+ primarily looks in the common registry when creating blocks.
+    // Defining via `Blockly.Blocks[...] = ...` alone may not be sufficient.
+    try {
+      const defs: any = {};
+      defs[type] = def;
+      Blockly.common.defineBlocks(defs);
+    } catch {
+      // ignore (already defined or registry rejects override)
+    }
+  };
+
   for (const [type, info] of model.entries()) {
     if (!type || typeof type !== 'string') continue;
 
@@ -215,9 +412,8 @@ export function ensurePortalBlocksRegisteredFromState(state: any): { created: nu
       continue;
     }
 
-    (Blockly as any).Blocks = (Blockly as any).Blocks || {};
-    (Blockly as any).Blocks[type] = {
-      init: function () {
+    const def: any = {
+      init: function (this: Blockly.Block) {
         // Title
         this.appendDummyInput().appendField(type);
 
@@ -276,6 +472,8 @@ export function ensurePortalBlocksRegisteredFromState(state: any): { created: nu
       },
     };
 
+    defineCompat(type, def);
+
     created++;
   }
 
@@ -286,9 +484,8 @@ export function ensureCriticalPortalStructuralBlocks() {
   // Some preset JSONs require `modBlock` to have a RULES statement input.
   // If a conflicting definition exists, override it.
   try {
-    (Blockly as any).Blocks = (Blockly as any).Blocks || {};
-    (Blockly as any).Blocks['modBlock'] = {
-      init: function () {
+    const def: any = {
+      init: function (this: Blockly.Block) {
         this.appendDummyInput().appendField('MOD');
         try {
           this.appendStatementInput('RULES').appendField('RULES');
@@ -301,6 +498,19 @@ export function ensureCriticalPortalStructuralBlocks() {
         this.setHelpUrl('');
       },
     };
+
+    try {
+      (Blockly as any).Blocks = (Blockly as any).Blocks || {};
+      (Blockly as any).Blocks['modBlock'] = def;
+    } catch {
+      // ignore
+    }
+
+    try {
+      Blockly.common.defineBlocks({ modBlock: def } as any);
+    } catch {
+      // ignore
+    }
   } catch {
     // ignore
   }
@@ -314,7 +524,12 @@ export function ensureCriticalPortalStructuralBlocks() {
 export function wrapPortalExport(state: any): any {
   const normalized = normalizeWorkspaceState(state);
   if (normalized && typeof normalized === 'object' && normalized.blocks && typeof normalized.blocks === 'object') {
-    return { mod: { blocks: normalized.blocks } };
+    return {
+      mod: {
+        blocks: normalized.blocks,
+        variables: Array.isArray((normalized as any).variables) ? (normalized as any).variables : [],
+      },
+    };
   }
-  return { mod: { blocks: { languageVersion: 0, blocks: [] } } };
+  return { mod: { blocks: { languageVersion: 0, blocks: [] }, variables: [] } };
 }

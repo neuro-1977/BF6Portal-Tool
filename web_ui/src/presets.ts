@@ -2,6 +2,8 @@ import * as Blockly from 'blockly';
 import {
   ensureCriticalPortalStructuralBlocks,
   ensurePortalBlocksRegisteredFromState,
+  ensureVariablesExistFromState,
+  ensureVariablesExistFromWorkspaceFields,
   normalizeWorkspaceState,
 } from './portal_json';
 
@@ -174,6 +176,41 @@ function focusWorkspaceOnContent(workspace: AnyWorkspace) {
   }
 }
 
+async function loadJsonFromUrl(url: string): Promise<any> {
+  // 1) Prefer fetch in normal web contexts.
+  try {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (res && res.ok) {
+      return await res.json();
+    }
+    // If fetch returns a response but it's not OK, keep the HTTP status.
+    if (res && !res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+  } catch (e) {
+    // 2) In Electron (file://) fetch can fail; fall back to Node fs.
+    try {
+      const req = (window as any).require ? (window as any).require : undefined;
+      if (!req) throw e;
+      const fs = req('fs');
+      const path = req('path');
+      const { fileURLToPath } = req('url');
+
+      const here = fileURLToPath(window.location.href);
+      const baseDir = path.dirname(here);
+      const absPath = path.resolve(baseDir, url);
+      const raw = fs.readFileSync(absPath, 'utf8');
+      return JSON.parse(raw);
+    } catch (e2: any) {
+      const msg = String((e2 && e2.message) ? e2.message : e2);
+      throw new Error(`Failed to load preset asset "${url}": ${msg}`);
+    }
+  }
+
+  // Should not reach here, but keep a clear error.
+  throw new Error(`Failed to load preset asset "${url}"`);
+}
+
 async function loadPresetById(workspace: AnyWorkspace, id: string) {
   if (!workspace) return;
 
@@ -198,12 +235,14 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
   updatePresetButtons();
 
   if (info.kind === 'builtin') {
-    const res = await fetch(info.url, { cache: 'no-store' });
-    if (!res.ok) {
-      alert(`Failed to load preset: HTTP ${res.status}`);
+    let parsed: any;
+    try {
+      parsed = await loadJsonFromUrl(info.url);
+    } catch (e: any) {
+      console.warn('[BF6] Failed to load built-in preset:', e);
+      alert(`Failed to load preset.\n\n${String(e?.message || e)}`);
       return;
     }
-    const parsed = await res.json();
     const state = normalizeWorkspaceState(parsed);
     // Make sure the key structural container blocks exist and have required inputs.
     ensureCriticalPortalStructuralBlocks();
@@ -217,7 +256,14 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
     Blockly.Events.disable();
     try {
       workspace.clear();
+      // Create variable models first so FieldVariable IDs resolve cleanly during load.
+      ensureVariablesExistFromState(workspace, state);
       await Promise.resolve((Blockly.serialization.workspaces.load(state, workspace, undefined) as any));
+      // Defensive (post-load): ensure the variable map reflects any serialized variables.
+      ensureVariablesExistFromState(workspace, state);
+      // Extra defensive: if variables were only referenced in blocks (or hydration was partial),
+      // ensure models exist so the Variables flyout can enumerate them.
+      ensureVariablesExistFromWorkspaceFields(workspace as any);
     } catch (e: any) {
       console.warn('[BF6] Failed to load preset workspace:', e);
       alert(`Failed to load preset.\n\n${String(e?.message || e)}`);
@@ -228,6 +274,13 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
     setTimeout(() => {
       try {
         focusWorkspaceOnContent(workspace);
+      } catch {
+        // ignore
+      }
+
+      // If the user currently has a custom flyout open (e.g., Variables), force a refresh.
+      try {
+        (workspace as any).refreshToolboxSelection?.();
       } catch {
         // ignore
       }
@@ -250,7 +303,12 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
     Blockly.Events.disable();
     try {
       workspace.clear();
+      // Create variable models first so FieldVariable IDs resolve cleanly during load.
+      ensureVariablesExistFromState(workspace, state);
       await Promise.resolve((Blockly.serialization.workspaces.load(state, workspace, undefined) as any));
+      // Defensive (post-load): ensure the variable map reflects any serialized variables.
+      ensureVariablesExistFromState(workspace, state);
+      ensureVariablesExistFromWorkspaceFields(workspace as any);
     } catch (e: any) {
       console.warn('[BF6] Failed to load preset workspace:', e);
       alert(`Failed to load preset.\n\n${String(e?.message || e)}`);
@@ -261,6 +319,13 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
     setTimeout(() => {
       try {
         focusWorkspaceOnContent(workspace);
+      } catch {
+        // ignore
+      }
+
+      // If the user currently has a custom flyout open (e.g., Variables), force a refresh.
+      try {
+        (workspace as any).refreshToolboxSelection?.();
       } catch {
         // ignore
       }
@@ -286,43 +351,59 @@ function saveCurrentWorkspaceAsPreset(workspace: AnyWorkspace) {
   if (selected.kind === 'builtin' && (selected as any).name) defaultName = `${(selected as any).name} (Copy)`;
   if (selected.kind === 'user' && (selected as any).name) defaultName = (selected as any).name;
 
-  const raw = prompt('Preset name:', defaultName);
-  if (raw == null) return;
-  let name = raw.trim();
-  if (!name) return;
+  const dialog: any = (Blockly as any).dialog;
+  const promptAsync = (message: string, initialValue: string) =>
+    new Promise<string | null>((resolve) => {
+      try {
+        if (dialog?.prompt && typeof dialog.prompt === 'function') {
+          dialog.prompt(message, initialValue ?? '', (v: string | null) => resolve(v));
+          return;
+        }
+      } catch {
+        // ignore
+      }
+      resolve(null);
+    });
 
-  // Prevent overwriting built-ins by name.
-  if (builtins.some((b) => b.name.toLowerCase() === name.toLowerCase())) {
-    // Friendly UX: don't hard-block. Auto-suffix so users can quickly save a copy.
-    name = `${name} (Copy)`;
-  }
+  void (async () => {
+    const raw = await promptAsync('Preset name:', defaultName);
+    if (raw == null) return;
+    let name = raw.trim();
+    if (!name) return;
 
-  const user = loadUserPresets();
-  const existingId = Object.keys(user).find((k) => (user[k]?.name || '').toLowerCase() === name.toLowerCase());
+    // Prevent overwriting built-ins by name.
+    if (builtins.some((b) => b.name.toLowerCase() === name.toLowerCase())) {
+      // Friendly UX: don't hard-block. Auto-suffix so users can quickly save a copy.
+      name = `${name} (Copy)`;
+    }
 
-  // If user is editing a built-in, always save as a new preset.
-  let targetId = selected.kind === 'user' ? selected.id : '';
-  if (selected.kind === 'builtin') targetId = '';
+    const user = loadUserPresets();
+    const existingId = Object.keys(user).find((k) => (user[k]?.name || '').toLowerCase() === name.toLowerCase());
 
-  // If the name already exists under a different id, offer overwrite.
-  if (existingId && existingId !== targetId) {
-    const ok = confirm('A user preset with that name already exists. Overwrite it?');
-    if (!ok) return;
-    targetId = existingId;
-  }
+    // If user is editing a built-in, always save as a new preset.
+    let targetId = selected.kind === 'user' ? selected.id : '';
+    if (selected.kind === 'builtin') targetId = '';
 
-  if (!targetId) targetId = makeUserPresetId();
+    // If the name already exists under a different id, offer overwrite.
+    if (existingId && existingId !== targetId) {
+      const ok = confirm('A user preset with that name already exists. Overwrite it?');
+      if (!ok) return;
+      targetId = existingId;
+    }
 
-  const state = Blockly.serialization.workspaces.save(workspace);
-  user[targetId] = {
-    name,
-    state,
-    updatedAt: new Date().toISOString(),
-    createdAt: user[targetId]?.createdAt || new Date().toISOString(),
-  };
-  saveUserPresets(user);
-  refreshPresetDropdown(targetId);
-  alert(`Saved preset: ${name}`);
+    if (!targetId) targetId = makeUserPresetId();
+
+    const state = Blockly.serialization.workspaces.save(workspace);
+    user[targetId] = {
+      name,
+      state,
+      updatedAt: new Date().toISOString(),
+      createdAt: user[targetId]?.createdAt || new Date().toISOString(),
+    };
+    saveUserPresets(user);
+    refreshPresetDropdown(targetId);
+    alert(`Saved preset: ${name}`);
+  })();
 }
 
 function deleteSelectedPreset() {

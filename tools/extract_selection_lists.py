@@ -42,15 +42,14 @@ def extract_selection_lists(input_path, output_path):
                 if key:
                     clean_items.append(key)
             
-            block_name = name
-            if not block_name.endswith("Item"):
-                block_name_suffix = block_name + "Item"
-            else:
-                block_name_suffix = block_name
+            # Normalize so the "header" is always <EnumName>Item but widget 1 is always <EnumName>.
+            # Older portal-docs snapshots sometimes used an "Item" suffix for enum names.
+            base_name = name[:-4] if name.endswith("Item") else name
+            block_name_suffix = base_name + "Item"
 
             f.write(f"{block_name_suffix}\n")
             f.write(f"widget 1:\n")
-            f.write(f"{block_name}\n") 
+            f.write(f"{base_name}\n")
             f.write(f"widget 2:\n")
             for item in clean_items:
                 f.write(f"{item}\n")

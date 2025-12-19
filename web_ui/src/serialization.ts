@@ -13,6 +13,8 @@ import {
   wrapPortalExport,
 } from './portal_json';
 
+import { COLLECTION_CALL_TYPE, COLLECTION_DEF_TYPE } from './blocks/collections';
+
 const storageKey = 'mainWorkspace';
 
 /**
@@ -87,6 +89,185 @@ export const saveToFile = function (workspace: Blockly.Workspace) {
   const a = document.createElement('a');
   a.href = url;
   a.download = 'custom_draft_workspace.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+type BlockState = any;
+type WorkspaceState = any;
+
+function deepCloneJson<T>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function getFieldString(block: BlockState | null | undefined, name: string): string {
+  try {
+    const v = block?.fields?.[name];
+    return String(v ?? '').trim();
+  } catch {
+    return '';
+  }
+}
+
+function getNextBlock(block: BlockState | null | undefined): BlockState | null {
+  return (block && block.next && block.next.block) ? block.next.block : null;
+}
+
+function setNextBlock(block: BlockState, next: BlockState | null): void {
+  if (!block) return;
+  if (!next) {
+    if (block.next) delete block.next;
+    return;
+  }
+  block.next = block.next && typeof block.next === 'object' ? block.next : {};
+  block.next.block = next;
+}
+
+function getTail(block: BlockState | null): BlockState | null {
+  let cur = block;
+  while (cur && cur.next && cur.next.block) cur = cur.next.block;
+  return cur;
+}
+
+function expandCollectionsInBlockTree(
+  block: BlockState | null,
+  defsByName: Map<string, BlockState>,
+  stack: string[],
+): BlockState | null {
+  if (!block) return null;
+
+  // Expand collection call blocks by inlining the referenced definition stack.
+  if (block.type === COLLECTION_CALL_TYPE) {
+    const name = getFieldString(block, 'NAME');
+    const nameKey = name.toLowerCase();
+    const nextOriginal = getNextBlock(block);
+
+    if (!name) {
+      // No usable name: drop the call for Portal export.
+      return expandCollectionsInBlockTree(nextOriginal, defsByName, stack);
+    }
+
+    if (stack.includes(nameKey)) {
+      throw new Error(`Recursive collection call blocked: ${name}`);
+    }
+
+    const def = defsByName.get(nameKey);
+    if (!def) {
+      throw new Error(`Collection definition not found: ${name}`);
+    }
+
+    // The definition's body is the statement stack under input STACK.
+    const defHead: BlockState | null = def?.inputs?.STACK?.block ?? null;
+    if (!defHead) {
+      // Empty definition => acts like a no-op.
+      return expandCollectionsInBlockTree(nextOriginal, defsByName, stack);
+    }
+
+    const clonedHead: BlockState = deepCloneJson(defHead);
+    const expandedHead = expandCollectionsInBlockTree(clonedHead, defsByName, [...stack, nameKey]);
+    const expandedNext = expandCollectionsInBlockTree(nextOriginal, defsByName, stack);
+
+    if (!expandedHead) return expandedNext;
+    const tail = getTail(expandedHead);
+    if (tail) setNextBlock(tail, expandedNext);
+    return expandedHead;
+  }
+
+  // Recurse into inputs (statement/value) and next chain.
+  if (block.inputs && typeof block.inputs === 'object') {
+    for (const key of Object.keys(block.inputs)) {
+      const input = block.inputs[key];
+      if (input && input.block) {
+        input.block = expandCollectionsInBlockTree(input.block, defsByName, stack);
+      }
+      // We intentionally do not mutate shadows.
+    }
+  }
+
+  if (block.next && block.next.block) {
+    block.next.block = expandCollectionsInBlockTree(block.next.block, defsByName, stack);
+  }
+
+  return block;
+}
+
+function expandCollectionsForPortalExport(state: WorkspaceState): WorkspaceState {
+  const normalized = normalizeWorkspaceState(deepCloneJson(state));
+  const blocksRoot = normalized?.blocks;
+  if (!blocksRoot || typeof blocksRoot !== 'object') return normalized;
+
+  const topBlocks: BlockState[] = Array.isArray(blocksRoot.blocks) ? blocksRoot.blocks : [];
+
+  // Build definitions map from top-level collection definition blocks.
+  const defsByName = new Map<string, BlockState>();
+  for (const b of topBlocks) {
+    if (!b || b.type !== COLLECTION_DEF_TYPE) continue;
+    const name = getFieldString(b, 'NAME');
+    if (!name) continue;
+    const key = name.toLowerCase();
+    if (!defsByName.has(key)) {
+      defsByName.set(key, b);
+    }
+  }
+
+  // Expand calls everywhere, starting from each top-level block.
+  for (let i = 0; i < topBlocks.length; i++) {
+    const b = topBlocks[i];
+    if (!b) continue;
+    topBlocks[i] = expandCollectionsInBlockTree(b, defsByName, []);
+  }
+
+  // Strip tool-only blocks from the final export.
+  blocksRoot.blocks = (topBlocks || []).filter((b) => !!b && b.type !== COLLECTION_DEF_TYPE && b.type !== COLLECTION_CALL_TYPE);
+
+  // Sanity: ensure no internal collection blocks remain.
+  const scan = (blk: any): boolean => {
+    if (!blk) return false;
+    if (blk.type === COLLECTION_CALL_TYPE || blk.type === COLLECTION_DEF_TYPE) return true;
+    if (blk.inputs) {
+      for (const k of Object.keys(blk.inputs)) {
+        const child = blk.inputs[k]?.block;
+        if (scan(child)) return true;
+      }
+    }
+    if (blk.next?.block && scan(blk.next.block)) return true;
+    return false;
+  };
+  for (const b of blocksRoot.blocks || []) {
+    if (scan(b)) {
+      throw new Error('Internal collection blocks remained after export expansion.');
+    }
+  }
+
+  return normalized;
+}
+
+/**
+ * Export a Portal-compatible JSON that expands collections and removes tool-only
+ * collection helper blocks.
+ */
+export const exportForPortal = function (workspace: Blockly.Workspace) {
+  const data = Blockly.serialization.workspaces.save(workspace);
+
+  let expanded: any;
+  try {
+    expanded = expandCollectionsForPortalExport(data);
+  } catch (e) {
+    console.error('[BF6] Export for Portal failed:', e);
+    alert(`Export for Portal failed: ${String((e as any)?.message ?? e)}`);
+    return;
+  }
+
+  const portal = wrapPortalExport(expanded);
+  const json = JSON.stringify(portal, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'portal_export_workspace.json';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

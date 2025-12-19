@@ -13,6 +13,7 @@ type Cache = {
   loaded: boolean;
   loading: boolean;
   map: SelectionListMap;
+  mapCI: SelectionListMap;
   lastError?: string;
 };
 
@@ -20,7 +21,88 @@ const cache: Cache = {
   loaded: false,
   loading: false,
   map: {},
+  mapCI: {},
 };
+
+// Some enums are named differently between our block output types (from bf6portal_blocks.json)
+// and the upstream portal-docs TypeScript definitions.
+// This keeps dropdowns populated without needing a full rename across the project.
+const ENUM_ALIASES: Record<string, string> = {
+  DamageTypes: 'PlayerDamageTypes',
+  DeathTypes: 'PlayerDeathTypes',
+  InputRestrictions: 'RestrictedInputs',
+  // Blocks refer to "CustomMessageSlots" but selection lists use "CustomNotificationSlots".
+  CustomMessageSlots: 'CustomNotificationSlots',
+  // Blocks refer to player-facing names, selection lists use Soldier* enums.
+  PlayerInventorySlots: 'InventorySlots',
+  PlayerSoldiers: 'SoldierClass',
+  PlayerStateBool: 'SoldierStateBool',
+  PlayerStateNumber: 'SoldierStateNumber',
+  PlayerStateVector: 'SoldierStateVector',
+  // Inventory subsets are derived from Weapons/Gadgets lists.
+  InventoryOpenGadgets: 'OpenGadgets',
+  // Block output type is VehiclesItem but upstream selection list enum is VehicleList.
+  Vehicles: 'VehicleList',
+  // Best-effort: audio-related lists in this dataset are exposed via VoiceOverEvents2D/MusicEvents.
+  VoiceOvers: 'VoiceOverEvents2D',
+  Sounds: 'MusicEvents',
+  LocationalSounds: 'MusicEvents',
+};
+
+// Some selection lists are not represented as enums in the upstream TypeScript definitions
+// we parse from `selection-lists.md`. Provide minimal, best-effort fallbacks so dropdown
+// blocks don't stay stuck in a permanent "loading..." state.
+const EXTRA_SELECTION_LISTS: SelectionListMap = {
+  // The Portal builder exposes 10 world icon entity slots.
+  WorldIcons: ['ICON_1', 'ICON_2', 'ICON_3', 'ICON_4', 'ICON_5', 'ICON_6', 'ICON_7', 'ICON_8', 'ICON_9', 'ICON_10'],
+  // Capture points are generally designated A..Z across layouts.
+  CapturePoints: Array.from({ length: 26 }, (_, i) => String.fromCharCode('A'.charCodeAt(0) + i)),
+  // MCOM objectives are commonly designated A..F (varies by layout). Provide a small set.
+  MCOMs: ['A', 'B', 'C', 'D', 'E', 'F'],
+  // Vehicle type categories (best-effort; derived from portal-docs-json translations).
+  VehicleTypes: ['Airplane', 'Helicopter', 'Light', 'Medium', 'Heavy', 'Stationary'],
+};
+
+function ensureDerivedSelectionLists(map: SelectionListMap): void {
+  // Derive inventory dropdowns from the available master lists.
+  const weapons = map['Weapons'];
+  if (Array.isArray(weapons) && weapons.length) {
+    if (!map['InventoryPrimaryWeapons'] || map['InventoryPrimaryWeapons'].length === 0) {
+      // Primary weapons are everything except sidearms.
+      map['InventoryPrimaryWeapons'] = weapons.filter((w) => !String(w).startsWith('Sidearm_'));
+    }
+    if (!map['InventorySecondaryWeapons'] || map['InventorySecondaryWeapons'].length === 0) {
+      map['InventorySecondaryWeapons'] = weapons.filter((w) => String(w).startsWith('Sidearm_'));
+    }
+  }
+
+  const gadgets = map['Gadgets'];
+  if (Array.isArray(gadgets) && gadgets.length) {
+    if (!map['InventoryThrowables'] || map['InventoryThrowables'].length === 0) {
+      map['InventoryThrowables'] = gadgets.filter((g) => String(g).startsWith('Throwable_'));
+    }
+    if (!map['InventoryMeleeWeapons'] || map['InventoryMeleeWeapons'].length === 0) {
+      map['InventoryMeleeWeapons'] = gadgets.filter((g) => String(g).startsWith('Melee_'));
+    }
+    if (!map['InventoryClassGadgets'] || map['InventoryClassGadgets'].length === 0) {
+      map['InventoryClassGadgets'] = gadgets.filter((g) => String(g).startsWith('Class_'));
+    }
+
+    // Best-effort: treat character specialties as the class gadget set if no dedicated list exists.
+    if (!map['InventoryCharacterSpecialties'] || map['InventoryCharacterSpecialties'].length === 0) {
+      const classGadgets = map['InventoryClassGadgets'] || [];
+      map['InventoryCharacterSpecialties'] = classGadgets.length ? classGadgets : gadgets.filter((g) => String(g).startsWith('Class_'));
+    }
+
+    // Best-effort: derive medical gadget types from known gadget identifiers.
+    if (!map['MedGadgetTypes'] || map['MedGadgetTypes'].length === 0) {
+      const preferred = ['Misc_Defibrillator', 'Class_Supply_Bag', 'Class_Adrenaline_Injector'];
+      const set = new Set(preferred);
+      const derived = gadgets.filter((g) => set.has(String(g)));
+      map['MedGadgetTypes'] = derived.length ? derived : preferred;
+    }
+  }
+}
 
 function parseSelectionListsMarkdown(md: string): SelectionListMap {
   const lines = md.split(/\r?\n/);
@@ -49,8 +131,12 @@ function parseSelectionListsMarkdown(md: string): SelectionListMap {
     i++;
 
     while (i < lines.length && (lines[i] || '').trim() === '') i++;
-    const enumName = (i < lines.length ? (lines[i] || '').trim() : '');
+    let enumName = (i < lines.length ? (lines[i] || '').trim() : '');
     i++;
+
+    // Some generated datasets historically used "<EnumName>Item" in widget 1.
+    // Normalize to the base enum name so lookups are stable.
+    if (enumName.endsWith('Item')) enumName = enumName.slice(0, -4);
 
     while (i < lines.length && (lines[i] || '').trim() === '') i++;
     if (i >= lines.length || (lines[i] || '').trim().toLowerCase() !== 'widget 2:') continue;
@@ -67,7 +153,8 @@ function parseSelectionListsMarkdown(md: string): SelectionListMap {
     }
 
     // Best-effort: trust widget1 name; fall back to stripping Item suffix
-    const key = enumName || (enumNameItem.endsWith('Item') ? enumNameItem.slice(0, -4) : enumNameItem);
+    const normalizedEnumNameItem = enumNameItem.endsWith('Item') ? enumNameItem.slice(0, -4) : enumNameItem;
+    const key = enumName || normalizedEnumNameItem;
     if (key) out[key] = values;
   }
 
@@ -116,12 +203,57 @@ export async function preloadSelectionLists(): Promise<void> {
       md = await fetchText('selection-lists.md');
     }
     cache.map = parseSelectionListsMarkdown(md);
+    // Merge extra lists (only if missing) so callers can rely on a single lookup path.
+    for (const [k, v] of Object.entries(EXTRA_SELECTION_LISTS)) {
+      if (!cache.map[k] || cache.map[k].length === 0) cache.map[k] = v;
+    }
+
+    // Populate derived lists (only if missing) from other selection lists.
+    ensureDerivedSelectionLists(cache.map);
+
+    // Build a case-insensitive lookup map.
+    cache.mapCI = {};
+    for (const [k, v] of Object.entries(cache.map)) {
+      const lk = k.toLowerCase();
+      if (!(lk in cache.mapCI)) cache.mapCI[lk] = v;
+    }
     cache.loaded = true;
   } catch (e: any) {
     cache.lastError = String(e?.message || e);
   } finally {
     cache.loading = false;
   }
+}
+
+function lookupEnumValues(enumName: string): string[] | undefined {
+  // First: explicit fallbacks that don't require the selection lists file to be loaded.
+  const extra = EXTRA_SELECTION_LISTS[enumName];
+  if (extra && extra.length) return extra;
+
+  const direct = cache.map[enumName];
+  if (direct && direct.length) return direct;
+
+  const alias = ENUM_ALIASES[enumName];
+  if (alias) {
+    const a = cache.map[alias];
+    if (a && a.length) return a;
+  }
+
+  const ci = cache.mapCI[enumName.toLowerCase()];
+  if (ci && ci.length) return ci;
+
+  if (alias) {
+    const ciAlias = cache.mapCI[alias.toLowerCase()];
+    if (ciAlias && ciAlias.length) return ciAlias;
+  }
+
+  // Last: allow aliasing to point at an extra list.
+  if (alias) {
+    const extraAlias = EXTRA_SELECTION_LISTS[alias];
+    if (extraAlias && extraAlias.length) return extraAlias;
+  }
+
+  return undefined;
 }
 
 function getEnumNameFromBlock(block: Blockly.Block): string | null {
@@ -159,15 +291,14 @@ export function registerSelectionListExtensions(): void {
       const enumName = getEnumNameFromBlock(this);
       if (!enumName) return [['(missing output type)', '__missing__']];
 
-      const values = cache.map[enumName];
+      const values = lookupEnumValues(enumName);
       if (!values || values.length === 0) {
-        // Kick off a load if needed.
-        void preloadSelectionLists();
+        // Kick off a load if needed (some lists come from file).
+        if (!cache.loaded && !cache.loading) void preloadSelectionLists();
 
-        if (cache.lastError) {
-          return [[`(selection lists failed to load: ${cache.lastError})`, '__error__']];
-        }
-        return [['(loading selection lists...)', '__loading__']];
+        if (cache.lastError) return [[`(selection lists failed to load: ${cache.lastError})`, '__error__']];
+        if (!cache.loaded) return [['(loading selection lists...)', '__loading__']];
+        return [[`(no selection list: ${enumName})`, '__missing__']];
       }
 
       return makeOptions(values);
@@ -179,7 +310,9 @@ export function registerSelectionListExtensions(): void {
       if (!cur || cur === '__loading__' || cur === '__error__' || cur === '__missing__') {
         const opts = field.menuGenerator_();
         if (Array.isArray(opts) && opts.length > 0) {
-          field.setValue(opts[0][1]);
+          const v = opts[0][1];
+          // Only auto-select when we have a real option, not a placeholder.
+          if (v && !String(v).startsWith('__')) field.setValue(v);
         }
       }
     } catch {

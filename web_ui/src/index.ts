@@ -7,6 +7,7 @@
 import * as Blockly from 'blockly';
 import {blocks as textBlocks} from './blocks/text';
 import {blocks as homeBlocks} from './blocks/home';
+import {blocks as variableBlocks} from './blocks/variables';
 import {blocks as collectionBlocks} from './blocks/collections';
 import {bf6PortalBlocks} from './blocks/bf6portal';
 import {bf6PortalExpandedBlocks} from './blocks/bf6portal_expanded'; // New import
@@ -15,12 +16,19 @@ import {generatedToolbox} from './generated_toolbox'; // Auto-generated toolbox
 import {registerMutators, SUBROUTINE_DEF_MUTATOR, SUBROUTINE_CALL_MUTATOR} from './blocks/subroutine_mutator';
 import {bf6Generators} from './generators/bf6_generators'; // Custom generators
 import {javascriptGenerator} from 'blockly/javascript'; // Use TypeScript generator
-import {save, load} from './serialization';
+import {save, load, exportForPortal} from './serialization';
 import {toolbox} from './toolbox';
 import {bf6Theme} from './bf6_theme';
 import {MenuBar} from './components/MenuBar';
 import { preloadSelectionLists, registerSelectionListExtensions } from './selection_lists';
 import { initPresetsUI } from './presets';
+import {
+  ensureCriticalPortalStructuralBlocks,
+  ensurePortalBlocksRegisteredFromState,
+  ensureVariablesExistFromState,
+  ensureVariablesExistFromWorkspaceFields,
+  normalizeWorkspaceState,
+} from './portal_json';
 import { registerCollectionsContextMenus } from './collections';
 import { registerSubroutineNavigationContextMenus } from './subroutine_navigation';
 import { registerGeneralNavigationContextMenus } from './navigation';
@@ -38,6 +46,253 @@ import './components/MenuBar.css';
 // at the same instance used by this bundle.
 (window as any).Blockly = Blockly;
 (window as any).__bf6_blockly = Blockly;
+
+// The legacy help UI (`web_ui/main.js`) registers a Blockly context-menu item to open
+// local help for a block type. However, this webpack bundle intentionally overwrites
+// `window.Blockly` to avoid dual-instance mismatches.
+//
+// If the legacy help init runs *before* this bundle, its menu item gets registered on
+// the legacy Blockly instance and disappears once we swap the global. So we also
+// register the Help context menu item here, using the same ID.
+function ensureHelpContextMenuRegistered(): void {
+  try {
+    const registry: any = (Blockly as any)?.ContextMenuRegistry?.registry;
+    if (!registry || typeof registry.register !== 'function') return;
+
+    // Remove Blockly's default "Help" menu item to avoid duplicates.
+    try {
+      if (typeof registry.getItem === 'function' && registry.getItem('blockHelp')) {
+        registry.unregister?.('blockHelp');
+      }
+    } catch {
+      // ignore
+    }
+
+    const id = 'bf6portal.helpForBlock';
+    try {
+      if (typeof registry.getItem === 'function' && registry.getItem(id)) return;
+    } catch {
+      // ignore
+    }
+
+    registry.register({
+      id,
+      scopeType: (Blockly as any).ContextMenuRegistry.ScopeType.BLOCK,
+      displayText: () => ((Blockly as any)?.Msg?.HELP || 'Help'),
+      preconditionFn: (scope: any) => (scope?.block?.type ? 'enabled' : 'hidden'),
+      callback: (scope: any) => {
+        try {
+          const t = scope?.block?.type;
+          if (!t) return;
+          const fn = (window as any).showHelpForBlockType;
+          if (typeof fn === 'function') {
+            fn(t);
+            return;
+          }
+          // Fallback: open help index.
+          const helpBtn = document.getElementById('helpBtn') as HTMLButtonElement | null;
+          helpBtn?.click?.();
+        } catch (e) {
+          console.warn('[BF6] Help context menu failed:', e);
+        }
+      },
+      weight: 8,
+    });
+  } catch (e) {
+    console.warn('[BF6] Failed to register Blockly help context menu (bundle):', e);
+  }
+}
+
+// Register as early as possible (and again later via refresh/recovery flows).
+try {
+  ensureHelpContextMenuRegistered();
+} catch {
+  // ignore
+}
+
+function setupBlocklyDialogsForElectron(): void {
+  // Electron renderer does not support native `window.prompt()`.
+  // Blockly defaults to `window.prompt()` for variable creation/renaming unless overridden.
+  const dialog: any = (Blockly as any).dialog;
+  if (!dialog || typeof dialog.setPrompt !== 'function' || typeof dialog.prompt !== 'function') {
+    return;
+  }
+
+  const MODAL_ID = 'bf6PromptModal';
+  const ensurePromptModal = () => {
+    let overlay = document.getElementById(MODAL_ID) as HTMLDivElement | null;
+    if (overlay) {
+      const messageEl = overlay.querySelector('[data-bf6-prompt-message]') as HTMLDivElement | null;
+      const inputEl = overlay.querySelector('[data-bf6-prompt-input]') as HTMLInputElement | null;
+      const okBtn = overlay.querySelector('[data-bf6-prompt-ok]') as HTMLButtonElement | null;
+      const cancelBtn = overlay.querySelector('[data-bf6-prompt-cancel]') as HTMLButtonElement | null;
+      if (messageEl && inputEl && okBtn && cancelBtn) {
+        return {overlay, messageEl, inputEl, okBtn, cancelBtn};
+      }
+      // If the structure is wrong for some reason, recreate.
+      overlay.remove();
+      overlay = null;
+    }
+
+    overlay = document.createElement('div');
+    overlay.id = MODAL_ID;
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.display = 'none';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.background = 'rgba(0, 0, 0, 0.55)';
+    overlay.style.zIndex = '100000';
+
+    const panel = document.createElement('div');
+    panel.style.minWidth = '360px';
+    panel.style.maxWidth = '720px';
+    panel.style.width = '60vw';
+    panel.style.background = '#1e1e1e';
+    panel.style.border = '1px solid rgba(255,255,255,0.12)';
+    panel.style.borderRadius = '10px';
+    panel.style.boxShadow = '0 12px 40px rgba(0,0,0,0.4)';
+    panel.style.padding = '16px';
+    panel.style.color = '#fff';
+    panel.style.fontFamily = 'system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif';
+
+    const messageEl = document.createElement('div');
+    messageEl.setAttribute('data-bf6-prompt-message', '');
+    messageEl.style.marginBottom = '10px';
+    messageEl.style.whiteSpace = 'pre-wrap';
+
+    const inputEl = document.createElement('input');
+    inputEl.setAttribute('data-bf6-prompt-input', '');
+    inputEl.type = 'text';
+    inputEl.style.width = '100%';
+    inputEl.style.boxSizing = 'border-box';
+    inputEl.style.padding = '10px 12px';
+    inputEl.style.borderRadius = '8px';
+    inputEl.style.border = '1px solid rgba(255,255,255,0.18)';
+    inputEl.style.background = 'rgba(255,255,255,0.06)';
+    inputEl.style.color = '#fff';
+    inputEl.style.outline = 'none';
+
+    const btnRow = document.createElement('div');
+    btnRow.style.display = 'flex';
+    btnRow.style.justifyContent = 'flex-end';
+    btnRow.style.gap = '10px';
+    btnRow.style.marginTop = '12px';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.setAttribute('data-bf6-prompt-cancel', '');
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.style.padding = '8px 12px';
+    cancelBtn.style.borderRadius = '8px';
+    cancelBtn.style.border = '1px solid rgba(255,255,255,0.18)';
+    cancelBtn.style.background = 'transparent';
+    cancelBtn.style.color = '#fff';
+    cancelBtn.style.cursor = 'pointer';
+
+    const okBtn = document.createElement('button');
+    okBtn.setAttribute('data-bf6-prompt-ok', '');
+    okBtn.textContent = 'OK';
+    okBtn.style.padding = '8px 14px';
+    okBtn.style.borderRadius = '8px';
+    okBtn.style.border = '1px solid rgba(255,255,255,0.18)';
+    okBtn.style.background = '#2d7dff';
+    okBtn.style.color = '#fff';
+    okBtn.style.cursor = 'pointer';
+
+    btnRow.appendChild(cancelBtn);
+    btnRow.appendChild(okBtn);
+    panel.appendChild(messageEl);
+    panel.appendChild(inputEl);
+    panel.appendChild(btnRow);
+    overlay.appendChild(panel);
+    document.body.appendChild(overlay);
+
+    return {overlay, messageEl, inputEl, okBtn, cancelBtn};
+  };
+
+  let active = false;
+
+  const showPrompt = (message: string, defaultValue: string, cb: (value: string | null) => void) => {
+    const {overlay, messageEl, inputEl, okBtn, cancelBtn} = ensurePromptModal();
+    if (active) {
+      // Avoid re-entrancy surprises; fail gracefully.
+      cb(null);
+      return;
+    }
+    active = true;
+
+    const finish = (value: string | null) => {
+      active = false;
+      overlay.style.display = 'none';
+      overlay.removeEventListener('click', onBackdropClick);
+      document.removeEventListener('keydown', onKeyDown, true);
+      okBtn.onclick = null;
+      cancelBtn.onclick = null;
+      cb(value);
+    };
+
+    const onBackdropClick = (e: MouseEvent) => {
+      if (e.target === overlay) {
+        finish(null);
+      }
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (overlay.style.display === 'none') return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        finish(null);
+        return;
+      }
+      if (e.key === 'Enter') {
+        // Let textarea-like behavior happen elsewhere, but this is a single input.
+        e.preventDefault();
+        e.stopPropagation();
+        finish(inputEl.value);
+      }
+    };
+
+    messageEl.textContent = message;
+    inputEl.value = defaultValue ?? '';
+
+    overlay.style.display = 'flex';
+    overlay.addEventListener('click', onBackdropClick);
+    document.addEventListener('keydown', onKeyDown, true);
+    okBtn.onclick = () => finish(inputEl.value);
+    cancelBtn.onclick = () => finish(null);
+
+    // Focus after display.
+    setTimeout(() => {
+      try {
+        inputEl.focus();
+        inputEl.select();
+      } catch {
+        // ignore
+      }
+    }, 0);
+  };
+
+  try {
+    dialog.setPrompt((message: string, defaultValue: string, callback: (value: string | null) => void) => {
+      showPrompt(String(message ?? ''), String(defaultValue ?? ''), callback);
+    });
+  } catch (e) {
+    console.warn('[BF6] Failed to override Blockly prompt dialog:', e);
+  }
+}
+
+// Make sure Blockly's prompt implementation is Electron-safe.
+// (This must run before any variable UI attempts to prompt the user.)
+try {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setupBlocklyDialogsForElectron(), {once: true});
+  } else {
+    setupBlocklyDialogsForElectron();
+  }
+} catch {
+  // ignore
+}
 
 let menuBar: MenuBar | undefined;
 
@@ -115,6 +370,7 @@ try {
   void preloadSelectionLists();
   Blockly.common.defineBlocks(textBlocks);
   Blockly.common.defineBlocks(homeBlocks);
+  Blockly.common.defineBlocks(variableBlocks);
   Blockly.common.defineBlocks(collectionBlocks);
   Blockly.common.defineBlocks(bf6PortalBlocks);
   Blockly.common.defineBlocks(bf6PortalExpandedBlocks); // New registration
@@ -149,7 +405,7 @@ try {
       snap: true,
     },
     zoom: {
-      controls: true,
+      controls: false,
       wheel: true,
       startScale: 1.0,
       maxScale: 3,
@@ -157,10 +413,37 @@ try {
       scaleSpeed: 1.2,
       pinch: true
     },
+    trashcan: false,
   });
   
   // Expose workspace globally
   (window as any).workspace = ws;
+
+  // Remember the last selected block so toolbox flyout buttons can still act on it
+  // even if clicking the toolbox clears the active selection.
+  try {
+    (ws as any).__bf6_lastSelectedBlockId = null;
+    ws.addChangeListener((e: any) => {
+      try {
+        if (!e) return;
+        if (e.type === (Blockly as any).Events?.SELECTED) {
+          (ws as any).__bf6_lastSelectedBlockId = e.newElementId ?? null;
+        }
+      } catch {
+        // ignore
+      }
+    });
+  } catch {
+    // ignore
+  }
+
+  // Expose Portal export globally so the legacy header UI (`web_ui/main.js`) can trigger it.
+  // This stays stable even as the webpack bundle filename changes.
+  try {
+    (window as any).bf6ExportForPortal = () => exportForPortal(ws);
+  } catch (e) {
+    console.warn('[BF6] Failed to expose Portal export function:', e);
+  }
 
   // Collections / bookmarks (macro-like call blocks + offscreen definitions)
   try {
@@ -203,54 +486,464 @@ try {
       console.warn('[BF6] Failed to init presets UI:', e);
     }
 
+    // --- Refresh button (user-requested) ---
+    // IMPORTANT: This should *not* clear the workspace. It exists as a recovery
+    // action when the toolbox/flyout UI gets into a bad state.
+    const refreshUiNonDestructive = () => {
+      try {
+        try {
+          ensureHelpContextMenuRegistered();
+        } catch {
+          // ignore
+        }
+        // Defensive: if variables exist only as references in blocks, hydrate them.
+        try {
+          const saved = Blockly?.serialization?.workspaces?.save ? Blockly.serialization.workspaces.save(ws) : null;
+          if (saved) ensureVariablesExistFromState(ws, saved);
+        } catch {
+          // ignore
+        }
+        try {
+          ensureVariablesExistFromWorkspaceFields(ws);
+        } catch {
+          // ignore
+        }
+        try {
+          (ws as any).refreshToolboxSelection?.();
+        } catch {
+          // ignore
+        }
+        try {
+          (ws as any).getToolbox?.()?.refreshSelection?.();
+        } catch {
+          // ignore
+        }
+        try {
+          Blockly.svgResize(ws);
+        } catch {
+          // ignore
+        }
+        try {
+          (window as any).applyDocColoursToWorkspace?.(ws);
+        } catch {
+          // ignore
+        }
+        try {
+          (window as any).scheduleCodePreviewRefresh?.();
+        } catch {
+          // ignore
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    try {
+      const refreshBtn = document.getElementById('refreshBtn') as HTMLButtonElement | null;
+      if (refreshBtn) {
+        refreshBtn.addEventListener(
+          'click',
+          (e) => {
+            try {
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
+            } catch {
+              // ignore
+            }
+            refreshUiNonDestructive();
+          },
+          true
+        );
+      }
+
+      // Also expose a global hook for legacy UI (or console) recovery.
+      (window as any).bf6RefreshUi = refreshUiNonDestructive;
+      // If we ever need a true hard reload for debugging.
+      (window as any).bf6HardReload = () => {
+        try {
+          window.location.reload();
+        } catch {
+          // ignore
+        }
+      };
+    } catch {
+      // ignore
+    }
+
+    // --- File import (capture-phase) ---
+    // Legacy `web_ui/main.js` also binds #loadInput change and performs its own import.
+    // That legacy path does not always ensure `variables: []`, which can lead to an
+    // empty Variables flyout after imports. We take over in capture phase.
+    try {
+      const loadInput = document.getElementById('loadInput') as HTMLInputElement | null;
+      if (loadInput) {
+        loadInput.addEventListener(
+          'change',
+          (evt) => {
+            try {
+              evt.stopImmediatePropagation();
+              evt.stopPropagation();
+              evt.preventDefault();
+            } catch {
+              // ignore
+            }
+
+            const input = evt.target as HTMLInputElement;
+            const file = input?.files?.[0];
+            if (!file) return;
+
+            // Allow re-loading the same file consecutively.
+            try {
+              input.value = '';
+            } catch {
+              // ignore
+            }
+
+            // Confirm replacing existing work.
+            try {
+              const count = typeof ws.getAllBlocks === 'function' ? ws.getAllBlocks(false).length : 0;
+              if (count > 0) {
+                const ok = confirm('Loading a file will replace your current workspace. Continue?');
+                if (!ok) return;
+              }
+            } catch {
+              // ignore
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const raw = String((e?.target as any)?.result ?? '');
+              const cleaned = raw.replace(/^\uFEFF/, '');
+              const looksLikeXml = /^\s*</.test(cleaned);
+              const looksLikeJson = /^\s*[\[{]/.test(cleaned);
+
+              const finalize = () => {
+                setTimeout(() => {
+                  try {
+                    Blockly.svgResize(ws);
+                  } catch {
+                    // ignore
+                  }
+                  try {
+                    (ws as any).zoomToFit?.();
+                  } catch {
+                    // ignore
+                  }
+                  try {
+                    (ws as any).refreshToolboxSelection?.();
+                  } catch {
+                    // ignore
+                  }
+                  try {
+                    (window as any).applyDocColoursToWorkspace?.(ws);
+                  } catch {
+                    // ignore
+                  }
+                  try {
+                    (window as any).scheduleCodePreviewRefresh?.();
+                  } catch {
+                    // ignore
+                  }
+                }, 0);
+              };
+
+              // Prefer JSON (Blockly serialization).
+              if (!looksLikeXml && looksLikeJson && Blockly?.serialization?.workspaces?.load) {
+                try {
+                  const parsed = JSON.parse(cleaned);
+                  const state = normalizeWorkspaceState(parsed);
+
+                  ensureCriticalPortalStructuralBlocks();
+                  try {
+                    ensurePortalBlocksRegisteredFromState(state);
+                  } catch (e2) {
+                    console.warn('[BF6] Failed to auto-register block types for import:', e2);
+                  }
+
+                  Blockly.Events.disable();
+                  try {
+                    ws.clear();
+                    // Create variable models first so FieldVariable IDs resolve cleanly during load.
+                    ensureVariablesExistFromState(ws, state);
+                    Blockly.serialization.workspaces.load(state, ws, undefined);
+                    // Defensive (post-load): ensure the variable map reflects any serialized variables.
+                    ensureVariablesExistFromState(ws, state);
+                    // Extra defensive: ensure any variable fields in blocks have models.
+                    ensureVariablesExistFromWorkspaceFields(ws);
+                  } finally {
+                    Blockly.Events.enable();
+                  }
+
+                  finalize();
+                  return;
+                } catch (err) {
+                  console.warn('[BF6] Failed to load JSON workspace:', err);
+                  try {
+                    alert(`Failed to load JSON workspace.\n\n${String((err as any)?.message || err)}`);
+                  } catch {
+                    // ignore
+                  }
+                  return;
+                }
+              }
+
+              // Fallback: XML load.
+              if (looksLikeXml) {
+                try {
+                  const XmlAny: any = (Blockly as any).Xml;
+                  const xml = XmlAny.textToDom(cleaned);
+                  Blockly.Events.disable();
+                  try {
+                    ws.clear();
+                    XmlAny.domToWorkspace(xml, ws);
+                  } finally {
+                    Blockly.Events.enable();
+                  }
+                  finalize();
+                  return;
+                } catch (err) {
+                  console.warn('[BF6] Failed to load XML workspace:', err);
+                  try {
+                    alert(`Failed to load XML workspace.\n\n${String((err as any)?.message || err)}`);
+                  } catch {
+                    // ignore
+                  }
+                  return;
+                }
+              }
+
+              try {
+                alert('Unrecognized file format. Please load a Blockly workspace JSON (.json) or legacy XML (.xml).');
+              } catch {
+                // ignore
+              }
+            };
+            reader.readAsText(file);
+          },
+          true
+        );
+      }
+    } catch (e) {
+      console.warn('[BF6] Failed to bind loadInput handler:', e);
+    }
+
   console.log("Final Toolbox Configuration:", filterToolbox('')); // Added console log
 
   if (menuBar) {
       menuBar.setWorkspace(ws);
   }
 
+  // --- Custom Toolbox Category for Collections ---
+  ws.registerToolboxCategoryCallback('COLLECTIONS_CATEGORY', (workspace) => {
+    const xmlList: Element[] = [];
+
+    // Existing collections as call blocks
+    const defs = workspace.getBlocksByType('BF6_COLLECTION_DEF', false);
+    const names = defs
+      .map((b) => {
+        try { return String((b as any).getFieldValue?.('NAME') ?? '').trim(); } catch { return ''; }
+      })
+      .filter((n) => !!n)
+      .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+    for (const name of names) {
+      const blockXml = document.createElement('block');
+      blockXml.setAttribute('type', 'BF6_COLLECTION_CALL');
+      const field = document.createElement('field');
+      field.setAttribute('name', 'NAME');
+      field.textContent = name;
+      blockXml.appendChild(field);
+      xmlList.push(blockXml);
+    }
+
+    // If none exist yet, still provide a generic call block.
+    if (names.length === 0) {
+      const blockXml = document.createElement('block');
+      blockXml.setAttribute('type', 'BF6_COLLECTION_CALL');
+      xmlList.push(blockXml);
+    }
+
+    return xmlList;
+  });
+
   // --- Custom Toolbox Category for Variables ---
   ws.registerToolboxCategoryCallback('VARIABLES_CATEGORY', (workspace) => {
     const xmlList: Element[] = [];
-    
-    // 1. "Manage Variables" Button
-    const btn = document.createElement('button');
-    btn.setAttribute('text', 'Manage Variables');
-    btn.setAttribute('callbackKey', 'MANAGE_VARIABLES');
-    xmlList.push(btn);
 
-    // 2. Get/Set Blocks (Standard)
-    const blockSet = document.createElement('block');
-    blockSet.setAttribute('type', 'SETVARIABLE');
-    xmlList.push(blockSet);
+    try {
+      // 1) "New / Manage Variables" Button
+      const btn = document.createElement('button');
+      btn.setAttribute('text', 'New / Manage Variables');
+      btn.setAttribute('callbackKey', 'MANAGE_VARIABLES');
+      xmlList.push(btn);
 
-    const blockGet = document.createElement('block');
-    blockGet.setAttribute('type', 'GETVARIABLE');
-    xmlList.push(blockGet);
-    
+      // 2) Helpful label
+      const label = document.createElement('label');
+      label.setAttribute('text', 'Existing variables');
+      xmlList.push(label);
+
+      // Defensive: if something loaded variables as block references but the
+      // variable map didn't hydrate, fix it before reading the map.
+      try {
+        ensureVariablesExistFromWorkspaceFields(workspace as any);
+      } catch {
+        // ignore
+      }
+
+      // 3) Existing variables (pre-filled blocks)
+      const vars = (workspace as any)?.getVariableMap?.()?.getAllVariables?.() || [];
+      for (const v of vars) {
+        const vAny: any = v as any;
+        const id = String(vAny.getId ? vAny.getId() : (vAny.id ?? ''));
+        const name = String(vAny.name ?? '');
+
+        const blockGet = document.createElement('block');
+        blockGet.setAttribute('type', 'GETVARIABLE');
+        const getField = document.createElement('field');
+        getField.setAttribute('name', 'VARIABLE_NAME');
+        if (id) getField.setAttribute('id', id);
+        getField.textContent = name;
+        blockGet.appendChild(getField);
+        xmlList.push(blockGet);
+
+        const blockSet = document.createElement('block');
+        blockSet.setAttribute('type', 'SETVARIABLE');
+        const setField = document.createElement('field');
+        setField.setAttribute('name', 'VARIABLE');
+        if (id) setField.setAttribute('id', id);
+        setField.textContent = name;
+        blockSet.appendChild(setField);
+        xmlList.push(blockSet);
+
+        // Also expose a Variable-typed reference block for the generated BF6 blocks
+        // (e.g., mod_GetVariable/mod_SetVariable) which expect inputs of check: "Variable".
+        const varRef = document.createElement('block');
+        varRef.setAttribute('type', 'BF6_VARIABLE_REF');
+        const refField = document.createElement('field');
+        refField.setAttribute('name', 'VAR');
+        if (id) refField.setAttribute('id', id);
+        refField.textContent = name;
+        varRef.appendChild(refField);
+        xmlList.push(varRef);
+      }
+
+      // 4) Fallback templates if there are no variables yet.
+      if (!vars || vars.length === 0) {
+        const blockSet = document.createElement('block');
+        blockSet.setAttribute('type', 'SETVARIABLE');
+        xmlList.push(blockSet);
+
+        const blockGet = document.createElement('block');
+        blockGet.setAttribute('type', 'GETVARIABLE');
+        xmlList.push(blockGet);
+
+        const varRef = document.createElement('block');
+        varRef.setAttribute('type', 'BF6_VARIABLE_REF');
+        xmlList.push(varRef);
+      }
+    } catch (e) {
+      console.warn('[BF6] VARIABLES_CATEGORY failed; returning fallback flyout:', e);
+      // Always give the user something usable.
+      try {
+        const btn = document.createElement('button');
+        btn.setAttribute('text', 'New / Manage Variables');
+        btn.setAttribute('callbackKey', 'MANAGE_VARIABLES');
+        xmlList.push(btn);
+      } catch {
+        // ignore
+      }
+      try {
+        const blockSet = document.createElement('block');
+        blockSet.setAttribute('type', 'SETVARIABLE');
+        xmlList.push(blockSet);
+      } catch {
+        // ignore
+      }
+      try {
+        const blockGet = document.createElement('block');
+        blockGet.setAttribute('type', 'GETVARIABLE');
+        xmlList.push(blockGet);
+      } catch {
+        // ignore
+      }
+    }
+
     return xmlList;
   });
 
   ws.registerButtonCallback('MANAGE_VARIABLES', (button) => {
-      // Use Blockly's built-in variable prompt for now, or a custom one if needed.
-      // Since the user asked for a "list of all selectable variables", 
-      // we can just trigger the standard variable creation flow or show a custom modal.
-      // For now, let's create a new variable via prompt as a simple "Manage" action.
-      Blockly.Variables.createVariableButtonHandler(button.getTargetWorkspace(), undefined, 'String');
+    // This must work in Electron (no native prompt). We already set up
+    // Blockly.dialog prompt override earlier, so this should open our modal.
+    try {
+      const targetWs: any = (button as any)?.getTargetWorkspace?.() || ws;
+      const createFn: any = (Blockly as any)?.Variables?.createVariableButtonHandler;
+      if (typeof createFn === 'function') {
+        createFn(targetWs, undefined);
+      } else {
+        // Fallback (should rarely happen): basic prompt.
+        const name = String((window as any).prompt?.('Variable name:') || '').trim();
+        if (name) (targetWs as any).createVariable?.(name);
+      }
+
+      // After creating/renaming variables, force flyout refresh so it appears immediately.
+      setTimeout(() => {
+        try {
+          ensureVariablesExistFromWorkspaceFields(targetWs);
+        } catch {
+          // ignore
+        }
+        try {
+          (targetWs as any).refreshToolboxSelection?.();
+        } catch {
+          // ignore
+        }
+      }, 0);
+    } catch (e) {
+      console.warn('[BF6] MANAGE_VARIABLES failed:', e);
+    }
   });
 
   // --- Custom Toolbox Category for Selection Lists ---
+  const SELECTION_LIST_EXT = 'bf6_selection_list_dropdown';
+  const selectionListBlockTypes: string[] = (() => {
+    const out = new Set<string>();
+    const collect = (defs: any) => {
+      if (!defs) return;
+      const arr: any[] = Array.isArray(defs)
+        ? defs
+        : (typeof defs === 'object' ? Object.values(defs) : []);
+      if (!Array.isArray(arr) || arr.length === 0) return;
+      for (const d of arr) {
+        const t = d?.type;
+        const exts = d?.extensions;
+        if (typeof t !== 'string' || !t) continue;
+        if (Array.isArray(exts) && exts.includes(SELECTION_LIST_EXT)) {
+          out.add(t);
+        }
+      }
+    };
+    // These are the sources that actually define blocks in this build.
+    collect(bf6PortalBlocks as any);
+    collect(bf6PortalExpandedBlocks as any);
+    collect(generatedBlocks as any);
+    return Array.from(out).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+  })();
+
   ws.registerToolboxCategoryCallback('SELECTION_LISTS_CATEGORY', (workspace) => {
     const xmlList: Element[] = [];
-    // IMPORTANT: Do not alter toolbox layout here.
-    // This custom category should reflect the static blocks listed under the
-    // "SELECTION LISTS" category in `web_ui/src/toolbox.ts`.
-    const cat = (toolbox as any)?.contents?.find((c: any) => c && c.kind === 'category' && c.name === 'SELECTION LISTS');
-    const blocks = Array.isArray(cat?.contents) ? cat.contents : [];
-    for (const entry of blocks) {
-      if (!entry || entry.kind !== 'block' || !entry.type) continue;
+
+    // Show *all* known selection-list dropdown blocks.
+    if (!selectionListBlockTypes || selectionListBlockTypes.length === 0) {
+      const label = document.createElement('label');
+      label.setAttribute('text', 'No selection-list blocks were detected in this build.');
+      xmlList.push(label);
+      return xmlList;
+    }
+
+    for (const t of selectionListBlockTypes) {
       const block = document.createElement('block');
-      block.setAttribute('type', String(entry.type));
+      block.setAttribute('type', t);
       xmlList.push(block);
     }
     
@@ -298,11 +991,55 @@ try {
 
   // --- Modal Logic ---
   const modal = document.getElementById("subroutineModal");
-  const closeBtn = document.getElementsByClassName("close")[0];
+  const closeBtn = document.querySelector('#subroutineModal .close');
   const addParamBtn = document.getElementById("addParamBtn");
   const createSubBtn = document.getElementById("createSubBtn");
   const paramsContainer = document.getElementById("paramsContainer");
   const subNameInput = document.getElementById("subNameInput") as HTMLInputElement;
+
+  const promptText = (message: string, initialValue: string): Promise<string | null> => {
+    return new Promise((resolve) => {
+      try {
+        const dialog: any = (Blockly as any).dialog;
+        if (dialog?.prompt && typeof dialog.prompt === 'function') {
+          dialog.prompt(message, initialValue ?? '', (v: string | null) => {
+            if (v === null) return resolve(null);
+            const trimmed = String(v).trim();
+            resolve(trimmed ? trimmed : null);
+          });
+          return;
+        }
+      } catch {
+        // ignore
+      }
+      resolve(null);
+    });
+  };
+
+  const createSubroutineFallback = async () => {
+    try {
+      const name = await promptText('New subroutine name:', 'Subroutine');
+      if (!name) return;
+
+      const block = ws.newBlock('SUBROUTINE_BLOCK');
+      (block as any).setFieldValue?.(name, 'SUBROUTINE_NAME');
+      (block as any).initSvg?.();
+      (block as any).render?.();
+
+      try {
+        const metrics = (ws as any).getMetrics?.();
+        if (metrics) {
+          (block as any).moveBy?.(metrics.viewLeft + 100, metrics.viewTop + 100);
+        }
+      } catch {
+        // ignore
+      }
+
+      try { (ws as any).refreshToolboxSelection?.(); } catch { /* ignore */ }
+    } catch (e) {
+      console.warn('[BF6] Failed to create subroutine:', e);
+    }
+  };
 
   if (modal && closeBtn && addParamBtn && createSubBtn && paramsContainer && subNameInput) {
       
@@ -310,11 +1047,15 @@ try {
       (closeBtn as HTMLElement).onclick = function() {
         modal.style.display = "none";
       }
-      window.onclick = function(event) {
-        if (event.target == modal) {
-          modal.style.display = "none";
+      window.addEventListener('click', (event: any) => {
+        try {
+          if (event?.target === modal) {
+            modal.style.display = 'none';
+          }
+        } catch {
+          // ignore
         }
-      }
+      });
 
       // Add Parameter Row
       addParamBtn.onclick = function() {
@@ -393,38 +1134,16 @@ try {
   }
 
   ws.registerButtonCallback('CREATE_SUBROUTINE', (button) => {
-     if (modal && subNameInput && paramsContainer) {
-         subNameInput.value = '';
-         paramsContainer.innerHTML = ''; // Clear params
-         modal.style.display = "block";
-     }
+      if (modal && subNameInput && paramsContainer) {
+       subNameInput.value = '';
+       paramsContainer.innerHTML = ''; // Clear params
+       modal.style.display = "block";
+       return;
+      }
+
+      // Fallback: no modal HTML present in this UI build.
+      void createSubroutineFallback();
   });
-
-  // XML for initial workspace with connected blocks
-  const initialXml = `<xml xmlns="https://developers.google.com/blockly/xml">
-    <block type="MOD_BLOCK" id="mod_block_id" x="100" y="100">
-      <statement name="RULES">
-        <block type="RULE_HEADER" id="rule_header_id">
-          <field name="RULE_NAME">New Rule</field>
-          <field name="EVENT_TYPE">ONGOING</field>
-          <field name="SCOPE_TYPE">GLOBAL</field>
-          <value name="CONDITIONS">
-            <block type="CONDITION_BLOCK" id="condition_block_id">
-              <value name="INPUT_CONDITION">
-                <block type="EQUAL" id="equal_block_id"></block>
-              </value>
-            </block>
-          </value>
-        </block>
-      </statement>
-    </block>
-  </xml>`;
-
-  const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(initialXml, "text/xml");
-  Blockly.Xml.domToWorkspace(xmlDoc.firstChild as Element, ws);
-
-  // No manual block creation or connection needed here anymore
 
 
   // This function resets the code and output divs, shows the

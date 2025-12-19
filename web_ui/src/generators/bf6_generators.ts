@@ -11,6 +11,26 @@ import { COLLECTION_CALL_TYPE, COLLECTION_DEF_TYPE } from '../blocks/collections
 
 export const bf6Generators: any = {};
 
+// --- Variables (tool helpers) ---
+// These blocks exist primarily to make imported template variables usable from the toolbox.
+// They are *not* part of the official BF6 Portal block set.
+bf6Generators['BF6_VARIABLE_REF'] = function (block: any) {
+  // Keep code preview resilient even if users drag these into the workspace.
+  const name = String(block?.getFieldValue?.('VAR') ?? '').trim();
+  return [`/* VariableRef:${name || '?'} */ null as any`, Order.ATOMIC];
+};
+
+bf6Generators['GETVARIABLE'] = function (block: any) {
+  const name = String(block?.getFieldValue?.('VARIABLE_NAME') ?? '').trim();
+  return [`/* GetVariable:${name || '?'} */ null as any`, Order.ATOMIC];
+};
+
+bf6Generators['SETVARIABLE'] = function (block: any, generator: any) {
+  const name = String(block?.getFieldValue?.('VARIABLE') ?? '').trim();
+  const value = generator.valueToCode(block, 'VALUE', Order.NONE) || 'null';
+  return `// SetVariable:${name || '?'} = ${value}\n`;
+};
+
 // --- Collections / Bookmarks ---
 // A collection definition lives offscreen and is inlined by a call block.
 bf6Generators[COLLECTION_DEF_TYPE] = function () {

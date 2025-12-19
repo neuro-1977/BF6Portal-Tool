@@ -10,7 +10,13 @@
   shape-rendering: crispEdges;
 }
 #blocklyDiv .blocklyZoom {
-  display: block;
+  /* We disable Blockly's zoom UI via inject options; keep it hidden even if other CSS fights us. */
+  display: none !important;
+}
+#blocklyDiv .blocklyTrash,
+#blocklyDiv .blocklyTrashcan {
+  /* We disable the trashcan via inject options; keep it hidden even if it gets injected. */
+  display: none !important;
 }
 #blocklyDiv {
   width: 100vw;

@@ -56,37 +56,238 @@
         100% { transform: rotate(360deg); }
       }
 
+      :root {
+        --bf6-header-height: 56px;
+
+        /* Glassy icon style */
+        --bf6-icon-fg: #c7ced8;
+        --bf6-icon-fg-hover: #eef2f7;
+        --bf6-icon-bg: rgba(255, 255, 255, 0.06);
+        --bf6-icon-bg-hover: rgba(255, 255, 255, 0.10);
+        --bf6-icon-border: rgba(255, 255, 255, 0.14);
+        --bf6-icon-border-hover: rgba(255, 255, 255, 0.22);
+        --bf6-icon-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      }
+
       #header {
-        width: 100vw;
-        height: 48px;
+        width: 100%;
+        height: var(--bf6-header-height);
         background: #23272e;
         color: #baff80;
         display: flex;
+        flex-direction: row;
         align-items: center;
-        justify-content: flex-start;
+        gap: 10px;
         box-shadow: 0 2px 8px #000a;
-        font-size: 1.1em;
+        font-size: 1.05em;
         font-family: "Segoe UI", "Consolas", "monospace", sans-serif;
         z-index: 3000;
         position: relative;
         border-bottom: 1.5px solid #181a1b;
         user-select: none;
+        padding: 6px 10px;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+
+      #headerLeft {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .header-sep {
+        width: 14px;
+        height: 24px;
+        border-left: 1px solid rgba(255,255,255,0.10);
+        opacity: 0.9;
+      }
+
+      #brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 180px;
+      }
+      #brandLogo {
+        width: 34px;
+        height: 34px;
+        border-radius: 7px;
+        box-shadow: 0 2px 8px #000a;
+        object-fit: contain;
+      }
+      #brandText {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.05;
+      }
+      #appName {
+        font-weight: 800;
+        letter-spacing: 1.1px;
+        color: #b0e0ff;
+        text-shadow: 0 1px 2px #000a;
+        font-size: 1.05em;
+      }
+      #appSub {
+        display: none;
+      }
+
+      #headerActions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex: 0 0 auto;
+        flex-wrap: nowrap;
+        min-width: 0;
+      }
+
+      #headerRight {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        white-space: nowrap;
+      }
+      #appVersionLabel {
+        font-size: 0.85em;
+        opacity: 0.9;
+        color: #b0e0ff;
+      }
+
+      #blocklySearchInput {
+        flex: 1 1 260px;
+        width: auto;
+        max-width: 420px;
+        min-width: 220px;
+        padding: 7px 10px 7px 34px;
+        background: #181a1b;
+        /* Magnifying glass icon inside the input */
+        background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http%3A//www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M10%2018a8%208%200%201%201%208-8%208%208%200%200%201-8%208z'%20fill='none'%20stroke='%23c7ced8'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Cpath%20d='M21%2021l-4.3-4.3'%20fill='none'%20stroke='%23c7ced8'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: 10px 50%;
+        background-size: 16px 16px;
+        color: #e0e0e0;
+        border: 1px solid #333;
+        border-radius: 8px;
+        font-family: "Segoe UI", "Consolas", "monospace", sans-serif;
+        font-size: 0.95em;
+        outline: none;
+      }
+      #blocklySearchInput:focus {
+        border-color: #39ff14;
+        box-shadow: 0 0 0 2px #39ff1430;
       }
       .menu-btn {
         background: none;
         border: none;
         color: #baff80;
-        font-weight: bold;
-        font-size: 1em;
-        margin: 0 18px 0 0;
-        padding: 8px 16px;
-        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.95em;
+        margin: 0;
+        padding: 7px 10px;
+        border-radius: 8px;
         cursor: pointer;
         transition: background 0.2s, color 0.2s;
+        white-space: nowrap;
+      }
+
+      /* Compact icon buttons (saves top-bar space) */
+      .menu-btn.icon-btn {
+        padding: 6px;
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        line-height: 1;
+
+        color: var(--bf6-icon-fg) !important;
+        background: var(--bf6-icon-bg);
+        background-image: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+        border: 1px solid var(--bf6-icon-border);
+        box-shadow: var(--bf6-icon-shadow);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+      .menu-btn.icon-btn svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        pointer-events: none;
+      }
+      .menu-btn.icon-btn .icon-text {
+        font-family: "Consolas", "Segoe UI", monospace;
+        font-size: 14px;
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        pointer-events: none;
+      }
+
+      /* Mini buttons (refresh/zoom) should match the glassy icon style */
+      .menu-btn.menu-btn-mini {
+        color: var(--bf6-icon-fg) !important;
+        background: var(--bf6-icon-bg);
+        background-image: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+        border: 1px solid var(--bf6-icon-border);
+        box-shadow: var(--bf6-icon-shadow);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      /* Glass hover (override generic .menu-btn:hover neon styling) */
+      .menu-btn.icon-btn:hover,
+      .menu-btn.menu-btn-mini:hover {
+        background: var(--bf6-icon-bg-hover) !important;
+        background-image: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08));
+        border-color: var(--bf6-icon-border-hover);
+        color: var(--bf6-icon-fg-hover) !important;
+      }
+      .menu-btn.menu-btn-mini {
+        margin: 0;
+        padding: 6px 8px;
+        font-size: 0.92em;
+        border-radius: 6px;
+      }
+
+      .header-controls {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      #workspaceControls {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 0 0 auto;
       }
       .menu-btn:hover {
         background: #39ff1420;
         color: #39ff14;
+      }
+
+      .menu-btn.icon-btn:active,
+      .menu-btn.menu-btn-mini:active {
+        transform: translateY(0.5px);
+      }
+
+      /* Preset label icon should inherit current color */
+      .bf6-inline-icon {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: 0.95;
       }
 
       .menu-select {
@@ -107,7 +308,8 @@
       }
       #blocklyDiv {
         flex: 1 1 auto;
-        height: calc(100vh - 48px); /* FORCE HEIGHT IN CSS */
+        height: auto;
+        min-height: 0;
         width: 100%;
         background: #1e1e1e; /* Match Dark Theme */
         z-index: 1;
@@ -146,11 +348,54 @@
         color: #baff80 !important;
       }
 
-      /* Keep zoom controls + scrollbars visible (we use Blockly's built-in UI) */
-      .blocklyZoom,
+      /* Workspace stays clean: we provide zoom/trash buttons in the header. */
+      .blocklyZoom {
+        display: none !important;
+      }
+      .blocklyTrash {
+        display: none !important;
+      }
       .blocklyScrollbarHorizontal,
-      .blocklyScrollbarVertical {
-        display: block !important;
+      .blocklyScrollbarVertical,
+      .blocklyFlyoutScrollbar {
+        display: none !important;
+      }
+
+      /* Hide native scrollbar chrome in toolbox/flyout containers (scroll still works). */
+      html,
+      body {
+        overflow: hidden;
+      }
+
+      .blocklyToolboxDiv,
+      .blocklyToolbox,
+      .blocklyToolboxContents,
+      .blocklyToolboxContentsWrapper,
+      .blocklyTreeRoot,
+      .blocklyFlyout {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge legacy */
+      }
+      .blocklyToolboxDiv::-webkit-scrollbar,
+      .blocklyToolbox::-webkit-scrollbar,
+      .blocklyToolboxContents::-webkit-scrollbar,
+      .blocklyToolboxContentsWrapper::-webkit-scrollbar,
+      .blocklyTreeRoot::-webkit-scrollbar,
+      .blocklyFlyout::-webkit-scrollbar {
+        width: 0 !important;
+        height: 0 !important;
+        display: none !important;
+      }
+
+      /* Some Blockly versions add scrolling to inner wrappers; cover those too. */
+      .blocklyToolboxDiv * {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .blocklyToolboxDiv *::-webkit-scrollbar {
+        width: 0 !important;
+        height: 0 !important;
+        display: none !important;
       }
     </style>
 
@@ -180,6 +425,7 @@
         opacity: 0.95;
       }
     </style>
+
     <style>
       /* Sidebar styles */
       /* Gemini left an empty fixed sidebar that can cover the real Blockly toolbox.
@@ -195,9 +441,9 @@
         flex-direction: column;
         z-index: 2500;
         position: fixed;
-        top: 48px;
+        top: var(--bf6-header-height);
         left: 0;
-        height: calc(100vh - 48px);
+        height: calc(100vh - var(--bf6-header-height));
         overflow: hidden;
       }
       #sidebarCategories {
@@ -363,225 +609,88 @@
       /* Ticker is restored and cycles quirky comments every 12s before Blockly loads */
       /* (Animated loading bar is now controlled by JS, no animation keyframes needed) */
     </style>
-    <style>
-      #title {
-        font-weight: bold;
-        font-size: 20px;
-        margin-right: 24px;
-        color: #b0e0ff;
-        letter-spacing: 1.5px;
-        text-shadow: 0 1px 2px #000a;
-        display: flex;
-        align-items: center;
-        position: relative;
-      }
-      #title:before {
-        content: "";
-        display: inline-block;
-        width: 38px;
-        height: 38px;
-        margin-right: 12px;
-        background: url("assets/img/app_logo.png") no-repeat center/contain;
-        border-radius: 7px;
-        box-shadow: 0 2px 8px #000a;
-        vertical-align: middle;
-      }
-    </style>
-    <style>
-            html, body {
-              height: 100%;
-              margin: 0;
-              background: #181a1b;
-              color: #e0e0e0;
-              font-family: 'Segoe UI', 'Consolas', 'monospace', sans-serif;
-              overflow: hidden;
-            }
-            #main {
-              height: calc(100vh - 44px);
-              overflow: hidden;
-            }
-            #editorContainer {
-              height: 100%;
-
-              #recenterBtn {
-                top: 80px !important;
-              }
-            }
-        .onboarding-modal {
-          display: none;
-          position: fixed;
-          z-index: 2000;
-          left: 0;
-          top: 0;
-          width: 100vw;
-          height: 100vh;
-          background: rgba(0,0,0,0.8);
-          align-items: center;
-          justify-content: center;
-        }
-        .onboarding-content {
-          background: #23272e;
-          color: #eee;
-          padding: 32px 40px;
-          border-radius: 12px;
-          box-shadow: 0 4px 24px #000a;
-          max-width: 480px;
-          margin: auto;
-          text-align: center;
-        }
-        .onboarding-content h2 {
-          color: #4fc3f7;
-          margin-bottom: 16px;
-        }
-        .onboarding-content ul {
-          text-align: left;
-          margin: 18px 0 24px 0;
-          padding-left: 20px;
-        }
-        .onboarding-content button {
-          background: #4fc3f7;
-          color: #181a1b;
-          border: none;
-
-      <style>
-        html, body {
-          height: 100%;
-          margin: 0;
-          background: #181a1b;
-          color: #e0e0e0;
-          font-family: 'Segoe UI', 'Consolas', 'monospace', sans-serif;
-          overflow: hidden;
-        }
-        #main {
-          height: calc(100vh - 44px);
-          overflow: hidden;
-        }
-        #editorContainer {
-          height: 100%;
-          overflow: hidden;
-        }
-        #blocklyDiv {
-          height: 100%;
-          width: 100%;
-          overflow: hidden !important;
-        }
-        .onboarding-modal {
-          display: none;
-          position: fixed;
-          z-index: 2000;
-          left: 0;
-          top: 0;
-          width: 100vw;
-          height: 100vh;
-          background: rgba(0,0,0,0.8);
-          align-items: center;
-          justify-content: center;
-        }
-        .onboarding-content {
-          background: #23272e;
-          color: #eee;
-          padding: 32px 40px;
-          border-radius: 12px;
-          box-shadow: 0 4px 24px #000a;
-          max-width: 480px;
-          margin: auto;
-          text-align: center;
-        }
-        .onboarding-content h2 {
-          color: #4fc3f7;
-          margin-bottom: 16px;
-        }
-        .onboarding-content ul {
-          text-align: left;
-          margin: 18px 0 24px 0;
-          padding-left: 20px;
-        }
-        .onboarding-content button {
-          background: #4fc3f7;
-          color: #181a1b;
-          border: none;
-          border-radius: 6px;
-          padding: 10px 24px;
-          font-size: 16px;
-          font-weight: bold;
-          cursor: pointer;
-          margin-top: 12px;
-        }
-        /* Neon/animated styles for About modal names */
-        .credit-name {
-          color: #e0e0e0;
-          font-weight: bold;
-          font-size: 1.13em;
-          letter-spacing: 0.04em;
-          text-shadow: 0 1px 2px #000a;
-        }
-    </style>
   </head>
 
   <body>
-    <!-- Live Diagnostics Console Overlay -->
-    <div
-      id="liveConsole"
-      style="
-        position: fixed;
-        bottom: 0;
-        right: 0;
-        width: 520px;
-        max-width: 98vw;
-        height: 180px;
-        z-index: 999999;
-        background: #181a1be0;
-        color: #baff80;
-        font-family: monospace;
-        font-size: 0.98em;
-        border-top-left-radius: 10px;
-        box-shadow: 0 0 16px #000a;
-        overflow-y: auto;
-        display: none;
-        flex-direction: column;
-      "
-    >
-      <div
-        style="
-          background: #23272e;
-          padding: 4px 12px;
-          font-weight: bold;
-          color: #4fc3f7;
-          border-top-left-radius: 10px;
-        "
-      >
-        Live Diagnostics Console
-        <span
-          id="liveConsoleToggle"
-          style="float: right; cursor: pointer; color: #baff80"
-          >[hide]</span
-        >
-      </div>
-      <div
-        id="liveConsoleContent"
-        style="
-          flex: 1 1 auto;
-          padding: 8px 12px;
-          overflow-y: auto;
-          max-height: 140px;
-        "
-      ></div>
-    </div>
     <!-- Top menu bar (fixed, always on top) -->
     <div id="header">
-      <button class="menu-btn" id="loadBtn" style="color: #4fc3f7;">Load JSON</button>
-      <button class="menu-btn" id="saveBtn" style="color: #4fc3f7;">Save JSON</button>
-      <button class="menu-btn" id="exportTsBtn" style="color: #baff80;">Export TS</button>
+      <div id="headerLeft">
+        <div id="brand">
+          <img id="brandLogo" src="assets/img/app_logo.png" alt="BF6Portal Tool" />
+          <div id="brandText">
+            <div id="appName">BF6Portal Tool</div>
+            <div id="appSub">Battlefield 6 Portal Logic Editor</div>
+          </div>
+        </div>
 
-      <span style="opacity:.85; margin-right:8px;">Presets</span>
-      <select id="presetSelect" class="menu-select" title="Load a preset block layout"></select>
-      <button class="menu-btn" id="presetSaveBtn" style="color: #baff80;">Save Preset</button>
-      <button class="menu-btn" id="presetDeleteBtn" style="color: #ffb0b0;">Delete</button>
+        <input id="blocklySearchInput" type="text" placeholder="Search…" autocomplete="off" aria-label="Search blocks" />
 
-      <button class="menu-btn" id="helpBtn" style="color: #baff80;">Help</button>
+        <div id="headerActions" aria-label="File / TS / Preset actions">
+          <button class="menu-btn icon-btn" id="loadBtn" title="Load JSON" aria-label="Load JSON">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><path d="M12 3v11"/><path d="M7 10l5 5 5-5"/></svg>
+          </button>
+          <button class="menu-btn icon-btn" id="saveBtn" title="Save JSON" aria-label="Save JSON">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/></svg>
+          </button>
+          <button class="menu-btn icon-btn" id="exportPortalBtn" title="Export for Portal (expands Collections and removes tool-only blocks)" aria-label="Export for Portal">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7"/><path d="M21 3l-9 9"/><path d="M10 7H6a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-4"/></svg>
+          </button>
+          <button class="menu-btn icon-btn" id="importTsBtn" title="Import TypeScript (coming soon)" aria-label="Import TypeScript (coming soon)">
+            <span class="icon-text" aria-hidden="true">TS</span>
+          </button>
+          <button class="menu-btn icon-btn" id="exportTsBtn" title="Export TypeScript" aria-label="Export TypeScript">
+            <span class="icon-text" aria-hidden="true">TS</span>
+          </button>
 
-      <span id="title">BF6Portal Tool</span>
-      <button class="menu-btn" id="aboutBtn">About</button>
+          <span style="opacity:.85; margin-left: 6px; display:inline-flex; align-items:center; color: var(--bf6-icon-fg);" title="Presets" aria-label="Presets">
+            <svg viewBox="0 0 24 24" aria-hidden="true" class="bf6-inline-icon">
+              <path d="M3 6l7-3 7 3 4-2v14l-4 2-7-3-7 3V6z"/>
+              <path d="M10 3v16"/>
+              <path d="M17 6v16"/>
+            </svg>
+          </span>
+          <select id="presetSelect" class="menu-select" title="Load a preset block layout"></select>
+          <button class="menu-btn icon-btn" id="presetSaveBtn" title="Save preset" aria-label="Save preset">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h12l4 4v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2"/><path d="M8 4v6h8V4"/><path d="M12 13v6"/><path d="M9 16h6"/></svg>
+          </button>
+          <button class="menu-btn icon-btn" id="presetDeleteBtn" title="Delete preset" aria-label="Delete preset">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M10 11v7"/><path d="M14 11v7"/><path d="M6 7l1 14h10l1-14"/><path d="M9 7V4h6v3"/></svg>
+          </button>
+
+          <span class="header-sep" aria-hidden="true"></span>
+
+          <button class="menu-btn icon-btn" id="codePreviewBtn" title="Code Preview" aria-label="Code Preview">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l-6-6 6-6"/><path d="M15 6l6 6-6 6"/><path d="M14 4l-4 16"/></svg>
+          </button>
+
+          <div id="workspaceControls" class="header-controls" aria-label="Workspace controls">
+            <button class="menu-btn menu-btn-mini" id="refreshBtn" title="Refresh UI">⟳</button>
+            <button class="menu-btn menu-btn-mini" id="zoomOutBtn" title="Zoom out">−</button>
+            <button class="menu-btn menu-btn-mini" id="zoomInBtn" title="Zoom in">+</button>
+            <button class="menu-btn menu-btn-mini" id="zoomResetBtn" title="Reset zoom">⟲</button>
+            <button class="menu-btn menu-btn-mini" id="zoomFitBtn" title="Zoom to fit">⤢</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="headerRight" aria-label="Help / About / Version">
+        <button class="menu-btn icon-btn" id="helpBtn" title="Help" aria-label="Help">
+          <!-- Open book icon -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 19.5V6a3 3 0 0 1 3-3h5v17H7a3 3 0 0 0-3 3"/>
+            <path d="M20 19.5V6a3 3 0 0 0-3-3h-5v17h5a3 3 0 0 1 3 3"/>
+          </svg>
+        </button>
+        <button class="menu-btn icon-btn" id="aboutBtn" title="About" aria-label="About">
+          <!-- Question mark icon -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9.5 9a2.8 2.8 0 0 1 5.4 1c0 2-2 2.2-2.4 3.7"/>
+            <path d="M12 17h.01"/>
+            <path d="M12 22a10 10 0 1 0-10-10 10 10 0 0 0 10 10z"/>
+          </svg>
+        </button>
+        <span id="appVersionLabel" title="App version">v—</span>
+      </div>
     </div>
 
     <!-- About Modal (fixed overlay, always on top) -->
@@ -668,7 +777,7 @@
       </div>
     </div>
 
-    <div id="main" style="display: flex; height: calc(100vh - 44px)">
+  <div id="main" style="display: flex; flex: 1 1 auto; min-height: 0;">
       <div
         id="sidebar"
         style="
@@ -796,41 +905,104 @@
       </div>
     </div>
 
-    <!-- FORCE BLOCKLY TO GLOBAL SCOPE -->
-    <script>
-      window.global = window;
-      // Save Node.js globals
-      var _savedModule = typeof module !== 'undefined' ? module : undefined;
-      var _savedExports = typeof exports !== 'undefined' ? exports : undefined;
-      var _savedDefine = typeof define !== 'undefined' ? define : undefined;
-      
-      // Hide them from Blockly
-      module = undefined;
-      exports = undefined;
-      define = undefined;
-    </script>
+    <!-- Subroutine Creation Modal -->
+    <div
+      id="subroutineModal"
+      class="modal"
+      style="
+        display: none;
+        position: fixed;
+        z-index: 4500;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.82);
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        class="modal-content"
+        style="
+          max-width: 640px;
+          width: 92vw;
+          margin: auto;
+          background: #23272e;
+          color: #fff;
+          border-radius: 14px;
+          box-shadow: 0 4px 32px #000a;
+          padding: 22px 22px 16px 22px;
+          position: relative;
+        "
+      >
+        <span
+          class="close"
+          style="
+            position: absolute;
+            top: 10px;
+            right: 16px;
+            font-size: 2em;
+            cursor: pointer;
+            line-height: 1;
+          "
+          >&times;</span
+        >
+        <h2 style="margin: 0 0 14px 0;">New Subroutine</h2>
 
-    <script src="blockly/blockly_compressed.js"></script>
-    <script src="blockly/blocks_compressed.js"></script>
-    <script src="blockly/javascript_compressed.js"></script>
-    <script src="blockly/en.js"></script>
+        <label style="display:block; opacity:.9; margin-bottom: 6px;">Name</label>
+        <input
+          id="subNameInput"
+          type="text"
+          placeholder="Subroutine name"
+          style="
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+            outline: none;
+            margin-bottom: 14px;
+          "
+        />
 
-    <script>
-      // Restore Node.js globals
-      if (_savedModule) module = _savedModule;
-      if (_savedExports) exports = _savedExports;
-      if (_savedDefine) define = _savedDefine;
-    </script>
-    <!-- Terminal Drawer -->
+        <div style="display:flex; align-items:center; justify-content: space-between; gap: 12px; margin-bottom: 10px;">
+          <div style="opacity:.9;">Parameters (optional)</div>
+          <button
+            id="addParamBtn"
+            class="menu-btn"
+            style="color:#baff80;"
+            type="button"
+            title="Add parameter"
+          >
+            + Add Param
+          </button>
+        </div>
+
+        <div id="paramsContainer" style="display:flex; flex-direction: column; gap: 8px; margin-bottom: 14px;"></div>
+
+        <div style="display:flex; justify-content:flex-end; gap: 10px;">
+          <button
+            id="createSubBtn"
+            class="menu-btn"
+            style="color:#4fc3f7;"
+            type="button"
+            title="Create subroutine"
+          >
+            Create
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terminal Drawer (Code Preview) -->
     <div id="terminal-drawer"></div>
-    <button id="terminal-toggle" style="position: fixed; bottom: 20px; right: 20px; z-index: 2000; padding: 10px; border-radius: 50%; border: none; background: #007acc; color: white; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">💻</button>
 
     <!-- Hidden file input for loading -->
     <input type="file" id="loadInput" accept=".json,.xml,application/json,text/xml" style="display: none;" />
 
-    <script src="block_definitions.js"></script>
-    <script src="block_definitions_gen.js"></script>
-    <script src="startup.js"></script>
     <script src="main.js"></script>
     <!-- xterm.js and addon-fit will be loaded via require in main.js or injected -->
     <!-- About / ticker behavior is handled in main.js (kept out of inline scripts on purpose). -->

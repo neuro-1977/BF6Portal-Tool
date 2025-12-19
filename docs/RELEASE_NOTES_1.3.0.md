@@ -1,0 +1,49 @@
+# Release Notes - v1.3.0
+
+## Highlights
+
+- **Collections / Bookmarks (quality-of-life):** COLLECTIONS is now a dynamic toolbox category with a one-click “Convert selection to collection” action and improved visuals.
+- **Navigation (“teleport”):** right-click jump helpers expanded (MOD / rules / stack root / variables / subroutine call ⇄ definition).
+- **Cleaner workspace controls:** zoom in/out/reset/fit + trash moved to the top-right header (no on-canvas zoom/trash UI).
+- **Preset workflow stability:** built-in presets remain locked, but you can save copies and overwrite your own presets safely.
+- **Import resilience:** community/Portal JSON imports now auto-register placeholder blocks for missing types so templates still load instead of failing hard.
+
+## Changes
+
+### UI / UX
+
+- Header/layout cleanup: brand/logo aligned left, toolbox search moved into the header, app version shown top-right.
+- Reduced UI clutter: Code Preview is a normal header button; removed unused diagnostics overlay.
+- Workspace controls moved to the header (top-right): zoom in/out/reset/fit + trash (Blockly’s on-canvas zoom/trash UI is disabled/hidden).
+- **Default window size / fullscreen feel:** the app now opens maximized with a 1920×1080 (1080p) target size (clamped to your display work area) so it fills the screen on standard 1080p desktops.
+- Fixed the persistent toolbox/flyout vertical scrollbar artifact by hiding native scrollbar chrome on Blockly’s inner scroll containers.
+
+### Collections
+
+- Collection call/definition blocks are taller and more visible.
+- Toolbox flyout lists existing collections and can create one from the current selection.
+- Context menus support convert, jump, and rename flows.
+
+### Variables
+
+- Restored a working VARIABLES category:
+  - “New / Manage Variables” button.
+  - Existing variables appear as pre-filled GET/SET templates.
+- **Electron compatibility:** replaced native `prompt()` flows with a Blockly dialog prompt modal (Electron doesn’t support `window.prompt`).
+
+### Selection Lists
+
+- Regenerated `selection-lists` enums so widget naming is normalized (no `Item` suffix where it shouldn’t be).
+- Runtime dropdown lookup is case-insensitive and supports alias mapping.
+- Packaged builds load `selection-lists.txt` (Electron builds exclude `*.md`).
+
+### Import / Presets compatibility
+
+- Portal/community wrapper formats supported (e.g. `{ "mod": { ... } }`).
+- Placeholder block auto-registration prevents missing block types from breaking loads.
+- Ensured critical Portal structural blocks (like `modBlock` with `RULES`) exist before loading templates.
+- Built-in presets load reliably in packaged Electron builds under `file://` by falling back to disk reads when `fetch()` is unavailable.
+
+## Notes
+
+- Windows icon assets are sourced from the project’s `web_ui/assets/img/` and built into the installer via electron-builder.

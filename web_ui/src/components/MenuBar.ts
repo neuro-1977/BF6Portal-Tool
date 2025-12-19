@@ -1,5 +1,5 @@
 import * as Blockly from 'blockly';
-import { saveToFile, loadFromFile } from '../serialization';
+import { saveToFile, loadFromFile, exportForPortal } from '../serialization';
 
 export class MenuBar {
   private container: HTMLElement;
@@ -27,6 +27,7 @@ export class MenuBar {
         </div>
         <div class="menu-actions">
            <button id="saveBtn" class="menu-btn">Save</button>
+                     <button id="exportPortalBtn" class="menu-btn">Export Portal</button>
            <button id="loadBtn" class="menu-btn">Load</button>
            <input type="file" id="fileInput" style="display: none;" accept=".json">
         </div>
@@ -54,6 +55,15 @@ export class MenuBar {
     document.getElementById('saveBtn')?.addEventListener('click', () => {
         if (this.workspace) {
             saveToFile(this.workspace);
+        } else {
+            console.warn("Workspace not set for MenuBar");
+        }
+    });
+
+    // Export for Portal (expands collections, removes tool-only helpers)
+    document.getElementById('exportPortalBtn')?.addEventListener('click', () => {
+        if (this.workspace) {
+            exportForPortal(this.workspace);
         } else {
             console.warn("Workspace not set for MenuBar");
         }

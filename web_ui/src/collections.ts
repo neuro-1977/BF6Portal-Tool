@@ -4,15 +4,24 @@ import { COLLECTION_CALL_TYPE, COLLECTION_DEF_TYPE } from './blocks/collections'
 
 type XY = { x: number; y: number };
 
-function safePrompt(message: string, initialValue: string): string | null {
-  try {
-    const v = window.prompt(message, initialValue);
-    if (v === null) return null;
-    const trimmed = String(v).trim();
-    return trimmed ? trimmed : null;
-  } catch {
-    return null;
-  }
+function promptAsync(message: string, initialValue: string): Promise<string | null> {
+  return new Promise((resolve) => {
+    try {
+      const dialog: any = (Blockly as any).dialog;
+      if (dialog?.prompt && typeof dialog.prompt === 'function') {
+        dialog.prompt(message, initialValue ?? '', (v: string | null) => {
+          if (v === null) return resolve(null);
+          const trimmed = String(v).trim();
+          resolve(trimmed ? trimmed : null);
+        });
+        return;
+      }
+    } catch {
+      // ignore
+    }
+    // Electron does not support native prompt; fail gracefully.
+    resolve(null);
+  });
 }
 
 function listCollectionNames(workspace: Blockly.Workspace): string[] {
@@ -64,6 +73,56 @@ function getBlockXY(block: Blockly.Block): XY {
     // ignore
   }
   return { x: 0, y: 0 };
+}
+
+function scrollToBlockTop(workspace: Blockly.Workspace, block: Blockly.Block, padding = 56) {
+  const wsAny: any = workspace as any;
+  const bAny: any = block as any;
+  if (!wsAny || !bAny) return;
+
+  let top: number | null = null;
+  try {
+    if (typeof bAny.getBoundingRectangle === 'function') {
+      const r = bAny.getBoundingRectangle();
+      if (r && typeof r.top === 'number') top = r.top;
+    }
+  } catch {
+    // ignore
+  }
+  if (top == null) {
+    try {
+      const p = getBlockXY(block);
+      if (p && typeof p.y === 'number') top = p.y;
+    } catch {
+      // ignore
+    }
+  }
+  if (top == null) return;
+
+  let x = 0;
+  try {
+    const m = typeof wsAny.getMetrics === 'function' ? wsAny.getMetrics() : null;
+    if (m && typeof m.viewLeft === 'number') x = m.viewLeft;
+  } catch {
+    // ignore
+  }
+
+  const y = Math.max(0, top - padding);
+  try {
+    if (wsAny.scrollbar && typeof wsAny.scrollbar.set === 'function') {
+      wsAny.scrollbar.set(x, y);
+    }
+  } catch {
+    // ignore
+  }
+
+  try {
+    if (typeof (block as any).select === 'function') {
+      (block as any).select();
+    }
+  } catch {
+    // ignore
+  }
 }
 
 function computeOffscreenLibraryXY(workspace: Blockly.Workspace): XY {
@@ -128,9 +187,16 @@ export function jumpToCollectionDefinition(workspace: Blockly.Workspace, name: s
   } catch {
     // ignore
   }
+
+  // Nudge so the block's top is visible under the fixed header.
+  try {
+    scrollToBlockTop(workspace, def);
+  } catch {
+    // ignore
+  }
 }
 
-export function convertBlockStackToCollection(workspace: Blockly.Workspace, block: Blockly.Block) {
+export async function convertBlockStackToCollection(workspace: Blockly.Workspace, block: Blockly.Block) {
   const bAny: any = block as any;
   if (!block || !workspace) return;
 
@@ -138,7 +204,7 @@ export function convertBlockStackToCollection(workspace: Blockly.Workspace, bloc
 
   const baseName = 'Collection';
   const suggested = makeUniqueCollectionName(workspace, baseName);
-  const name = safePrompt('Create collection name:', suggested);
+  const name = await promptAsync('Create collection name:', suggested);
   if (!name) return;
 
   const uniqueName = makeUniqueCollectionName(workspace, name);
@@ -204,6 +270,7 @@ export function convertBlockStackToCollection(workspace: Blockly.Workspace, bloc
       if (typeof wsAny.centerOnBlock === 'function') {
         wsAny.centerOnBlock((call as any).id);
       }
+      scrollToBlockTop(workspace, call);
     } catch {
       // ignore
     }
@@ -213,11 +280,11 @@ export function convertBlockStackToCollection(workspace: Blockly.Workspace, bloc
   }
 }
 
-export function renameCollection(workspace: Blockly.Workspace, defBlock: Blockly.Block) {
+export async function renameCollection(workspace: Blockly.Workspace, defBlock: Blockly.Block) {
   if (defBlock.type !== COLLECTION_DEF_TYPE) return;
 
   const oldName = String((defBlock as any).getFieldValue?.('NAME') ?? '').trim();
-  const nextNameRaw = safePrompt('Rename collection:', oldName || 'Collection');
+  const nextNameRaw = await promptAsync('Rename collection:', oldName || 'Collection');
   if (!nextNameRaw) return;
 
   const nextName = makeUniqueCollectionName(workspace, nextNameRaw);
@@ -292,7 +359,7 @@ export function registerCollectionsContextMenus(workspace: Blockly.Workspace) {
       callback: (scope: any) => {
         const b: Blockly.Block | undefined = scope?.block;
         if (!b) return;
-        convertBlockStackToCollection(workspace, b);
+        void convertBlockStackToCollection(workspace, b);
       },
       weight: 6,
     });
@@ -313,7 +380,7 @@ export function registerCollectionsContextMenus(workspace: Blockly.Workspace) {
       callback: (scope: any) => {
         const b: Blockly.Block | undefined = scope?.block;
         if (!b) return;
-        renameCollection(workspace, b);
+        void renameCollection(workspace, b);
       },
       weight: 5,
     });
@@ -349,6 +416,7 @@ export function registerCollectionsContextMenus(workspace: Blockly.Workspace) {
           if (typeof wsAny.centerOnBlock === 'function') {
             wsAny.centerOnBlock(call.id);
           }
+          scrollToBlockTop(workspace, call);
         } catch {
           // ignore
         }

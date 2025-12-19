@@ -1,16 +1,16 @@
 # BF6Portal Tool
 
-![Version](https://img.shields.io/badge/version-1.2.8-blue.svg)
+![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)
 ![License](https://img.shields.io/badge/license-ISC-green.svg)
 
-Release notes: see `docs/RELEASE_NOTES_1.2.8.md`.
+Release notes: see `docs/RELEASE_NOTES_1.3.0.md`.
 Changelog: see `CHANGELOG.md`.
 
 **BF6Portal Tool** is a standalone visual logic editor for **Battlefield 6 Portal**, built with **Electron** + **Google Blockly**. It aims to replicate the Portal Rules Editor workflow in a desktop app, with offline editing and quality-of-life tooling.
 
 ## Screenshot
 
-<img src="docs/screenshots/editor.png" alt="BF6Portal Tool editor screenshot" width="1100" />
+![BF6Portal Tool editor screenshot](docs/screenshots/editor.png)
 
 > Note: The repo currently includes a tiny placeholder image. Replace `docs/screenshots/editor.png` with a real screenshot any time.
 
@@ -20,7 +20,7 @@ Changelog: see `CHANGELOG.md`.
 - **Import compatibility:** loads Blockly JSON exports, including common community/template wrappers like `{ "mod": { ... } }`.
 - **Resilient template loading:** missing block `type`s are auto-registered as **placeholder blocks** so templates can still render.
 - **Presets:** 3 locked built-ins (Andy6170 templates) + user save/delete via `localStorage`.
-- **Help modal + right-click help:** offline docs from `bf6portal_blocks.json` and per-block “Help: <type>”.
+- **Help modal + right-click help:** offline docs from `bf6portal_blocks.json` and per-block “Help: `<type>`”.
 - **Code Preview drawer:** resizable bottom drawer showing a TypeScript export of the current workspace state.
 
 ## Installation & setup
@@ -39,7 +39,7 @@ git clone https://gitlab.com/Neuro1977/bf6-portal-tool.git
 cd BF6Portal-Tool
 ```
 
-2) Install dependencies:
+1) Install dependencies:
 
 ```bash
 npm install
@@ -48,7 +48,7 @@ npm install
 cd ..
 ```
 
-3) Run the app:
+1) Run the app:
 
 ```bash
 npm start
@@ -83,7 +83,7 @@ Utilities live in `tools/` (used to generate/inspect blocks/toolboxes from Porta
 ## Credits
 
 - Block help/tooltips and Portal data are derived from **Portal Docs** by the Battlefield Portal Community:
-	- https://github.com/battlefield-portal-community/portal-docs
+    - [battlefield-portal-community/portal-docs](https://github.com/battlefield-portal-community/portal-docs)
 
 ## License
 

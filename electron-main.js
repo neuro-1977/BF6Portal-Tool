@@ -1,7 +1,36 @@
-const { app, BrowserWindow, ipcMain, session } = require('electron');
+const { app, BrowserWindow, ipcMain, session, screen } = require('electron');
+const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 const os = require('os');
+
+// Helps Windows keep taskbar/shortcuts/icons consistent (especially across hotfix builds).
+try {
+    if (process.platform === 'win32') {
+        app.setAppUserModelId('com.neuro.bf6portal');
+    }
+} catch {
+    // ignore
+}
+
+// Ensure only one instance of the app runs at a time.
+// This avoids “I installed a new build but I’m still looking at the old UI” confusion
+// caused by a hidden/previous instance holding files open.
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) {
+    app.quit();
+} else {
+    app.on('second-instance', () => {
+        try {
+            if (mainWindow) {
+                if (mainWindow.isMinimized()) mainWindow.restore();
+                mainWindow.focus();
+            }
+        } catch (e) {
+            console.warn('[BF6] second-instance focus failed:', e);
+        }
+    });
+}
 
 // Configuration
 const PORT = 8000; // Application port
@@ -32,10 +61,43 @@ function startServer() {
 }
 
 function createWindow() {
+    // Default target: 1080p. We open maximized so it fills the available work area.
+    // (On smaller displays, maximize still behaves correctly; on larger displays,
+    // maximize is preferable to forcing an arbitrary fixed size.)
+    const TARGET_WIDTH = 1920;
+    const TARGET_HEIGHT = 1080;
+
+    // Compute a sane initial size based on the primary display work area.
+    // We clamp to the available work area to avoid placing the window off-screen.
+    let initialWidth = 1280;
+    let initialHeight = 800;
+    try {
+        const primary = screen.getPrimaryDisplay();
+        const work = primary && primary.workAreaSize ? primary.workAreaSize : null;
+        if (work && work.width && work.height) {
+            initialWidth = Math.min(TARGET_WIDTH, work.width);
+            initialHeight = Math.min(TARGET_HEIGHT, work.height);
+        } else {
+            initialWidth = TARGET_WIDTH;
+            initialHeight = TARGET_HEIGHT;
+        }
+    } catch {
+        initialWidth = TARGET_WIDTH;
+        initialHeight = TARGET_HEIGHT;
+    }
+
+    const iconCandidates = [
+        path.join(ROOT_DIR, 'web_ui', 'dist', 'assets', 'img', 'app_logo.png'),
+        path.join(ROOT_DIR, 'web_ui', 'dist', 'assets', 'img', 'favicon.ico'),
+    ];
+    const windowIcon = iconCandidates.find((p) => {
+        try { return fs.existsSync(p); } catch { return false; }
+    });
+
     mainWindow = new BrowserWindow({
-        width: 1280,
-        height: 800,
-        icon: path.join(ROOT_DIR, 'web_ui', 'dist', 'assets', 'img', 'favicon.ico'), // Point to dist assets
+        width: initialWidth,
+        height: initialHeight,
+        icon: windowIcon, // Point to dist assets (prefer app_logo.png)
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -45,6 +107,15 @@ function createWindow() {
         autoHideMenuBar: true,
         title: "BF6Portal Tool - (Gemini)"
     });
+
+    // Fill the screen by default (maximized window). This matches typical desktop UX.
+    // We keep it as a normal window (not true fullscreen) so users can still snap,
+    // resize, and access the taskbar.
+    try {
+        mainWindow.maximize();
+    } catch {
+        // ignore
+    }
 
     const indexPath = path.join(ROOT_DIR, 'web_ui', 'dist', 'index.html');
     console.log(`Loading UI from: ${indexPath}`);
@@ -197,13 +268,50 @@ function createWindow() {
     }, 2000);
 }
 
-app.on('ready', () => {
-    // Clear cache to ensure fresh UI load
-    if (session && session.defaultSession) {
-        session.defaultSession.clearCache().then(() => {
-            console.log('Cache cleared');
-        });
+app.on('ready', async () => {
+    // Reduce stale UI/caching issues between installs/builds.
+    // NOTE: We intentionally do NOT clear localStorage (user presets) here.
+    try {
+        // Disable Chromium's HTTP cache as an extra safety net.
+        try { app.commandLine.appendSwitch('disable-http-cache'); } catch { /* ignore */ }
+        try { app.commandLine.appendSwitch('disable-gpu-shader-disk-cache'); } catch { /* ignore */ }
+
+        if (session && session.defaultSession) {
+            await session.defaultSession.clearCache();
+            const clearCodeCaches = session.defaultSession.clearCodeCaches;
+            if (typeof clearCodeCaches === 'function') {
+                // Electron has changed this API signature over time. Some versions
+                // require an options object and/or callback.
+                try {
+                    // Try Promise-style API: clearCodeCaches(options)
+                    const result = clearCodeCaches.call(session.defaultSession, {});
+                    if (result && typeof result.then === 'function') {
+                        await result;
+                    }
+                } catch (e1) {
+                    // Fallback: callback-style API: clearCodeCaches(options, callback)
+                    try {
+                        await new Promise((resolve, reject) => {
+                            try {
+                                clearCodeCaches.call(session.defaultSession, {}, (err) => {
+                                    if (err) reject(err);
+                                    else resolve();
+                                });
+                            } catch (e2) {
+                                reject(e2);
+                            }
+                        });
+                    } catch (e2) {
+                        console.warn('[BF6] clearCodeCaches failed:', e2);
+                    }
+                }
+            }
+        }
+        console.log('[BF6] Cache cleared');
+    } catch (e) {
+        console.warn('[BF6] Cache clear failed:', e);
     }
+
     startServer();
     createWindow();
 });
