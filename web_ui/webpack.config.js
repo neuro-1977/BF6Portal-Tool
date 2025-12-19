@@ -17,7 +17,9 @@ const config = {
   },
   output: {
     // Compile the source files into a bundle.
-    filename: '[name].[contenthash].bundle.js',
+    // Use a stable filename so Electron packaging and users aren't confused by
+    // content-hash renames on every build.
+    filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
   },

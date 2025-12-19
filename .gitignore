@@ -5,6 +5,7 @@ yarn-error.log
 
 # Build
 dist/
+dist-*/
 web_ui/dist/
 dist_release/
 out/
@@ -26,6 +27,18 @@ Thumbs.db
 # Project Specific
 .env
 =Resources=/
+
+# Keep external source metadata in git (but not cached downloads)
+!=Resources=/external_sources/
+!=Resources=/external_sources/**
+
+# Keep built-in preset templates in git (needed for reproducible builds)
+!=Resources=/Portal Blocks/
+!=Resources=/Portal Blocks/*.json
+
+# Vendored third-party plugins (explicit allowlist)
+!=Resources=/ThirdParty/
+!=Resources=/ThirdParty/**
 
 # Local overrides (do not commit)
 web_ui/quotes.local.json

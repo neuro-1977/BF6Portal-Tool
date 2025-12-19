@@ -1,4 +1,5 @@
 import * as Blockly from 'blockly';
+import { javascriptGenerator, Order } from 'blockly/javascript';
 
 /**
  * Selection Lists (Portal enums)
@@ -218,6 +219,14 @@ export async function preloadSelectionLists(): Promise<void> {
       if (!(lk in cache.mapCI)) cache.mapCI[lk] = v;
     }
     cache.loaded = true;
+    // After loading, register helper enum blocks so the toolbox can expose
+    // *all* selection lists (even if the main block set doesn't have dedicated
+    // dropdown blocks for each).
+    try {
+      registerSelectionListEnumBlocks();
+    } catch (e) {
+      console.warn('[BF6] Failed to register selection list enum blocks:', e);
+    }
   } catch (e: any) {
     cache.lastError = String(e?.message || e);
   } finally {
@@ -265,6 +274,14 @@ function getEnumNameFromBlock(block: Blockly.Block): string | null {
       const s = String(c);
       if (s.endsWith('Item')) return s.slice(0, -4);
     }
+
+    // Some block sets use the non-Item name for type checks (e.g. "Cameras").
+    // If we can resolve a list for it, treat it as the enum name.
+    for (const c of list) {
+      const s = String(c);
+      if (!s) continue;
+      if (lookupSelectionList(s)) return normalizeEnumKey(s);
+    }
   } catch {
     // ignore
   }
@@ -276,12 +293,79 @@ function makeOptions(values: string[]): [string, string][] {
   return values.map((v) => [v, v]);
 }
 
+function getCandidateEnumKeys(enumName: string): string[] {
+  const raw = String(enumName || '').trim();
+  if (!raw) return [];
+
+  // We index both EnumName and EnumNameItem. Still, different Portal docs builds
+  // sometimes prefix certain lists (e.g. Enum_Foo) or use PlayerFooTypes.
+  // These candidates keep dropdowns working even when naming drifts.
+  const norm = normalizeEnumKey(raw);
+
+  const cands = new Set<string>();
+  const add = (s: string) => {
+    const v = String(s || '').trim();
+    if (v) cands.add(v);
+  };
+
+  add(raw);
+  add(norm);
+  add(raw.toLowerCase());
+  add(norm.toLowerCase());
+
+  add(`Enum_${raw}`);
+  add(`Enum_${norm}`);
+  add(`Enum_${raw}`.toLowerCase());
+  add(`Enum_${norm}`.toLowerCase());
+
+  if (!raw.startsWith('Player')) {
+    add(`Player${raw}`);
+    add(`Player${norm}`);
+    add(`Player${raw}`.toLowerCase());
+    add(`Player${norm}`.toLowerCase());
+  }
+
+  // Known naming drift: Portal docs selection list is "RestrictedInputs", while
+  // some block outputs/tooling historically called it "InputRestrictions".
+  if (norm === 'InputRestrictions') {
+    add('RestrictedInputs');
+    add('RestrictedInputs'.toLowerCase());
+    add('Enum_RestrictedInputs');
+    add('Enum_RestrictedInputs'.toLowerCase());
+  }
+  if (norm === 'RestrictedInputs') {
+    add('InputRestrictions');
+    add('InputRestrictions'.toLowerCase());
+    add('Enum_InputRestrictions');
+    add('Enum_InputRestrictions'.toLowerCase());
+  }
+
+  return Array.from(cands);
+}
+
+function lookupSelectionList(enumName: string): string[] | null {
+  const map = cache.map || {};
+  for (const key of getCandidateEnumKeys(enumName)) {
+    const values = (map as any)[key];
+    if (Array.isArray(values) && values.length > 0) return values;
+  }
+  return null;
+}
+
 export function registerSelectionListExtensions(): void {
   // Avoid double registration during HMR/dev.
   if ((Blockly as any).__bf6_selection_lists_registered) return;
   (Blockly as any).__bf6_selection_lists_registered = true;
 
   Blockly.Extensions.register('bf6_selection_list_dropdown', function(this: Blockly.Block) {
+    // All selection list dropdown blocks are the same *kind* of thing (enum selector).
+    // Give them a consistent, neutral-ish colour so they visually group together.
+    try {
+      (this as any).setColour?.('#4CAF50');
+    } catch {
+      // ignore
+    }
+
     const field = this.getField('OPTION') as any;
     if (!field) return;
 

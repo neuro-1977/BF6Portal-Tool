@@ -12,6 +12,7 @@ import {blocks as collectionBlocks} from './blocks/collections';
 import {bf6PortalBlocks} from './blocks/bf6portal';
 import {bf6PortalExpandedBlocks} from './blocks/bf6portal_expanded'; // New import
 import {generatedBlocks} from './blocks/generated_blocks'; // Auto-generated blocks
+import { registerPortalVariableBlocks } from './blocks/portal_variables';
 import {generatedToolbox} from './generated_toolbox'; // Auto-generated toolbox
 import {registerMutators, SUBROUTINE_DEF_MUTATOR, SUBROUTINE_CALL_MUTATOR} from './blocks/subroutine_mutator';
 import {bf6Generators} from './generators/bf6_generators'; // Custom generators
@@ -34,6 +35,127 @@ import { registerSubroutineNavigationContextMenus } from './subroutine_navigatio
 import { registerGeneralNavigationContextMenus } from './navigation';
 import './index.css';
 import './components/MenuBar.css';
+
+function installToolboxSearchUI(workspace: Blockly.WorkspaceSvg, filterToolboxFn: (term: string) => any): void {
+  try {
+    const anyW: any = window as any;
+    if (anyW.__bf6_toolbox_search_ui_installed) return;
+    anyW.__bf6_toolbox_search_ui_installed = true;
+
+    const toolboxDiv = document.querySelector('.blocklyToolboxDiv') as HTMLElement | null;
+    if (!toolboxDiv) return;
+    if (document.getElementById('bf6ToolboxSearchContainer')) return;
+
+    // Make room for a fixed search bar at the top of the toolbox.
+    toolboxDiv.style.position = toolboxDiv.style.position || 'absolute';
+    toolboxDiv.style.overflow = 'hidden';
+    toolboxDiv.style.paddingTop = '44px';
+
+    const container = document.createElement('div');
+    container.id = 'bf6ToolboxSearchContainer';
+    container.style.position = 'absolute';
+    container.style.left = '0';
+    container.style.right = '0';
+    container.style.top = '0';
+    container.style.height = '44px';
+    container.style.padding = '8px 10px';
+    container.style.background = '#23272e';
+    container.style.borderBottom = '1px solid #181a1b';
+    container.style.zIndex = '10';
+    container.style.boxSizing = 'border-box';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Search…';
+    input.autocomplete = 'off';
+    (input as any).spellcheck = false;
+    input.style.width = '100%';
+    input.style.height = '28px';
+    input.style.boxSizing = 'border-box';
+    input.style.borderRadius = '6px';
+    input.style.border = '1px solid #333';
+    input.style.background = '#181a1b';
+    input.style.color = '#e0e0e0';
+    input.style.padding = '6px 10px';
+    input.style.fontFamily = 'Segoe UI, Consolas, monospace';
+
+    container.appendChild(input);
+    toolboxDiv.appendChild(container);
+
+    let timer: number | null = null;
+    input.addEventListener('input', () => {
+      if (timer) window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        try {
+          const nextToolbox = filterToolboxFn(input.value);
+          workspace.updateToolbox(nextToolbox);
+        } catch (e) {
+          console.warn('[BF6] Toolbox search failed:', e);
+        }
+      }, 80);
+    });
+  } catch (e) {
+    console.warn('[BF6] Failed to install toolbox search UI:', e);
+  }
+}
+
+function registerHelpContextMenus(): void {
+  try {
+    const anyB: any = Blockly as any;
+    if (anyB.__bf6_help_context_menus_registered) return;
+    anyB.__bf6_help_context_menus_registered = true;
+
+    const reg = Blockly.ContextMenuRegistry.registry as any;
+    if (!reg || typeof reg.register !== 'function') return;
+
+    // Block-scoped help.
+    reg.register({
+      id: 'bf6.help.block',
+      scopeType: Blockly.ContextMenuRegistry.ScopeType.BLOCK,
+      displayText: () => 'Help',
+      preconditionFn: () => {
+        const g: any = window as any;
+        return (typeof g.showHelpForBlockType === 'function') ? 'enabled' : 'hidden';
+      },
+      callback: (scope: any) => {
+        try {
+          const g: any = window as any;
+          const type = scope?.block?.type;
+          if (type && typeof g.showHelpForBlockType === 'function') g.showHelpForBlockType(type);
+        } catch (e) {
+          console.warn('[BF6] Help callback failed:', e);
+        }
+      },
+      weight: 210,
+    });
+
+    // Workspace-scoped help index.
+    reg.register({
+      id: 'bf6.help.index',
+      scopeType: Blockly.ContextMenuRegistry.ScopeType.WORKSPACE,
+      displayText: () => 'Help (index)',
+      preconditionFn: () => {
+        const g: any = window as any;
+        return (typeof g.openHelpModal === 'function' || typeof g.showHelpIndex === 'function') ? 'enabled' : 'hidden';
+      },
+      callback: () => {
+        try {
+          const g: any = window as any;
+          if (typeof g.openHelpModal === 'function') {
+            g.openHelpModal();
+          } else if (typeof g.showHelpIndex === 'function') {
+            g.showHelpIndex('');
+          }
+        } catch (e) {
+          console.warn('[BF6] Help index callback failed:', e);
+        }
+      },
+      weight: 209,
+    });
+  } catch (e) {
+    console.warn('[BF6] Failed to register help context menus:', e);
+  }
+}
 
 // Expose toolbox globally for legacy scripts
 (window as any).TOOLBOX_CONFIG = toolbox;
@@ -365,6 +487,8 @@ const filterToolbox = (searchTerm: string) => {
 try {
   registerMutators(); // Register mutators before defining blocks
   registerSelectionListExtensions();
+  registerHelpContextMenus();
+  registerPortalVariableBlocks();
   // Best-effort preload so dropdowns are ready by the time a user opens them.
   // (If it fails, dropdowns show an inline error message.)
   void preloadSelectionLists();
@@ -946,6 +1070,33 @@ try {
       block.setAttribute('type', t);
       xmlList.push(block);
     }
+
+    // Also expose *every* enum as a generic dropdown block (bf6_sel_<EnumName>).
+    // This fills in gaps where the primary block set doesn't have a dedicated
+    // dropdown block for a particular selection list.
+    const allEnumBlocks = Object.keys(((Blockly as any).Blocks || {}) as Record<string, any>)
+      .filter((t) => t.startsWith('bf6_sel_'))
+      .sort((a, b) => a.localeCompare(b));
+
+    if (allEnumBlocks.length === 0) {
+      // Ensure load starts (startup already does this, but this keeps the flyout robust).
+      void preloadSelectionLists();
+
+      const label = xmlEl('label');
+      label.setAttribute('text', 'Loading all selection lists…');
+      xmlList.push(label);
+      return xmlList;
+    }
+
+    const label = xmlEl('label');
+    label.setAttribute('text', 'All selection lists');
+    xmlList.push(label);
+
+    for (const type of allEnumBlocks) {
+      const block = xmlEl('block');
+      block.setAttribute('type', type);
+      xmlList.push(block);
+    }
     
     return xmlList;
   });
@@ -955,7 +1106,7 @@ try {
     const xmlList: Element[] = [];
     
     // 1. "New Subroutine" Button
-    const btn = document.createElement('button');
+    const btn = xmlEl('button');
     btn.setAttribute('text', 'New Subroutine');
     btn.setAttribute('callbackKey', 'CREATE_SUBROUTINE');
     xmlList.push(btn);
@@ -970,15 +1121,15 @@ try {
       // But our mutator stores it in 'params' property of the block instance
       const params = (block as any).params || [];
 
-      const blockXml = document.createElement('block');
+      const blockXml = xmlEl('block');
       blockXml.setAttribute('type', 'CALLSUBROUTINE');
       
       // Add mutation to the call block so it knows what inputs to create
-      const mutation = document.createElement('mutation');
+      const mutation = xmlEl('mutation');
       mutation.setAttribute('params', JSON.stringify(params));
       blockXml.appendChild(mutation);
 
-      const field = document.createElement('field');
+      const field = xmlEl('field');
       field.setAttribute('name', 'SUBROUTINE_NAME');
       field.textContent = name;
       
@@ -1091,7 +1242,7 @@ try {
       createSubBtn.onclick = function() {
           const name = subNameInput.value;
           if (!name) {
-              alert("Please enter a subroutine name.");
+            void alertText('Subroutines', 'Please enter a subroutine name.');
               return;
           }
           

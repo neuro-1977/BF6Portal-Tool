@@ -10,7 +10,7 @@ export const toolbox = {
     {
       "kind": "category",
       "name": "RULES",
-      "colour": "#6E47A0",
+      "colour": "#1976D2",
       "contents": [
         { "kind": "block", "type": "MOD_BLOCK" },
         { "kind": "block", "type": "RULE_HEADER" },

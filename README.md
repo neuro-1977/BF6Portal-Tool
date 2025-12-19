@@ -22,6 +22,7 @@ Changelog: see `CHANGELOG.md`.
 - **Presets:** 3 locked built-ins (Andy6170 templates) + user save/delete via `localStorage`.
 - **Help modal + right-click help:** offline docs from `bf6portal_blocks.json` and per-block “Help: `<type>`”.
 - **Code Preview drawer:** resizable bottom drawer showing a TypeScript export of the current workspace state.
+- **TypeScript import:** **coming soon** (UI shows the button, but the feature is intentionally disabled until correctness can be guaranteed).
 
 ## Installation & setup
 
@@ -33,6 +34,13 @@ Changelog: see `CHANGELOG.md`.
 ### Getting started
 
 1) Clone:
+
+```bash
+git clone https://github.com/neuro-1977/BF6Portal-Tool.git
+cd BF6Portal-Tool
+```
+
+Alternate mirror (GitLab):
 
 ```bash
 git clone https://gitlab.com/Neuro1977/bf6-portal-tool.git

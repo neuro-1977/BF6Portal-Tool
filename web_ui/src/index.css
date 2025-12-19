@@ -60,3 +60,18 @@ body, html {
 .injectionDiv {
   overflow: hidden !important;
 }
+
+/* Make zoom controls a bit brighter/clearer on the dark background */
+#blocklyDiv .blocklyZoom rect {
+  fill: rgba(255, 255, 255, 0.08) !important;
+  stroke: rgba(255, 255, 255, 0.14) !important;
+}
+
+#blocklyDiv .blocklyZoom:hover rect {
+  fill: rgba(255, 255, 255, 0.12) !important;
+}
+
+#blocklyDiv .blocklyZoom image {
+  filter: brightness(1.35) contrast(1.15);
+  opacity: 0.92;
+}

@@ -31,6 +31,242 @@ type PresetInfo =
   | { id: string; kind: 'user'; locked: false; name: string; state: any }
   | { id: string; kind: 'unknown'; locked: false };
 
+type ModalResult<T> = Promise<T>;
+
+function ensureBf6ModalRoot(): HTMLDivElement {
+  const existing = document.getElementById('bf6-modal-root') as HTMLDivElement | null;
+  if (existing) return existing;
+
+  const root = document.createElement('div');
+  root.id = 'bf6-modal-root';
+  root.style.position = 'fixed';
+  root.style.inset = '0';
+  root.style.zIndex = '9999';
+  root.style.display = 'none';
+  document.body.appendChild(root);
+  return root;
+}
+
+function showBf6Modal(opts: {
+  title: string;
+  bodyEl: HTMLElement;
+  okText?: string;
+  cancelText?: string;
+  onOk?: () => void;
+  onCancel?: () => void;
+  showCancel?: boolean;
+}): ModalResult<'ok' | 'cancel'> {
+  const root = ensureBf6ModalRoot();
+  root.innerHTML = '';
+
+  const overlay = document.createElement('div');
+  overlay.style.position = 'absolute';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0,0,0,0.82)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+
+  const card = document.createElement('div');
+  card.style.maxWidth = '560px';
+  card.style.width = 'calc(100% - 32px)';
+  card.style.margin = 'auto';
+  card.style.background = '#23272e';
+  card.style.color = '#fff';
+  card.style.borderRadius = '14px';
+  card.style.boxShadow = '0 4px 32px #000a';
+  card.style.padding = '18px 18px 14px 18px';
+  card.style.position = 'relative';
+
+  const title = document.createElement('div');
+  title.textContent = opts.title;
+  title.style.fontSize = '1.15em';
+  title.style.fontWeight = '700';
+  title.style.marginBottom = '10px';
+
+  const footer = document.createElement('div');
+  footer.style.display = 'flex';
+  footer.style.gap = '10px';
+  footer.style.justifyContent = 'flex-end';
+  footer.style.marginTop = '14px';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = opts.cancelText || 'Cancel';
+  cancelBtn.style.padding = '8px 12px';
+  cancelBtn.style.borderRadius = '10px';
+  cancelBtn.style.border = '1px solid #444';
+  cancelBtn.style.background = '#1e1e1e';
+  cancelBtn.style.color = '#fff';
+  cancelBtn.style.cursor = 'pointer';
+
+  const okBtn = document.createElement('button');
+  okBtn.textContent = opts.okText || 'OK';
+  okBtn.style.padding = '8px 12px';
+  okBtn.style.borderRadius = '10px';
+  okBtn.style.border = '1px solid #2a2a2a';
+  okBtn.style.background = '#007acc';
+  okBtn.style.color = '#fff';
+  okBtn.style.cursor = 'pointer';
+
+  card.appendChild(title);
+  card.appendChild(opts.bodyEl);
+  card.appendChild(footer);
+  if (opts.showCancel !== false) footer.appendChild(cancelBtn);
+  footer.appendChild(okBtn);
+  overlay.appendChild(card);
+  root.appendChild(overlay);
+  root.style.display = 'block';
+
+  const close = () => {
+    root.style.display = 'none';
+    root.innerHTML = '';
+  };
+
+  return new Promise((resolve) => {
+    const cleanup = () => {
+      document.removeEventListener('keydown', onKeyDown);
+    };
+
+    const finish = (result: 'ok' | 'cancel') => {
+      cleanup();
+      close();
+      resolve(result);
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        try { opts.onCancel?.(); } catch {}
+        finish('cancel');
+      }
+      if (e.key === 'Enter') {
+        // Let focused inputs handle Enter; this is still a reasonable default.
+        // If a form is present, the caller can prevent default there.
+        try { opts.onOk?.(); } catch {}
+        finish('ok');
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        try { opts.onCancel?.(); } catch {}
+        finish('cancel');
+      }
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      try { opts.onCancel?.(); } catch {}
+      finish('cancel');
+    });
+
+    okBtn.addEventListener('click', () => {
+      try { opts.onOk?.(); } catch {}
+      finish('ok');
+    });
+  });
+}
+
+async function bf6PromptText(opts: { title: string; label: string; defaultValue: string }): ModalResult<string | null> {
+  // Prefer in-app modal (works in packaged Electron even when native prompt is suppressed).
+  try {
+    const body = document.createElement('div');
+
+    const label = document.createElement('div');
+    label.textContent = opts.label;
+    label.style.opacity = '0.92';
+    label.style.marginBottom = '8px';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = opts.defaultValue || '';
+    input.style.width = '100%';
+    input.style.boxSizing = 'border-box';
+    input.style.padding = '10px 12px';
+    input.style.borderRadius = '10px';
+    input.style.border = '1px solid #444';
+    input.style.background = '#1e1e1e';
+    input.style.color = '#fff';
+    input.style.outline = 'none';
+
+    body.appendChild(label);
+    body.appendChild(input);
+
+    let result: string | null = null;
+    const r = await showBf6Modal({
+      title: opts.title,
+      bodyEl: body,
+      okText: 'Save',
+      cancelText: 'Cancel',
+      onOk: () => {
+        result = input.value;
+      },
+      onCancel: () => {
+        result = null;
+      },
+      showCancel: true,
+    });
+
+    // If user clicked OK but input empty, treat as cancel.
+    if (r !== 'ok') return null;
+    return result;
+  } catch {
+    // Fallback to native prompt.
+    try {
+      return prompt(opts.label, opts.defaultValue);
+    } catch {
+      return null;
+    }
+  }
+}
+
+async function bf6Confirm(opts: { title: string; message: string; okText?: string; cancelText?: string }): ModalResult<boolean> {
+  try {
+    const body = document.createElement('div');
+    body.textContent = opts.message;
+    body.style.whiteSpace = 'pre-wrap';
+    body.style.opacity = '0.95';
+
+    const r = await showBf6Modal({
+      title: opts.title,
+      bodyEl: body,
+      okText: opts.okText || 'OK',
+      cancelText: opts.cancelText || 'Cancel',
+      showCancel: true,
+    });
+    return r === 'ok';
+  } catch {
+    try {
+      return confirm(opts.message);
+    } catch {
+      return false;
+    }
+  }
+}
+
+async function bf6Alert(opts: { title: string; message: string; okText?: string }): ModalResult<void> {
+  try {
+    const body = document.createElement('div');
+    body.textContent = opts.message;
+    body.style.whiteSpace = 'pre-wrap';
+    body.style.opacity = '0.95';
+
+    await showBf6Modal({
+      title: opts.title,
+      bodyEl: body,
+      okText: opts.okText || 'OK',
+      showCancel: false,
+    });
+    return;
+  } catch {
+    try {
+      alert(opts.message);
+    } catch {
+      // ignore
+    }
+  }
+}
+
 function getBuiltInPresets(): BuiltInPreset[] {
   return [
     { id: 'builtin:rush', name: 'Andy6170 - Rush (V1.0)', url: 'presets/custom_rush_V1.0.json', locked: true },
@@ -271,6 +507,15 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
       Blockly.Events.enable();
     }
 
+    // Toolbox flyouts for custom categories (VARIABLES/SUBROUTINES/etc.) can cache
+    // their contents. After a deserialize, ensure they see newly imported vars.
+    try {
+      (workspace as any).refreshToolboxSelection?.();
+      (workspace as any).getToolbox?.()?.refreshSelection?.();
+    } catch {
+      // ignore
+    }
+
     setTimeout(() => {
       try {
         focusWorkspaceOnContent(workspace);
@@ -316,6 +561,13 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
       Blockly.Events.enable();
     }
 
+    try {
+      (workspace as any).refreshToolboxSelection?.();
+      (workspace as any).getToolbox?.()?.refreshSelection?.();
+    } catch {
+      // ignore
+    }
+
     setTimeout(() => {
       try {
         focusWorkspaceOnContent(workspace);
@@ -341,7 +593,7 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
   }
 }
 
-function saveCurrentWorkspaceAsPreset(workspace: AnyWorkspace) {
+async function saveCurrentWorkspaceAsPreset(workspace: AnyWorkspace) {
   if (!workspace || !Blockly?.serialization?.workspaces?.save) return;
 
   const selected = getSelectedPresetInfo();
@@ -450,7 +702,7 @@ export function initPresetsUI(workspace: AnyWorkspace) {
         e.stopImmediatePropagation();
         e.stopPropagation();
         try {
-          saveCurrentWorkspaceAsPreset(workspace);
+          void saveCurrentWorkspaceAsPreset(workspace);
         } catch (err) {
           console.warn('[BF6] Save preset failed:', err);
           try {
