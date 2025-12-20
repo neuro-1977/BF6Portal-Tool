@@ -27,10 +27,36 @@ Changelog: see `CHANGELOG.md`.
 - **Variables:** a dedicated VARIABLES toolbox category with:
     - “New / Manage Variables”
     - pre-filled GET/SET templates for existing variables
-- **Collections / Bookmarks:** convert a selected stack into an offscreen definition and keep a compact call/bookmark block.
+- **Collections / Bookmarks:** convert a selected stack into an offscreen definition and keep a compact call/bookmark block. Collections also appear in the **COLLECTIONS** toolbox category so you can drag them onto the canvas (similar to subroutine call blocks).
 - **Navigation (“teleport”):** right-click jump helpers (MOD / owning rule / stack root / variables / subroutine call ⇄ definition).
 - **Help:** Help modal + right-click per-block help using the local `bf6portal_blocks.json` docs.
 - **Code Preview drawer:** resizable bottom drawer that shows a TypeScript representation of the current workspace state.
+
+## Feature highlights
+
+### Presets
+
+The presets dropdown includes 3 locked built-ins plus a simple user preset system (save / overwrite / delete) so you can snapshot and re-use setups.
+
+![Preset system dropdown](docs/screenshots/preset-system.png)
+
+### Variables
+
+The **VARIABLES** toolbox category is designed to be “template-friendly”: it includes management buttons, quick GET/SET templates, and compatibility blocks used by community templates.
+
+![Variables toolbox category](docs/screenshots/variables.png)
+
+### Code preview drawer
+
+The bottom drawer shows a TypeScript representation of your current workspace state, and can be resized so it doesn’t fight for screen space.
+
+![Resizable code preview drawer](docs/screenshots/resizeable-codewindow.png)
+
+### Collapsible blocks
+
+Large workspaces can get noisy quickly — collapsing blocks helps keep “library” definitions (subroutines/collections) compact and lets you focus on the active rule chain.
+
+![Collapsible blocks](docs/screenshots/colapsable-blocks.png)
 
 ## Installation & setup
 
