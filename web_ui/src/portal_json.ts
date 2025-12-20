@@ -91,7 +91,8 @@ export function ensureVariablesExistFromState(workspace: Blockly.WorkspaceSvg, s
     if (!map || typeof map.getAllVariables !== 'function') return;
 
     const existingIds = new Set<string>();
-    const existingNamesLower = new Set<string>();
+    // Keyed by `${typeLower}\u0000${nameLower}` so typed vars with the same name don't collide.
+    const existingTypeNameLower = new Set<string>();
     try {
       const vars = map.getAllVariables();
       for (const v of vars || []) {
@@ -99,8 +100,9 @@ export function ensureVariablesExistFromState(workspace: Blockly.WorkspaceSvg, s
           const vAny: any = v as any;
           const id = vAny?.getId ? String(vAny.getId()) : String(vAny?.id ?? '');
           const name = String(vAny?.name ?? '');
+          const type = String(vAny?.type ?? (vAny?.getType ? vAny.getType() : '') ?? '');
           if (id) existingIds.add(id);
-          if (name) existingNamesLower.add(name.toLowerCase());
+          if (name) existingTypeNameLower.add(`${type.toLowerCase()}\u0000${name.toLowerCase()}`);
         } catch {
           // ignore
         }
@@ -114,12 +116,57 @@ export function ensureVariablesExistFromState(workspace: Blockly.WorkspaceSvg, s
       if (!cleanName) return;
       const cleanId = typeof id === 'string' ? id : '';
       const cleanType = typeof type === 'string' ? type : '';
+      const key = `${cleanType.toLowerCase()}\u0000${cleanName.toLowerCase()}`;
       if (cleanId && existingIds.has(cleanId)) return;
-      if (!cleanId && existingNamesLower.has(cleanName.toLowerCase())) return;
+      if (!cleanId && existingTypeNameLower.has(key)) return;
+      // Prefer VariableMap API (Blockly v12+). Keep a workspace-level fallback for
+      // older versions / edge cases.
+      const createOnMap: any = (map as any).createVariable;
+      const createOnWs: any = (workspace as any).createVariable;
+      const hasMapCreator = typeof createOnMap === 'function';
+      const hasWsCreator = typeof createOnWs === 'function';
+      if (!hasMapCreator && !hasWsCreator) return;
+
+      const recordCreated = (created: any, fallbackName: string, fallbackType: string) => {
+        try {
+          const createdAny: any = created as any;
+          const createdId = String(createdAny?.getId ? createdAny.getId() : (createdAny?.id ?? cleanId ?? ''));
+          const createdName = String(createdAny?.name ?? fallbackName ?? cleanName);
+          const createdType = String(createdAny?.type ?? (createdAny?.getType ? createdAny.getType() : '') ?? fallbackType ?? cleanType);
+          if (createdId) existingIds.add(createdId);
+          if (createdName) existingTypeNameLower.add(`${createdType.toLowerCase()}\u0000${createdName.toLowerCase()}`);
+        } catch {
+          // ignore
+        }
+      };
+
+      // Prefer exact ID+type so FieldVariable IDs resolve cleanly.
       try {
-        (workspace as any).createVariable?.(cleanName, cleanType || undefined, cleanId || undefined);
-        if (cleanId) existingIds.add(cleanId);
-        existingNamesLower.add(cleanName.toLowerCase());
+        const created = hasMapCreator
+          ? createOnMap.call(map, cleanName, cleanType || undefined, cleanId || undefined)
+          : createOnWs.call(workspace, cleanName, cleanType || undefined, cleanId || undefined);
+        recordCreated(created, cleanName, cleanType);
+        return;
+      } catch {
+        // fall through
+      }
+
+      // Fallback 1: preserve type but let Blockly assign an ID.
+      try {
+        const created = hasMapCreator
+          ? createOnMap.call(map, cleanName, cleanType || undefined)
+          : createOnWs.call(workspace, cleanName, cleanType || undefined);
+        recordCreated(created, cleanName, cleanType);
+        return;
+      } catch {
+        // fall through
+      }
+
+      // Fallback 2: name-only.
+      try {
+        const created = hasMapCreator ? createOnMap.call(map, cleanName) : createOnWs.call(workspace, cleanName);
+        recordCreated(created, cleanName, '');
+        return;
       } catch {
         // ignore
       }
@@ -231,14 +278,47 @@ export function ensureVariablesExistFromWorkspaceFields(workspace: Blockly.Works
 
             const id = String(f?.getValue?.() ?? '');
             const name = String(f?.getText?.() ?? '').trim();
-            const type = String((f?.getVariableTypes?.()?.[0] ?? f?.getVariableType?.() ?? '') || '');
+            // Prefer the field's current variable type (if exposed), otherwise fall back.
+            const type = String((f?.getVariableType?.() ?? f?.getVariableTypes?.()?.[0] ?? '') || '');
 
             if (!name) continue;
             if (id && existingIds.has(id)) continue;
 
+            const createVariable: any = (map as any).createVariable;
+            if (typeof createVariable !== 'function') continue;
+
+            const record = (created: any) => {
+              try {
+                const createdAny: any = created as any;
+                const createdId = String(createdAny?.getId ? createdAny.getId() : (createdAny?.id ?? id ?? ''));
+                if (createdId) existingIds.add(createdId);
+              } catch {
+                // ignore
+              }
+            };
+
+            // Prefer exact ID+type.
             try {
-              (workspace as any).createVariable?.(name, type || undefined, id || undefined);
-              if (id) existingIds.add(id);
+              const created = createVariable.call(map, name, type || undefined, id || undefined);
+              record(created);
+              continue;
+            } catch {
+              // fall through
+            }
+
+            // Fallback: keep type, let Blockly assign an ID.
+            try {
+              const created = createVariable.call(map, name, type || undefined);
+              record(created);
+              continue;
+            } catch {
+              // fall through
+            }
+
+            // Final fallback: name only.
+            try {
+              const created = createVariable.call(map, name);
+              record(created);
             } catch {
               // ignore
             }
@@ -386,6 +466,13 @@ export function ensurePortalBlocksRegisteredFromState(state: any): { created: nu
   ]);
 
   const defineCompat = (type: string, def: any) => {
+    // Mark so we can safely re-shape placeholders on subsequent loads.
+    try {
+      (def as any).__bf6_portal_placeholder = true;
+    } catch {
+      // ignore
+    }
+
     try {
       (Blockly as any).Blocks = (Blockly as any).Blocks || {};
       (Blockly as any).Blocks[type] = def;
@@ -394,7 +481,23 @@ export function ensurePortalBlocksRegisteredFromState(state: any): { created: nu
     }
 
     // Blockly v12+ primarily looks in the common registry when creating blocks.
-    // Defining via `Blockly.Blocks[...] = ...` alone may not be sufficient.
+    // If an existing placeholder is present, patch it in-place so future loads can
+    // adapt its shape (statement/value) without registry overrides.
+    try {
+      const common: any = (Blockly as any)?.common;
+      const existing = common && typeof common.getBlockDefinition === 'function'
+        ? common.getBlockDefinition(type)
+        : null;
+
+      if (existing && typeof existing === 'object' && (existing as any).__bf6_portal_placeholder) {
+        (existing as any).init = def.init;
+        return;
+      }
+    } catch {
+      // ignore
+    }
+
+    // Otherwise, define it normally.
     try {
       const defs: any = {};
       defs[type] = def;
@@ -408,7 +511,38 @@ export function ensurePortalBlocksRegisteredFromState(state: any): { created: nu
     if (!type || typeof type !== 'string') continue;
 
     const blocksRegistry = (Blockly as any)?.Blocks;
-    if (!FORCE_OVERRIDE_TYPES.has(type) && blocksRegistry && Object.prototype.hasOwnProperty.call(blocksRegistry, type)) {
+    // Blockly v12+ primarily stores definitions in the common registry.
+    // In some bundling/runtime contexts, `Blockly.Blocks` may not reflect all
+    // registered block types. If we only check `Blockly.Blocks`, we can end up
+    // overwriting *real* blocks with placeholder definitions during import,
+    // which can break toolbox/flyouts and mutators.
+    const hasBlocksRegistryDef =
+      !!blocksRegistry && Object.prototype.hasOwnProperty.call(blocksRegistry, type);
+    const hasCommonRegistryDef = (() => {
+      try {
+        const common: any = (Blockly as any)?.common;
+        if (common && typeof common.getBlockDefinition === 'function') {
+          return !!common.getBlockDefinition(type);
+        }
+      } catch {
+        // ignore
+      }
+      return false;
+    })();
+
+    const isExistingPlaceholderDef = (() => {
+      try {
+        const common: any = (Blockly as any)?.common;
+        const d = common && typeof common.getBlockDefinition === 'function' ? common.getBlockDefinition(type) : null;
+        return !!(d && (d as any).__bf6_portal_placeholder);
+      } catch {
+        return false;
+      }
+    })();
+
+    // If a definition already exists and it's NOT one of our placeholders, don't override it.
+    // But if it's an auto-created placeholder, allow it to be reshaped for this new import.
+    if (!FORCE_OVERRIDE_TYPES.has(type) && (hasBlocksRegistryDef || hasCommonRegistryDef) && !isExistingPlaceholderDef) {
       continue;
     }
 
@@ -419,7 +553,8 @@ export function ensurePortalBlocksRegisteredFromState(state: any): { created: nu
 
         // Fields (best-effort)
         const fieldNames = Array.isArray(info.fieldNames) ? info.fieldNames : [];
-        for (const fname of fieldNames.slice(0, 12)) {
+        // Create all referenced fields; missing fields will cause serialization to throw.
+        for (const fname of fieldNames) {
           try {
             this.appendDummyInput().appendField(`${fname}:`).appendField(new (Blockly as any).FieldTextInput(''), fname);
           } catch {

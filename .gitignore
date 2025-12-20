@@ -26,7 +26,7 @@ Thumbs.db
 
 # Project Specific
 .env
-=Resources=/
+=Resources=/*
 
 # Keep external source metadata in git (but not cached downloads)
 !=Resources=/external_sources/
@@ -36,9 +36,15 @@ Thumbs.db
 !=Resources=/Portal Blocks/
 !=Resources=/Portal Blocks/*.json
 
+# Local scratch workspace (do not commit)
+=Resources=/Portal Blocks/custom_draft_workspace.json
+
 # Vendored third-party plugins (explicit allowlist)
 !=Resources=/ThirdParty/
 !=Resources=/ThirdParty/**
 
 # Local overrides (do not commit)
 web_ui/quotes.local.json
+
+# Local vendor tools (do not commit)
+tools/sysinternals/

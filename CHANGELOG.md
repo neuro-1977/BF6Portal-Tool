@@ -4,10 +4,7 @@ This project follows a pragmatic changelog style (human-written notes) rather th
 
 ## Unreleased
 
-> Target release: **v1.3.0** (first official release). We’re still finishing/polishing this version.
-
-- **UI/UX:** eliminate the persistent toolbox/flyout vertical scrollbar artifact by hiding scrollbar chrome on Blockly’s inner scroll containers (not just the outer toolbox div).
-- **Window default:** app now opens maximized with a 1920×1080 (1080p) target size (clamped to the display work area) so the editor fills the screen by default.
+- (nothing yet)
 
 ## v1.3.0
 
@@ -15,6 +12,7 @@ This project follows a pragmatic changelog style (human-written notes) rather th
 
 - **Header/layout cleanup:** brand/logo aligned left, toolbox search moved into the header, and the app version is shown top-right.
 - **Workspace controls in header:** zoom in/out/reset/fit + trash moved to the top-right header to keep the canvas clear.
+- **Default focus point on load:** after loading presets/files, the viewport lands at the **top of the MOD block** (start of the rules chain).
 - **UI clutter removed:** removed the unused Live Diagnostics overlay and the floating Code Preview button (Code Preview is now a normal header button).
 - **Collections UX:** COLLECTIONS toolbox category now dynamically lists existing collections and includes a “Convert selection to collection” action.
 - **Collections visuals:** collection call/definition blocks are taller (easier to spot in large workspaces).
@@ -26,6 +24,9 @@ This project follows a pragmatic changelog style (human-written notes) rather th
 
 - **Selection Lists dropdowns:** address cases where dropdowns get stuck on “(loading selection lists…)” by improving runtime asset loading for Electron `file://` contexts.
 - **Presets:** allow saving after loading and editing a built-in preset (save-as copy / overwrite flow).
+
+- **Performance polish:** reduced redundant toolbox refresh work after programmatic loads.
+- **Console noise reduction:** reduced noisy informational logs during preset loads (opt-in debug via `localStorage.bf6_debug = "1"`).
 
 - **Presets (Electron file://):** built-in preset loading now falls back to reading JSON from disk when `fetch()` is unavailable/restricted in packaged builds.
 

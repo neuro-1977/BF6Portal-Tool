@@ -3,6 +3,43 @@ import * as Blockly from 'blockly';
 const MOD_TYPES = ['MOD_BLOCK', 'modBlock'];
 const RULE_TYPE = 'RULE_HEADER';
 
+function pickTopMostBlock(blocks: Blockly.Block[]): Blockly.Block | null {
+  if (!Array.isArray(blocks) || blocks.length === 0) return null;
+
+  let best: Blockly.Block | null = null;
+  let bestY = Number.POSITIVE_INFINITY;
+  for (const b of blocks) {
+    if (!b) continue;
+    let y: number | null = null;
+    try {
+      const anyB: any = b as any;
+      if (typeof anyB.getBoundingRectangle === 'function') {
+        const r = anyB.getBoundingRectangle();
+        if (r && typeof r.top === 'number') y = r.top;
+      }
+    } catch {
+      // ignore
+    }
+    if (y == null) {
+      try {
+        const anyB: any = b as any;
+        if (typeof anyB.getRelativeToSurfaceXY === 'function') {
+          const p = anyB.getRelativeToSurfaceXY();
+          if (p && typeof p.y === 'number') y = p.y;
+        }
+      } catch {
+        // ignore
+      }
+    }
+    const yNum = typeof y === 'number' && Number.isFinite(y) ? y : Number.POSITIVE_INFINITY;
+    if (!best || yNum < bestY) {
+      best = b;
+      bestY = yNum;
+    }
+  }
+  return best;
+}
+
 function scrollToBlockTop(workspace: Blockly.Workspace, block: Blockly.Block, padding = 56): boolean {
   const wsAny: any = workspace as any;
   const bAny: any = block as any;
@@ -353,4 +390,56 @@ export function registerGeneralNavigationContextMenus(workspace: Blockly.Workspa
       weight: 4,
     });
   }
+}
+
+/**
+ * Default "start" focus: align the view to the top of the MOD block (where the
+ * first Rule chain is attached). This avoids users having to hunt around large
+ * templates that are positioned far off-screen.
+ */
+export function focusWorkspaceOnModStart(workspace: Blockly.Workspace, padding = 72): boolean {
+  if (!workspace) return false;
+  const wsAny: any = workspace as any;
+
+  // Prefer MOD_BLOCK (tool-internal) but also support community/Portal modBlock.
+  let mod: Blockly.Block | null = null;
+  try {
+    const all: Blockly.Block[] = [];
+    for (const t of MOD_TYPES) {
+      try {
+        const arr: Blockly.Block[] = wsAny.getBlocksByType ? wsAny.getBlocksByType(t, false) : [];
+        if (Array.isArray(arr) && arr.length) all.push(...arr);
+      } catch {
+        // ignore
+      }
+    }
+    mod = pickTopMostBlock(all);
+  } catch {
+    mod = null;
+  }
+
+  if (!mod) return false;
+
+  // Center horizontally/roughly, then align the top so it is not hidden under the header.
+  try {
+    if (typeof wsAny.centerOnBlock === 'function') {
+      wsAny.centerOnBlock((mod as any).id);
+    }
+  } catch {
+    // ignore
+  }
+
+  try {
+    scrollToBlockTop(workspace, mod, padding);
+  } catch {
+    // ignore
+  }
+
+  try {
+    (mod as any).select?.();
+  } catch {
+    // ignore
+  }
+
+  return true;
 }

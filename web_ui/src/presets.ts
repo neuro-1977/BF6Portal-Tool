@@ -7,6 +7,8 @@ import {
   normalizeWorkspaceState,
 } from './portal_json';
 
+import { focusWorkspaceOnModStart } from './navigation';
+
 const PRESET_STORAGE_KEY = 'bf6portal.presets.user.v1';
 
 type AnyWorkspace = Blockly.WorkspaceSvg;
@@ -376,14 +378,21 @@ function refreshPresetDropdown(selectedId?: string) {
 function focusWorkspaceOnContent(workspace: AnyWorkspace) {
   if (!workspace) return;
 
-  // Many imported workspaces (including the shipped templates) place blocks far away.
-  // If we don't zoom/center after load, it can look like nothing loaded.
+  // Many imported workspaces place blocks far away. Default to the MOD start so
+  // users always land at the beginning of the rule chain.
   try {
     Blockly.svgResize(workspace);
   } catch {
     // ignore
   }
 
+  try {
+    if (focusWorkspaceOnModStart(workspace as any, 72)) return;
+  } catch {
+    // ignore
+  }
+
+  // Fallbacks if MOD isn't present.
   try {
     if (typeof (workspace as any).zoomToFit === 'function') {
       (workspace as any).zoomToFit();
@@ -394,22 +403,62 @@ function focusWorkspaceOnContent(workspace: AnyWorkspace) {
   }
 
   try {
-    if (typeof workspace.scrollCenter === 'function') {
-      workspace.scrollCenter();
+    if (typeof workspace.scrollCenter === 'function') workspace.scrollCenter();
+  } catch {
+    // ignore
+  }
+}
+
+function isDebugLoggingEnabled(): boolean {
+  try {
+    return String(window?.localStorage?.getItem('bf6_debug') ?? '') === '1';
+  } catch {
+    return false;
+  }
+}
+
+function debugLog(...args: any[]): void {
+  if (!isDebugLoggingEnabled()) return;
+  try {
+    console.debug(...args);
+  } catch {
+    // ignore
+  }
+}
+
+function recoverToolboxAfterLoad(workspace: AnyWorkspace) {
+  if (!workspace) return;
+
+  // Close any open Blockly UI widgets (dropdowns/context menus/tooltips) that
+  // can otherwise leave the toolbox in a weird non-interactive state.
+  try { (Blockly as any).hideChaff?.(true); } catch { /* ignore */ }
+  try { (Blockly as any).WidgetDiv?.hide?.(); } catch { /* ignore */ }
+  try { (Blockly as any).DropDownDiv?.hideWithoutAnimation?.(); } catch { /* ignore */ }
+
+  // Force a toolbox rebuild using the current search term (if present).
+  // This is more aggressive than refreshSelection and helps recover from cases
+  // where the toolbox click handlers stop responding after a programmatic load.
+  try {
+    const g: any = window as any;
+    const searchEl = document.getElementById('blocklySearchInput') as HTMLInputElement | null;
+    const term = String(searchEl?.value ?? '');
+    const filterFn = g.__bf6_filterToolbox;
+    const original = g.__bf6_originalToolbox;
+
+    if (typeof (workspace as any).updateToolbox === 'function') {
+      if (typeof filterFn === 'function') {
+        (workspace as any).updateToolbox(filterFn(term));
+      } else if (original) {
+        (workspace as any).updateToolbox(original);
+      }
     }
   } catch {
     // ignore
   }
 
-  try {
-    const top = typeof workspace.getTopBlocks === 'function' ? workspace.getTopBlocks(true) : [];
-    const first = Array.isArray(top) ? top[0] : null;
-    if (first && typeof (workspace as any).centerOnBlock === 'function') {
-      (workspace as any).centerOnBlock(first.id);
-    }
-  } catch {
-    // ignore
-  }
+  try { (workspace as any).refreshToolboxSelection?.(); } catch { /* ignore */ }
+  try { (workspace as any).getToolbox?.()?.refreshSelection?.(); } catch { /* ignore */ }
+  try { Blockly.svgResize(workspace); } catch { /* ignore */ }
 }
 
 async function loadJsonFromUrl(url: string): Promise<any> {
@@ -484,7 +533,7 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
     ensureCriticalPortalStructuralBlocks();
     try {
       const r = ensurePortalBlocksRegisteredFromState(state);
-      if (r?.created) console.log(`[BF6] Auto-registered ${r.created} block types for preset load.`);
+      if (r?.created) debugLog(`[BF6] Auto-registered ${r.created} block types for preset load.`);
     } catch (e) {
       console.warn('[BF6] Failed to auto-register block types:', e);
     }
@@ -507,25 +556,12 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
       Blockly.Events.enable();
     }
 
-    // Toolbox flyouts for custom categories (VARIABLES/SUBROUTINES/etc.) can cache
-    // their contents. After a deserialize, ensure they see newly imported vars.
-    try {
-      (workspace as any).refreshToolboxSelection?.();
-      (workspace as any).getToolbox?.()?.refreshSelection?.();
-    } catch {
-      // ignore
-    }
+    // Recovery: rebuild toolbox + close any open UI widgets.
+    recoverToolboxAfterLoad(workspace);
 
     setTimeout(() => {
       try {
         focusWorkspaceOnContent(workspace);
-      } catch {
-        // ignore
-      }
-
-      // If the user currently has a custom flyout open (e.g., Variables), force a refresh.
-      try {
-        (workspace as any).refreshToolboxSelection?.();
       } catch {
         // ignore
       }
@@ -540,7 +576,7 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
 
     try {
       const r = ensurePortalBlocksRegisteredFromState(state);
-      if (r?.created) console.log(`[BF6] Auto-registered ${r.created} block types for preset load.`);
+      if (r?.created) debugLog(`[BF6] Auto-registered ${r.created} block types for preset load.`);
     } catch (e) {
       console.warn('[BF6] Failed to auto-register block types:', e);
     }
@@ -561,23 +597,11 @@ async function loadPresetById(workspace: AnyWorkspace, id: string) {
       Blockly.Events.enable();
     }
 
-    try {
-      (workspace as any).refreshToolboxSelection?.();
-      (workspace as any).getToolbox?.()?.refreshSelection?.();
-    } catch {
-      // ignore
-    }
+    recoverToolboxAfterLoad(workspace);
 
     setTimeout(() => {
       try {
         focusWorkspaceOnContent(workspace);
-      } catch {
-        // ignore
-      }
-
-      // If the user currently has a custom flyout open (e.g., Variables), force a refresh.
-      try {
-        (workspace as any).refreshToolboxSelection?.();
       } catch {
         // ignore
       }
@@ -676,9 +700,34 @@ export function initPresetsUI(workspace: AnyWorkspace) {
   // Always refresh once on init so built-ins show up.
   refreshPresetDropdown('');
 
-  const presetSelect = document.getElementById('presetSelect') as HTMLSelectElement | null;
-  const saveBtn = document.getElementById('presetSaveBtn') as HTMLButtonElement | null;
-  const delBtn = document.getElementById('presetDeleteBtn') as HTMLButtonElement | null;
+  // IMPORTANT:
+  // `web_ui/main.js` (legacy boot script) also binds listeners to these same DOM
+  // elements. If both handlers run, the legacy one can load presets without
+  // variable hydration and leave the Variables flyout empty.
+  //
+  // We cannot reliably remove anonymous legacy listeners, so we replace the
+  // elements with clones (which clears all listeners) and then attach the TS
+  // handlers.
+  const scrubListeners = <T extends HTMLElement>(el: T | null): T | null => {
+    if (!el || !el.parentNode) return el;
+    try {
+      const clone = el.cloneNode(true) as T;
+      // Preserve current value for selects.
+      try {
+        if ((el as any).value !== undefined) (clone as any).value = (el as any).value;
+      } catch {
+        // ignore
+      }
+      el.parentNode.replaceChild(clone, el);
+      return clone;
+    } catch {
+      return el;
+    }
+  };
+
+  const presetSelect = scrubListeners(document.getElementById('presetSelect') as HTMLSelectElement | null);
+  const saveBtn = scrubListeners(document.getElementById('presetSaveBtn') as HTMLButtonElement | null);
+  const delBtn = scrubListeners(document.getElementById('presetDeleteBtn') as HTMLButtonElement | null);
 
   // Capture-phase listeners so legacy `web_ui/main.js` can't interfere (it uses global Blockly).
   if (presetSelect) {

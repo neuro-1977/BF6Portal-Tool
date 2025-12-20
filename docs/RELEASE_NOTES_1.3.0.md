@@ -17,6 +17,7 @@
 - Workspace controls moved to the header (top-right): zoom in/out/reset/fit + trash (Blockly’s on-canvas zoom/trash UI is disabled/hidden).
 - **Default window size / fullscreen feel:** the app now opens maximized with a 1920×1080 (1080p) target size (clamped to your display work area) so it fills the screen on standard 1080p desktops.
 - Fixed the persistent toolbox/flyout vertical scrollbar artifact by hiding native scrollbar chrome on Blockly’s inner scroll containers.
+- **Default focus point on load:** when you load a preset or import a workspace, the view now lands at the **top of the MOD block** (start of the rules chain) so you don’t have to scroll around to find the beginning.
 
 ### Collections
 
@@ -43,6 +44,8 @@
 - Placeholder block auto-registration prevents missing block types from breaking loads.
 - Ensured critical Portal structural blocks (like `modBlock` with `RULES`) exist before loading templates.
 - Built-in presets load reliably in packaged Electron builds under `file://` by falling back to disk reads when `fetch()` is unavailable.
+- **Performance polish:** reduced redundant toolbox refresh work after programmatic loads.
+- **Console noise reduction:** noisy informational logs during preset loads are now gated behind an opt-in debug flag (`localStorage.bf6_debug = "1"`).
 
 ## Notes
 

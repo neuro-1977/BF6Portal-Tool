@@ -15,6 +15,7 @@ type Cache = {
   loading: boolean;
   map: SelectionListMap;
   mapCI: SelectionListMap;
+  optionsCache: Record<string, [string, string][]>;
   lastError?: string;
 };
 
@@ -23,25 +24,26 @@ const cache: Cache = {
   loading: false,
   map: {},
   mapCI: {},
+  optionsCache: {},
 };
 
-let didLogLoadSummary = false;
-let lastSelectionListSource: string | undefined;
-
-function publishSelectionListDiag(source?: string): void {
-  try {
-    if (source) lastSelectionListSource = source;
-    (globalThis as any).__bf6_selection_lists_status = {
-      loaded: cache.loaded,
-      loading: cache.loading,
-      lastError: cache.lastError,
-      enumsCount: Object.keys(cache.map || {}).length,
-      source: (source || lastSelectionListSource) || null,
-    };
-  } catch {
-    // ignore
-  }
+function getOptionsCacheKey(enumName: string): string {
+  return String(enumName || '').trim().toLowerCase();
 }
+
+function makeOptionsCached(enumName: string, values: string[]): [string, string][] {
+  const key = getOptionsCacheKey(enumName);
+  const cached = cache.optionsCache[key];
+  if (cached && cached.length === values.length) return cached;
+
+  // FieldDropdown consumes [label, value] pairs.
+  // Cache these because some enums (e.g. Weapons) are large and regenerating
+  // on every dropdown open makes the UI feel sluggish.
+  const opts: [string, string][] = values.map((v) => [v, v]);
+  cache.optionsCache[key] = opts;
+  return opts;
+}
+
 
 // Some enums are named differently between our block output types (from bf6portal_blocks.json)
 // and the upstream portal-docs TypeScript definitions.
@@ -140,50 +142,75 @@ function registerSelectionListEnumBlocks(): void {
   if (!cache.loaded) return;
   anyB.__bf6_selection_list_enum_blocks_registered = true;
 
+  // Some environments may not populate Blockly.Blocks until later.
+  // Ensure it exists so we can register dynamic enum blocks reliably.
+  const blocksRegistry: Record<string, any> = (Blockly as any).Blocks || (((Blockly as any).Blocks = {}) as any);
+
   const names = getCanonicalEnumNamesFromMap(cache.map);
+
   for (const enumName of names) {
     const blockType = `${SELECTION_LIST_BLOCK_PREFIX}${enumName}`;
 
-    if ((Blockly as any).Blocks && Object.prototype.hasOwnProperty.call((Blockly as any).Blocks, blockType)) {
-      continue;
-    }
-
-    (Blockly as any).Blocks[blockType] = {
-      init: function () {
-        this.appendDummyInput()
-          .appendField(enumName)
-          .appendField(new (Blockly as any).FieldDropdown([['(loading selection lists...)', '__loading__']]), 'OPTION');
-
-        // Allow connections to both EnumName and EnumNameItem.
-        this.setOutput(true, getConnectionChecksForEnum(enumName));
-        this.setColour(330);
-        this.setTooltip(`Selection list: ${enumName}`);
-
-        try {
-          Blockly.Extensions.apply('bf6_selection_list_dropdown', this, false);
-        } catch {
-          // ignore
-        }
-      },
-    };
-
-    // Blockly v12+ primarily instantiates blocks via the common registry.
-    // Defining only on Blockly.Blocks can result in "Invalid block definition"
-    // when the toolbox/flyout tries to create the block.
-    try {
-      if (Blockly.common && typeof Blockly.common.defineBlocks === 'function') {
-        const defs: any = {};
-        defs[blockType] = (Blockly as any).Blocks[blockType];
-        Blockly.common.defineBlocks(defs);
+    // In Blockly v12+, a block can exist in the common registry even if it
+    // doesn't show up on `Blockly.Blocks` in some bundling contexts.
+    const alreadyDefined = (() => {
+      try {
+        if (Object.prototype.hasOwnProperty.call(blocksRegistry, blockType)) return true;
+      } catch {
+        // ignore
       }
-    } catch {
-      // ignore
+      try {
+        const common: any = (Blockly as any)?.common;
+        if (common && typeof common.getBlockDefinition === 'function') {
+          return !!common.getBlockDefinition(blockType);
+        }
+      } catch {
+        // ignore
+      }
+      return false;
+    })();
+
+    if (!alreadyDefined) {
+      blocksRegistry[blockType] = {
+        init: function () {
+          this.appendDummyInput()
+            .appendField(enumName)
+            .appendField(new (Blockly as any).FieldDropdown([['(loading selection lists...)', '__loading__']]), 'OPTION');
+
+          // Allow connections to both EnumName and EnumNameItem.
+          this.setOutput(true, getConnectionChecksForEnum(enumName));
+          this.setColour(330);
+          this.setTooltip(`Selection list: ${enumName}`);
+
+          try {
+            Blockly.Extensions.apply('bf6_selection_list_dropdown', this, false);
+          } catch {
+            // ignore
+          }
+        },
+      };
+
+      // Blockly v12+ primarily instantiates blocks via the common registry.
+      // Defining only on Blockly.Blocks can result in "Invalid block definition"
+      // when the toolbox/flyout tries to create the block.
+      try {
+        if (Blockly.common && typeof Blockly.common.defineBlocks === 'function') {
+          const defs: any = {};
+          defs[blockType] = blocksRegistry[blockType];
+          Blockly.common.defineBlocks(defs);
+        }
+      } catch {
+        // ignore
+      }
     }
 
-    (javascriptGenerator.forBlock as any)[blockType] = function (block: any, generator: any) {
-      const value = String(block.getFieldValue('OPTION') || '');
-      return [generator.quote_(value), Order.ATOMIC];
-    };
+    // Ensure a generator exists (even if the block already existed).
+    if (!(javascriptGenerator.forBlock as any)[blockType]) {
+      (javascriptGenerator.forBlock as any)[blockType] = function (block: any, generator: any) {
+        const value = String(block.getFieldValue('OPTION') || '');
+        return [generator.quote_(value), Order.ATOMIC];
+      };
+    }
   }
 }
 
@@ -374,6 +401,7 @@ function refreshSelectionListDropdownFields(): void {
       // If the user currently has the selection list toolbox open, refresh it so
       // dynamically-registered enum blocks appear without needing a manual reselect.
       try { ws.refreshToolboxSelection?.(); } catch { /* ignore */ }
+      try { ws.getToolbox?.()?.refreshSelection?.(); } catch { /* ignore */ }
     }
   } catch {
     // ignore
@@ -384,7 +412,6 @@ export async function preloadSelectionLists(): Promise<void> {
   if (cache.loaded || cache.loading) return;
   cache.loading = true;
   cache.lastError = undefined;
-  publishSelectionListDiag();
   try {
     // Copied into dist by webpack (see `web_ui/webpack.config.js`).
     // NOTE: Electron packaging excludes *.md by default in this repo, so we ship a
@@ -412,6 +439,10 @@ export async function preloadSelectionLists(): Promise<void> {
       const lk = k.toLowerCase();
       if (!(lk in cache.mapCI)) cache.mapCI[lk] = v;
     }
+
+    // Invalidate any cached dropdown option lists.
+    cache.optionsCache = {};
+
     cache.loaded = true;
     // After loading, register helper enum blocks so the toolbox can expose
     // *all* selection lists (even if the main block set doesn't have dedicated
@@ -422,24 +453,10 @@ export async function preloadSelectionLists(): Promise<void> {
       console.warn('[BF6] Failed to register selection list enum blocks:', e);
     }
 
-    // One-time diagnostic summary (helps confirm we loaded the right asset in packaged builds).
-    if (!didLogLoadSummary) {
-      didLogLoadSummary = true;
-      try {
-        const count = Object.keys(cache.map || {}).length;
-        console.log(`[BF6] Selection lists loaded: ${count} enums (${source})`);
-      } catch {
-        // ignore
-      }
-    }
-
-    publishSelectionListDiag(source);
-
     // Refresh any existing dropdown fields that were created before load finished.
     refreshSelectionListDropdownFields();
   } catch (e: any) {
     cache.lastError = String(e?.message || e);
-    publishSelectionListDiag();
     try {
       console.warn('[BF6] Selection lists failed to load:', cache.lastError);
     } catch {
@@ -447,7 +464,6 @@ export async function preloadSelectionLists(): Promise<void> {
     }
   } finally {
     cache.loading = false;
-    publishSelectionListDiag();
   }
 }
 
@@ -602,7 +618,8 @@ export function registerSelectionListExtensions(): void {
         return [[`(no selection list: ${enumName})`, '__missing__']];
       }
 
-      return makeOptions(values);
+      // Cache options per enum to reduce UI jank when opening large dropdowns.
+      return makeOptionsCached(enumName, values);
     };
 
     // Ensure there is *some* value set.

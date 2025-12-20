@@ -1,13 +1,32 @@
 // Main Entry Point for BF6 Portal Tool
 // This file handles the initialization of the UI, Blockly, and event listeners.
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("[BF6] DOM Loaded. Initializing...");
+// IMPORTANT: This file may run before Blockly is loaded (it is included before the webpack bundle).
+// If code references the identifier `Blockly` before it exists, JavaScript throws a ReferenceError
+// (even with optional chaining like `Blockly?.ContextMenuRegistry`). Declaring it here ensures the
+// binding exists and will be populated later via `window.Blockly = ...`.
+// eslint-disable-next-line no-var
+var Blockly;
 
-    setupAboutQuotes().catch((e) => console.warn('[BF6] setupAboutQuotes failed:', e));
-    setupAboutModal();
-    setupCodePreviewDrawer();
-    setupVersionLabel();
+document.addEventListener('DOMContentLoaded', () => {
+    const isModernBundleActive = !!(window && window.__BF6_MODERN_BUNDLE_ACTIVE__);
+
+    // Always keep harmless UI helpers working.
+    try { setupAboutQuotes().catch((e) => console.warn('[BF6] setupAboutQuotes failed:', e)); } catch {}
+    try { setupAboutModal(); } catch {}
+    try { setupCodePreviewDrawer(); } catch {}
+    try { setupVersionLabel(); } catch {}
+
+    // If the modern webpack bundle is active, do NOT run legacy Blockly init/bindings.
+    // These can conflict with the webpack workspace (duplicate listeners, block overwrites,
+    // preset import/export mismatches, toolbox/flyout glitches).
+    if (isModernBundleActive) {
+        console.log('[BF6] DOM Loaded (legacy shim). Modern bundle active; skipping legacy init.');
+        try { initLiveCodePreview(); } catch { /* ignore */ }
+        return;
+    }
+
+    console.log("[BF6] DOM Loaded. Initializing...");
 
     // Prefer the simple injection path for stability.
     // If you want to switch back to StartupSequence later, you can.
@@ -27,6 +46,17 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn('[BF6] Selection lists init failed:', e);
     }
 });
+
+// Legacy selection list init stubs.
+// The selection list system was moved into the webpack bundle (`src/selection_lists.ts`).
+// Keep these as no-ops so older boot code doesn't spam the console.
+function registerLegacySelectionListDropdown() {
+    // no-op
+}
+
+async function preloadLegacySelectionLists() {
+    // no-op
+}
 
 function getActiveWorkspace() {
     return window.workspace || null;
@@ -1838,6 +1868,132 @@ function handleFileUpload(event) {
 function focusWorkspaceOnContent(workspace) {
     if (!workspace) return;
 
+    function __bf6PickTopMostBlock(blocks) {
+        if (!Array.isArray(blocks) || blocks.length === 0) return null;
+        let best = null;
+        let bestY = Infinity;
+        for (const b of blocks) {
+            if (!b) continue;
+            let y = null;
+            try {
+                if (typeof b.getBoundingRectangle === 'function') {
+                    const r = b.getBoundingRectangle();
+                    if (r && typeof r.top === 'number') y = r.top;
+                }
+            } catch {
+                // ignore
+            }
+            if (y == null) {
+                try {
+                    if (typeof b.getRelativeToSurfaceXY === 'function') {
+                        const p = b.getRelativeToSurfaceXY();
+                        if (p && typeof p.y === 'number') y = p.y;
+                    }
+                } catch {
+                    // ignore
+                }
+            }
+            const yNum = (typeof y === 'number' && isFinite(y)) ? y : Infinity;
+            if (!best || yNum < bestY) {
+                best = b;
+                bestY = yNum;
+            }
+        }
+        return best;
+    }
+
+    function __bf6ScrollToBlockTop(block, padding) {
+        if (!block) return false;
+        let top = null;
+        try {
+            if (typeof block.getBoundingRectangle === 'function') {
+                const r = block.getBoundingRectangle();
+                if (r && typeof r.top === 'number') top = r.top;
+            }
+        } catch {
+            // ignore
+        }
+        if (top == null) {
+            try {
+                if (typeof block.getRelativeToSurfaceXY === 'function') {
+                    const p = block.getRelativeToSurfaceXY();
+                    if (p && typeof p.y === 'number') top = p.y;
+                }
+            } catch {
+                // ignore
+            }
+        }
+        if (top == null) return false;
+
+        // Keep current horizontal scroll if possible.
+        let x = 0;
+        try {
+            const m = (typeof workspace.getMetrics === 'function') ? workspace.getMetrics() : null;
+            if (m && typeof m.viewLeft === 'number') x = m.viewLeft;
+        } catch {
+            // ignore
+        }
+        const y = Math.max(0, top - (padding || 72));
+        try {
+            if (workspace.scrollbar && typeof workspace.scrollbar.set === 'function') {
+                workspace.scrollbar.set(x, y);
+                return true;
+            }
+        } catch {
+            // ignore
+        }
+        try {
+            if (typeof workspace.scroll === 'function') {
+                workspace.scroll(x, y);
+                return true;
+            }
+        } catch {
+            // ignore
+        }
+        return false;
+    }
+
+    function __bf6FocusModStart(padding) {
+        try {
+            const types = ['MOD_BLOCK', 'modBlock'];
+            const all = [];
+            for (const t of types) {
+                try {
+                    const arr = (typeof workspace.getBlocksByType === 'function') ? workspace.getBlocksByType(t, false) : [];
+                    if (Array.isArray(arr) && arr.length) all.push(...arr);
+                } catch {
+                    // ignore
+                }
+            }
+            const mod = __bf6PickTopMostBlock(all);
+            if (!mod) return false;
+            try {
+                if (typeof workspace.centerOnBlock === 'function') {
+                    workspace.centerOnBlock(mod.id);
+                }
+            } catch {
+                // ignore
+            }
+            __bf6ScrollToBlockTop(mod, padding || 72);
+            try { if (typeof mod.select === 'function') mod.select(); } catch { /* ignore */ }
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    // Default focus: MOD start (top of MOD where first rule chain attaches).
+    try {
+        Blockly.svgResize(workspace);
+    } catch {
+        // ignore
+    }
+    try {
+        if (__bf6FocusModStart(72)) return;
+    } catch {
+        // ignore
+    }
+
     // Many imported workspaces (e.g. custom_rush) place blocks thousands of pixels away.
     // If we don't zoom/center after load, it *looks* like nothing loaded.
     try {
@@ -1846,7 +2002,7 @@ function focusWorkspaceOnContent(workspace) {
             return;
         }
     } catch (e) {
-        console.warn('[BF6] zoomToFit failed:', e);
+        console.debug('[BF6] zoomToFit failed:', e);
     }
 
     try {
@@ -1854,7 +2010,7 @@ function focusWorkspaceOnContent(workspace) {
             workspace.scrollCenter();
         }
     } catch (e) {
-        console.warn('[BF6] scrollCenter failed:', e);
+        console.debug('[BF6] scrollCenter failed:', e);
     }
 
     try {
@@ -1864,7 +2020,7 @@ function focusWorkspaceOnContent(workspace) {
             workspace.centerOnBlock(first.id);
         }
     } catch (e) {
-        console.warn('[BF6] centerOnBlock failed:', e);
+        console.debug('[BF6] centerOnBlock failed:', e);
     }
 }
 
@@ -2820,8 +2976,9 @@ async function loadBlockDocs() {
 function getKnownBlockTypes() {
     const types = new Set();
     try {
-        if (Blockly?.Blocks) {
-            for (const k of Object.keys(Blockly.Blocks)) types.add(k);
+        const B = (typeof window !== 'undefined') ? window.Blockly : null;
+        if (B && B.Blocks) {
+            for (const k of Object.keys(B.Blocks)) types.add(k);
         }
     } catch {
         // ignore
@@ -2990,8 +3147,9 @@ async function initHelpUI() {
 
     // Add/override a context-menu item for blocks (both in workspace and flyouts).
     try {
-        if (Blockly?.ContextMenuRegistry?.registry) {
-            const registry = Blockly.ContextMenuRegistry.registry;
+        const B = (typeof window !== 'undefined') ? window.Blockly : null;
+        if (B && B.ContextMenuRegistry && B.ContextMenuRegistry.registry) {
+            const registry = B.ContextMenuRegistry.registry;
 
             // Remove Blockly's default "Help" item to avoid having two help menu entries.
             // We'll provide our own help menu that pulls from the local docs / main help.
@@ -3007,10 +3165,10 @@ async function initHelpUI() {
             // Avoid duplicate registration if hot-reloaded.
             if (!registry.getItem(id)) {
                 registry.register({
-                    id: preferredId,
-                    scopeType: Blockly.ContextMenuRegistry.ScopeType.BLOCK,
+                    id,
+                    scopeType: B.ContextMenuRegistry.ScopeType.BLOCK,
                     displayText: (scope) => {
-                        return (Blockly?.Msg?.HELP || 'Help');
+                        return ((B.Msg && B.Msg.HELP) || 'Help');
                     },
                     preconditionFn: (scope) => (scope?.block?.type ? 'enabled' : 'hidden'),
                     callback: (scope) => {
@@ -3031,6 +3189,16 @@ async function initHelpUI() {
 }
 
 // Initialize Help UI after load.
-setTimeout(() => {
-    try { initHelpUI(); } catch (e) { console.warn('[BF6] initHelpUI failed:', e); }
-}, 0);
+// main.js is loaded before the webpack bundle; delay until Blockly is available.
+(function scheduleInitHelpUI() {
+    try {
+        const B = (typeof window !== 'undefined') ? window.Blockly : (typeof Blockly !== 'undefined' ? Blockly : null);
+        if (!B) {
+            setTimeout(scheduleInitHelpUI, 50);
+            return;
+        }
+        initHelpUI().catch((e) => console.warn('[BF6] initHelpUI failed:', e));
+    } catch (e) {
+        console.warn('[BF6] initHelpUI failed:', e);
+    }
+})();

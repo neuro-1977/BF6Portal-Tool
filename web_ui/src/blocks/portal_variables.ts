@@ -123,9 +123,10 @@ export function registerPortalVariableBlocks(): void {
       const idOrName = block.getFieldValue('VAR') || '';
       let name = String(idOrName);
       try {
-        const v = (block.workspace && typeof block.workspace.getVariableById === 'function')
-          ? block.workspace.getVariableById(idOrName)
+        const vm: any = block.workspace && typeof block.workspace.getVariableMap === 'function'
+          ? block.workspace.getVariableMap()
           : null;
+        const v = (vm && typeof vm.getVariableById === 'function') ? vm.getVariableById(idOrName) : null;
         if (v && typeof v.name === 'string' && v.name) name = v.name;
       } catch {
         // ignore

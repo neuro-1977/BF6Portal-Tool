@@ -10,19 +10,27 @@ Changelog: see `CHANGELOG.md`.
 
 ## Screenshot
 
-![BF6Portal Tool editor screenshot](docs/screenshots/editor.png)
+![BF6Portal Tool UI overview](docs/screenshots/UI-overview.png)
 
-> Note: The repo currently includes a tiny placeholder image. Replace `docs/screenshots/editor.png` with a real screenshot any time.
+## What the UI provides
 
-## Features
-
-- **Rules toolbox essentials:** a single **RULES** menu containing `MOD_BLOCK`, `RULE_HEADER`, and `CONDITION_BLOCK`.
-- **Import compatibility:** loads Blockly JSON exports, including common community/template wrappers like `{ "mod": { ... } }`.
-- **Resilient template loading:** missing block `type`s are auto-registered as **placeholder blocks** so templates can still render.
-- **Presets:** 3 locked built-ins (Andy6170 templates) + user save/delete via `localStorage`.
-- **Help modal + right-click help:** offline docs from `bf6portal_blocks.json` and per-block “Help: `<type>`”.
-- **Code Preview drawer:** resizable bottom drawer showing a TypeScript export of the current workspace state.
-- **TypeScript import:** **coming soon** (UI shows the button, but the feature is intentionally disabled until correctness can be guaranteed).
+- **Workspace editor (Blockly):** build rule logic visually.
+- **Toolbox search (header):** quickly filter blocks by name.
+- **Workspace controls (header):** zoom in/out, reset zoom, zoom-to-fit, and trash/delete selected block.
+- **Presets (header dropdown):**
+    - 3 built-in presets (locked)
+    - save your own presets, overwrite safely, delete user presets
+- **Import / Export:**
+    - load `.json` (Blockly workspace JSON) and legacy `.xml`
+    - export Portal JSON (best-effort compatibility wrapper)
+    - TypeScript snapshot export + TypeScript import (round-trip the workspace state)
+- **Variables:** a dedicated VARIABLES toolbox category with:
+    - “New / Manage Variables”
+    - pre-filled GET/SET templates for existing variables
+- **Collections / Bookmarks:** convert a selected stack into an offscreen definition and keep a compact call/bookmark block.
+- **Navigation (“teleport”):** right-click jump helpers (MOD / owning rule / stack root / variables / subroutine call ⇄ definition).
+- **Help:** Help modal + right-click per-block help using the local `bf6portal_blocks.json` docs.
+- **Code Preview drawer:** resizable bottom drawer that shows a TypeScript representation of the current workspace state.
 
 ## Installation & setup
 
