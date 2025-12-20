@@ -7,6 +7,30 @@ export const SUBROUTINE_CALL_MUTATOR = 'subroutine_call_mutator';
 const subroutineDefMutator = {
   params: [], // Array of {name: string, type: string}
 
+  // Blockly JSON serialization support.
+  saveExtraState: function (this: any) {
+    try {
+      const params = Array.isArray(this.params) ? this.params : [];
+      return { params: JSON.parse(JSON.stringify(params)) };
+    } catch {
+      return { params: [] };
+    }
+  },
+
+  loadExtraState: function (this: any, state: any) {
+    try {
+      const params = state && typeof state === 'object' ? (state as any).params : null;
+      this.params = Array.isArray(params) ? params : [];
+    } catch {
+      this.params = [];
+    }
+    try {
+      this.updateShape_();
+    } catch {
+      // ignore
+    }
+  },
+
   mutationToDom: function(this: any) {
     const container = Blockly.utils.xml.createElement('mutation');
     container.setAttribute('params', JSON.stringify(this.params));
@@ -55,6 +79,30 @@ const subroutineDefMutator = {
 
 const subroutineCallMutator = {
   params: [], // Array of {name: string, type: string}
+
+  // Blockly JSON serialization support.
+  saveExtraState: function (this: any) {
+    try {
+      const params = Array.isArray(this.params) ? this.params : [];
+      return { params: JSON.parse(JSON.stringify(params)) };
+    } catch {
+      return { params: [] };
+    }
+  },
+
+  loadExtraState: function (this: any, state: any) {
+    try {
+      const params = state && typeof state === 'object' ? (state as any).params : null;
+      this.params = Array.isArray(params) ? params : [];
+    } catch {
+      this.params = [];
+    }
+    try {
+      this.updateShape_();
+    } catch {
+      // ignore
+    }
+  },
 
   mutationToDom: function(this: any) {
     const container = Blockly.utils.xml.createElement('mutation');

@@ -547,6 +547,25 @@ export function ensurePortalBlocksRegisteredFromState(state: any): { created: nu
     }
 
     const def: any = {
+      // Preserve any serialized Portal extraState we don't actively understand.
+      // Many official/community templates require this metadata to re-import.
+      loadExtraState: function (this: Blockly.Block, state: any) {
+        try {
+          (this as any).__bf6_portal_extraState = state;
+        } catch {
+          // ignore
+        }
+      },
+      saveExtraState: function (this: Blockly.Block): any {
+        try {
+          const s = (this as any).__bf6_portal_extraState;
+          if (s == null) return null;
+          // Defensive clone to avoid accidental mutation.
+          return JSON.parse(JSON.stringify(s));
+        } catch {
+          return null;
+        }
+      },
       init: function (this: Blockly.Block) {
         // Title
         this.appendDummyInput().appendField(type);
@@ -620,6 +639,22 @@ export function ensureCriticalPortalStructuralBlocks() {
   // If a conflicting definition exists, override it.
   try {
     const def: any = {
+      loadExtraState: function (this: Blockly.Block, state: any) {
+        try {
+          (this as any).__bf6_portal_extraState = state;
+        } catch {
+          // ignore
+        }
+      },
+      saveExtraState: function (this: Blockly.Block): any {
+        try {
+          const s = (this as any).__bf6_portal_extraState;
+          if (s == null) return null;
+          return JSON.parse(JSON.stringify(s));
+        } catch {
+          return null;
+        }
+      },
       init: function (this: Blockly.Block) {
         this.appendDummyInput().appendField('MOD');
         try {

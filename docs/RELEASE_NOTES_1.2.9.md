@@ -2,7 +2,7 @@
 
 ## Screenshot
 
-<img src="screenshots/editor.png" alt="BF6Portal Tool editor screenshot" width="1100" />
+<img src="screenshots/UI-overview.png" alt="BF6Portal Tool editor screenshot" width="1100" />
 
 ## Highlights
 

@@ -16,6 +16,8 @@ This project follows a pragmatic changelog style (human-written notes) rather th
 - **UI clutter removed:** removed the unused Live Diagnostics overlay and the floating Code Preview button (Code Preview is now a normal header button).
 - **Collections UX:** COLLECTIONS toolbox category now dynamically lists existing collections and includes a “Convert selection to collection” action.
 - **Collections visuals:** collection call/definition blocks are taller (easier to spot in large workspaces).
+- **Collections help:** right-click Help now includes local documentation for Collections blocks.
+- **Collections navigation polish:** jump-to-definition is centered and context-menu labels include the collection name.
 - **Variables toolbox:** restored a working VARIABLES category (manage/create button + existing variables listed as pre-filled GET/SET blocks).
 - **Selection Lists:** regenerated `selection-lists.md` so `widget 1` uses the base enum name (no `Item` suffix).
 - **Selection Lists dropdowns:** runtime lookups are now case-insensitive and support alias mapping for mismatched enum names.
@@ -33,6 +35,10 @@ This project follows a pragmatic changelog style (human-written notes) rather th
 - **Electron compatibility:** removed remaining native `prompt()` usage by routing prompts through Blockly dialogs (Electron does not support `window.prompt`).
 - **Presets/imports:** ensure critical Portal structural types (like `modBlock` with a `RULES` statement) are defined before loading templates.
 - **Version label:** app version now resolves in both dev and packaged `app.asar` layouts.
+
+- **Portal export compatibility:** preserve required `extraState` metadata on structural blocks and subroutines so exports import cleanly in the official Portal editor.
+- **Portal export correctness:** expanded collection stacks now reassign block IDs to avoid duplicate IDs.
+- **Collections call-name rendering:** call blocks and flyout entries now reliably display the chosen collection name.
 
 ### Credits (v1.3.0)
 

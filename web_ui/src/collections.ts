@@ -24,6 +24,41 @@ function promptAsync(message: string, initialValue: string): Promise<string | nu
   });
 }
 
+function refreshToolboxAfterCollectionChange(workspace: Blockly.Workspace) {
+  const wsAny: any = workspace as any;
+  if (!wsAny) return;
+
+  // Close any open UI widgets (dropdowns/context menus/tooltips) that can leave the
+  // toolbox in a weird state, then rebuild/refresh the toolbox.
+  try { (Blockly as any).hideChaff?.(true); } catch { /* ignore */ }
+  try { (Blockly as any).WidgetDiv?.hide?.(); } catch { /* ignore */ }
+  try { (Blockly as any).DropDownDiv?.hideWithoutAnimation?.(); } catch { /* ignore */ }
+
+  // If the app has toolbox filtering installed, reuse it so we don't blow away the
+  // user's current search term.
+  try {
+    const g: any = window as any;
+    const searchEl = document.getElementById('blocklySearchInput') as HTMLInputElement | null;
+    const term = String(searchEl?.value ?? '');
+    const filterFn = g.__bf6_filterToolbox;
+    const original = g.__bf6_originalToolbox;
+
+    if (typeof wsAny.updateToolbox === 'function') {
+      if (typeof filterFn === 'function') {
+        wsAny.updateToolbox(filterFn(term));
+      } else if (original) {
+        wsAny.updateToolbox(original);
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  try { wsAny.refreshToolboxSelection?.(); } catch { /* ignore */ }
+  try { wsAny.getToolbox?.()?.refreshSelection?.(); } catch { /* ignore */ }
+  try { (Blockly as any).svgResize?.(workspace); } catch { /* ignore */ }
+}
+
 function listCollectionNames(workspace: Blockly.Workspace): string[] {
   const defs = (workspace as any).getBlocksByType
     ? (workspace as any).getBlocksByType(COLLECTION_DEF_TYPE, false)
@@ -125,6 +160,83 @@ function scrollToBlockTop(workspace: Blockly.Workspace, block: Blockly.Block, pa
   }
 }
 
+function scrollToBlockCentered(workspace: Blockly.Workspace, block: Blockly.Block, headerPaddingPx = 56): boolean {
+  const wsAny: any = workspace as any;
+  const bAny: any = block as any;
+  if (!wsAny || !bAny) return false;
+
+  let centerX: number | null = null;
+  let centerY: number | null = null;
+  try {
+    if (typeof bAny.getBoundingRectangle === 'function') {
+      const r = bAny.getBoundingRectangle();
+      if (r && typeof r.left === 'number' && typeof r.right === 'number') {
+        centerX = (r.left + r.right) / 2;
+      }
+      if (r && typeof r.top === 'number' && typeof r.bottom === 'number') {
+        centerY = (r.top + r.bottom) / 2;
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  if (centerX == null || centerY == null) {
+    try {
+      const p = getBlockXY(block);
+      if (p && typeof p.x === 'number') centerX = p.x;
+      if (p && typeof p.y === 'number') centerY = p.y;
+    } catch {
+      // ignore
+    }
+  }
+
+  if (centerX == null || centerY == null) return false;
+
+  const metrics = typeof wsAny.getMetrics === 'function' ? wsAny.getMetrics() : null;
+  const viewWidth = metrics && typeof metrics.viewWidth === 'number' ? metrics.viewWidth : null;
+  const viewHeight = metrics && typeof metrics.viewHeight === 'number' ? metrics.viewHeight : null;
+  if (viewWidth == null || viewHeight == null) {
+    // Fallback to Blockly's built-in centering.
+    try {
+      if (typeof wsAny.centerOnBlock === 'function') {
+        wsAny.centerOnBlock((block as any).id);
+        return true;
+      }
+    } catch {
+      // ignore
+    }
+    return false;
+  }
+
+  const safeHeader = Math.max(0, Number(headerPaddingPx) || 0);
+  const effectiveViewHeight = Math.max(0, viewHeight - safeHeader);
+
+  const targetX = centerX - viewWidth / 2;
+  // Center within the visible region *below* the fixed header.
+  const targetY = centerY - (safeHeader + effectiveViewHeight / 2);
+
+  try {
+    if (wsAny.scrollbar && typeof wsAny.scrollbar.set === 'function') {
+      wsAny.scrollbar.set(targetX, targetY);
+    } else if (typeof wsAny.scroll === 'function') {
+      wsAny.scroll(targetX, targetY);
+    }
+  } catch {
+    return false;
+  }
+
+  try {
+    if (typeof (block as any).select === 'function') {
+      (block as any).select();
+    }
+  } catch {
+    // ignore
+  }
+
+  return true;
+}
+
 function computeOffscreenLibraryXY(workspace: Blockly.Workspace): XY {
   // Place collections to the right of the furthest content.
   // Imported templates can be far away already, so we just go "further right".
@@ -179,18 +291,13 @@ export function jumpToCollectionDefinition(workspace: Blockly.Workspace, name: s
     return;
   }
 
-  const wsAny: any = workspace as any;
+  // Center the target in the viewport (accounting for the fixed header).
   try {
-    if (typeof wsAny.centerOnBlock === 'function') {
-      wsAny.centerOnBlock((def as any).id);
+    const ok = scrollToBlockCentered(workspace, def, 56);
+    if (!ok) {
+      // Fallback: at least make sure it's visible.
+      scrollToBlockTop(workspace, def);
     }
-  } catch {
-    // ignore
-  }
-
-  // Nudge so the block's top is visible under the fixed header.
-  try {
-    scrollToBlockTop(workspace, def);
   } catch {
     // ignore
   }
@@ -231,6 +338,7 @@ export async function convertBlockStackToCollection(workspace: Blockly.Workspace
     (def as any).initSvg?.();
     (def as any).render?.();
     (def as any).setFieldValue?.(uniqueName, 'NAME');
+    try { (def as any).render?.(); } catch { /* ignore */ }
 
     const libXY = computeOffscreenLibraryXY(workspace);
     (def as any).moveBy?.(libXY.x, libXY.y);
@@ -246,6 +354,7 @@ export async function convertBlockStackToCollection(workspace: Blockly.Workspace
     (call as any).initSvg?.();
     (call as any).render?.();
     (call as any).setFieldValue?.(uniqueName, 'NAME');
+    try { (call as any).render?.(); } catch { /* ignore */ }
     (call as any).moveBy?.(originalXY.x, originalXY.y);
 
     // Re-attach call block where the original stack lived.
@@ -266,17 +375,21 @@ export async function convertBlockStackToCollection(workspace: Blockly.Workspace
 
     // Nudge view back to the call block.
     try {
-      const wsAny: any = workspace as any;
-      if (typeof wsAny.centerOnBlock === 'function') {
-        wsAny.centerOnBlock((call as any).id);
-      }
-      scrollToBlockTop(workspace, call);
+      const ok = scrollToBlockCentered(workspace, call, 56);
+      if (!ok) scrollToBlockTop(workspace, call);
     } catch {
       // ignore
     }
   } finally {
     Blockly.Events.enable();
     Blockly.Events.setGroup(false);
+  }
+
+  // Ensure the new collection shows up immediately in the Collections toolbox flyout.
+  try {
+    refreshToolboxAfterCollectionChange(workspace);
+  } catch {
+    // ignore
   }
 }
 
@@ -294,6 +407,7 @@ export async function renameCollection(workspace: Blockly.Workspace, defBlock: B
   Blockly.Events.disable();
   try {
     (defBlock as any).setFieldValue?.(nextName, 'NAME');
+    try { (defBlock as any).render?.(); } catch { /* ignore */ }
 
     // Update all call blocks referencing the old name.
     const wsAny: any = workspace as any;
@@ -303,6 +417,7 @@ export async function renameCollection(workspace: Blockly.Workspace, defBlock: B
         const n = String((c as any).getFieldValue?.('NAME') ?? '').trim();
         if (n === oldName) {
           (c as any).setFieldValue?.(nextName, 'NAME');
+          try { (c as any).render?.(); } catch { /* ignore */ }
         }
       } catch {
         // ignore
@@ -311,6 +426,13 @@ export async function renameCollection(workspace: Blockly.Workspace, defBlock: B
   } finally {
     Blockly.Events.enable();
     Blockly.Events.setGroup(false);
+  }
+
+  // Ensure the updated name shows up immediately in the Collections toolbox flyout.
+  try {
+    refreshToolboxAfterCollectionChange(workspace);
+  } catch {
+    // ignore
   }
 }
 
@@ -323,13 +445,18 @@ export function registerCollectionsContextMenus(workspace: Blockly.Workspace) {
     reg.register({
       id: idJump,
       scopeType: (Blockly as any).ContextMenuRegistry.ScopeType.BLOCK,
-      displayText: () => 'Jump to collection definition',
+      displayText: (scope: any) => {
+        const b: Blockly.Block | undefined = scope?.block;
+        const n = b ? String((b as any).getFieldValue?.('NAME') ?? '').trim() : '';
+        return n ? `Jump to Coll ${n}` : 'Jump to collection definition';
+      },
       preconditionFn: (scope: any) => {
         const b: Blockly.Block | undefined = scope?.block;
         if (!b) return 'hidden';
         if (b.type !== COLLECTION_CALL_TYPE) return 'hidden';
         const n = String((b as any).getFieldValue?.('NAME') ?? '').trim();
-        return n ? 'enabled' : 'disabled';
+        if (!n) return 'disabled';
+        return findCollectionDefByName(workspace, n) ? 'enabled' : 'disabled';
       },
       callback: (scope: any) => {
         const b: Blockly.Block | undefined = scope?.block;
@@ -413,10 +540,13 @@ export function registerCollectionsContextMenus(workspace: Blockly.Workspace) {
         const call = Array.isArray(calls) ? calls.find((c) => String(c.getFieldValue?.('NAME') ?? '').trim() === n) : null;
         if (!call) return;
         try {
-          if (typeof wsAny.centerOnBlock === 'function') {
-            wsAny.centerOnBlock(call.id);
+          const ok = scrollToBlockCentered(workspace, call, 56);
+          if (!ok) {
+            if (typeof wsAny.centerOnBlock === 'function') {
+              wsAny.centerOnBlock(call.id);
+            }
+            scrollToBlockTop(workspace, call);
           }
-          scrollToBlockTop(workspace, call);
         } catch {
           // ignore
         }

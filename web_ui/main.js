@@ -2962,6 +2962,29 @@ async function loadBlockDocs() {
             }
         }
 
+        // Add local docs for tool-internal helper blocks that won't exist in
+        // the shipped Portal docs dataset.
+        try {
+            upsert('BF6_COLLECTION_DEF', {
+                type: 'BF6_COLLECTION_DEF',
+                blockId: '',
+                displayName: 'COLLECTION',
+                category: 'Collections',
+                tooltip: 'Defines a named Collection (stored offscreen).\n\nRight-click to rename, or use call blocks to jump back and forth. Collections can be expanded during Portal export.',
+                colour: '#cc5cff',
+            });
+            upsert('BF6_COLLECTION_CALL', {
+                type: 'BF6_COLLECTION_CALL',
+                blockId: '',
+                displayName: 'COLLECT',
+                category: 'Collections',
+                tooltip: 'Calls/bookmarks a Collection by name.\n\nRight-click: Jump to its definition. During Portal export, call blocks can be expanded (inlined).',
+                colour: '#cc5cff',
+            });
+        } catch {
+            // ignore
+        }
+
         BF6_BLOCK_DOCS = map;
         // Once docs are available, try to recolour any already-imported placeholders.
         scheduleApplyDocColoursToWorkspace(25);

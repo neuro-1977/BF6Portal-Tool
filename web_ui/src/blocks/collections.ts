@@ -96,6 +96,71 @@ class FieldCollectionNameDropdown extends (Blockly as any).FieldDropdown {
     }
   }
 
+  /**
+   * Blockly's FieldDropdown normally displays the *option label* for the current
+   * value. When our dynamic option list is temporarily empty/out-of-sync (e.g.
+   * flyout workspaces, or during block init), Blockly may display an empty
+   * string. Fall back to the raw value so collection names always remain visible.
+   */
+  protected getText_(): string | null {
+    try {
+      const parentGetText = (Blockly as any).FieldDropdown?.prototype?.getText_;
+      const t = typeof parentGetText === 'function' ? String(parentGetText.call(this) ?? '') : '';
+      if (t && t.trim()) return t;
+    } catch {
+      // ignore
+    }
+
+    try {
+      const v = String((this as any).getValue?.() ?? '').trim();
+      return v;
+    } catch {
+      return '';
+    }
+  }
+
+  /**
+   * Blockly's FieldDropdown assumes values are always present in its option list.
+   * For Collections we allow arbitrary string values (older imports, flyout blocks
+   * created from XML, etc.). Ensure the raw value is preserved even when it isn't
+   * present in the dynamic option list at update-time.
+   */
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  protected doValueUpdate_(newValue: any): void {
+    const v = String(newValue ?? '');
+
+    try {
+      const parentDoValueUpdate = (Blockly as any).FieldDropdown?.prototype?.doValueUpdate_;
+      if (typeof parentDoValueUpdate === 'function') {
+        parentDoValueUpdate.call(this, v);
+      }
+    } catch {
+      // ignore
+    }
+
+    // Preserve the raw value even if the base implementation coerced it.
+    try {
+      (this as any).value_ = v;
+    } catch {
+      // ignore
+    }
+
+    // Keep a reasonable selected option so Blockly doesn't render an empty label.
+    try {
+      const opts: any[] = (this as any).getOptions?.(true) ?? [];
+      const match = Array.isArray(opts)
+        ? opts.find((o) => Array.isArray(o) && o.length >= 2 && String(o[1]) === v)
+        : null;
+      (this as any).selectedOption = match || [v, v];
+    } catch {
+      try {
+        (this as any).selectedOption = [v, v];
+      } catch {
+        // ignore
+      }
+    }
+  }
+
   // Allow values that aren't in the current option set (needed for older imports).
   protected doClassValidation_(newValue: any): string | null {
     const v = String(newValue ?? '');
@@ -156,6 +221,16 @@ function registerCollectionCallDropdownExtension(): void {
 
         const dd = new FieldCollectionNameDropdown(current);
         parentInput.appendField(dd, 'NAME');
+
+        // Defensive: in some Blockly init/load paths, the field value is applied
+        // after extensions run. Re-apply what we observed so the label renders.
+        if (current) {
+          try {
+            dd.setValue(current);
+          } catch {
+            // ignore
+          }
+        }
       } catch {
         // ignore
       }

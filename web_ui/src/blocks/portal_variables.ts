@@ -26,6 +26,33 @@ export function registerPortalVariableBlocks(): void {
     // Produces an output that other blocks can treat as a "Variable".
     Blockly.common.defineBlocks({
       variableReferenceBlock: {
+        loadExtraState: function (this: Blockly.Block, state: any) {
+          try {
+            (this as any).__bf6_portal_extraState = state;
+          } catch {
+            // ignore
+          }
+        },
+        saveExtraState: function (this: Blockly.Block): any {
+          // Preserve unknown keys, but keep isObjectVar consistent with UI.
+          try {
+            const stored = (this as any).__bf6_portal_extraState;
+            const out: any = stored && typeof stored === 'object'
+              ? JSON.parse(JSON.stringify(stored))
+              : {};
+
+            try {
+              const objectType = String((this as any).getFieldValue?.('OBJECTTYPE') ?? 'Global');
+              out.isObjectVar = objectType !== 'Global';
+            } catch {
+              // ignore
+            }
+
+            return Object.keys(out).length > 0 ? out : null;
+          } catch {
+            return null;
+          }
+        },
         init: function () {
           // Many presets store:
           //  - fields.OBJECTTYPE: "Global" | "Player" | "Team" | ...
@@ -88,6 +115,22 @@ export function registerPortalVariableBlocks(): void {
 
       // 2) SetVariable statement block.
       SetVariable: {
+        loadExtraState: function (this: Blockly.Block, state: any) {
+          try {
+            (this as any).__bf6_portal_extraState = state;
+          } catch {
+            // ignore
+          }
+        },
+        saveExtraState: function (this: Blockly.Block): any {
+          try {
+            const s = (this as any).__bf6_portal_extraState;
+            if (s == null) return null;
+            return JSON.parse(JSON.stringify(s));
+          } catch {
+            return null;
+          }
+        },
         init: function () {
           // Compatibility note:
           // Older presets use VALUE-0 (variable) and VALUE-1 (value).
@@ -103,6 +146,22 @@ export function registerPortalVariableBlocks(): void {
 
       // 3) GetVariable value block.
       GetVariable: {
+        loadExtraState: function (this: Blockly.Block, state: any) {
+          try {
+            (this as any).__bf6_portal_extraState = state;
+          } catch {
+            // ignore
+          }
+        },
+        saveExtraState: function (this: Blockly.Block): any {
+          try {
+            const s = (this as any).__bf6_portal_extraState;
+            if (s == null) return null;
+            return JSON.parse(JSON.stringify(s));
+          } catch {
+            return null;
+          }
+        },
         init: function () {
           // Compatibility note:
           // Older presets use VALUE-0 (variable).

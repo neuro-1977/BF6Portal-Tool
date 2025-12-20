@@ -13,6 +13,11 @@ import {
   wrapPortalExport,
 } from './portal_json';
 
+import {
+  convertWorkspaceStateInternalToPortal,
+  describePortalExportUnknownTypes,
+} from './portal_convert';
+
 import { COLLECTION_CALL_TYPE, COLLECTION_DEF_TYPE } from './blocks/collections';
 
 const storageKey = 'mainWorkspace';
@@ -102,6 +107,104 @@ function deepCloneJson<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
 }
 
+function collectIdsFromBlockTree(block: any, out: Set<string>): void {
+  if (!block || typeof block !== 'object') return;
+  try {
+    const id = typeof block.id === 'string' ? block.id : '';
+    if (id) out.add(id);
+  } catch {
+    // ignore
+  }
+
+  try {
+    const inputs = block.inputs;
+    if (inputs && typeof inputs === 'object') {
+      for (const k of Object.keys(inputs)) {
+        const child = inputs[k]?.block;
+        const shadow = inputs[k]?.shadow;
+        if (child) collectIdsFromBlockTree(child, out);
+        if (shadow) collectIdsFromBlockTree(shadow, out);
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  try {
+    const next = block.next?.block;
+    if (next) collectIdsFromBlockTree(next, out);
+  } catch {
+    // ignore
+  }
+}
+
+function generateUniqueBlockId(existing: Set<string>): string {
+  const anyCrypto: any = (globalThis as any).crypto;
+  for (let i = 0; i < 50; i++) {
+    let id = '';
+    try {
+      if (anyCrypto && typeof anyCrypto.randomUUID === 'function') {
+        id = anyCrypto.randomUUID();
+      }
+    } catch {
+      // ignore
+    }
+
+    if (!id) {
+      try {
+        const gen = (Blockly as any)?.utils?.idGenerator?.genUid;
+        if (typeof gen === 'function') id = String(gen());
+      } catch {
+        // ignore
+      }
+    }
+
+    if (!id) {
+      id = `bf6_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+    }
+
+    if (!existing.has(id)) {
+      existing.add(id);
+      return id;
+    }
+  }
+
+  // Extremely unlikely fallback.
+  const fallback = `bf6_${Date.now()}_${Math.random()}`;
+  existing.add(fallback);
+  return fallback;
+}
+
+function reassignIdsForClonedTree(block: any, existing: Set<string>): void {
+  if (!block || typeof block !== 'object') return;
+  try {
+    block.id = generateUniqueBlockId(existing);
+  } catch {
+    // ignore
+  }
+
+  try {
+    const inputs = block.inputs;
+    if (inputs && typeof inputs === 'object') {
+      for (const k of Object.keys(inputs)) {
+        const child = inputs[k]?.block;
+        const shadow = inputs[k]?.shadow;
+        if (child) reassignIdsForClonedTree(child, existing);
+        if (shadow) reassignIdsForClonedTree(shadow, existing);
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  try {
+    const next = block.next?.block;
+    if (next) reassignIdsForClonedTree(next, existing);
+  } catch {
+    // ignore
+  }
+}
+
 function getFieldString(block: BlockState | null | undefined, name: string): string {
   try {
     const v = block?.fields?.[name];
@@ -135,6 +238,7 @@ function expandCollectionsInBlockTree(
   block: BlockState | null,
   defsByName: Map<string, BlockState>,
   stack: string[],
+  existingIds: Set<string>,
 ): BlockState | null {
   if (!block) return null;
 
@@ -146,7 +250,7 @@ function expandCollectionsInBlockTree(
 
     if (!name) {
       // No usable name: drop the call for Portal export.
-      return expandCollectionsInBlockTree(nextOriginal, defsByName, stack);
+      return expandCollectionsInBlockTree(nextOriginal, defsByName, stack, existingIds);
     }
 
     if (stack.includes(nameKey)) {
@@ -162,12 +266,15 @@ function expandCollectionsInBlockTree(
     const defHead: BlockState | null = def?.inputs?.STACK?.block ?? null;
     if (!defHead) {
       // Empty definition => acts like a no-op.
-      return expandCollectionsInBlockTree(nextOriginal, defsByName, stack);
+      return expandCollectionsInBlockTree(nextOriginal, defsByName, stack, existingIds);
     }
 
     const clonedHead: BlockState = deepCloneJson(defHead);
-    const expandedHead = expandCollectionsInBlockTree(clonedHead, defsByName, [...stack, nameKey]);
-    const expandedNext = expandCollectionsInBlockTree(nextOriginal, defsByName, stack);
+    // Re-ID the cloned subtree to avoid duplicate block IDs in the export.
+    reassignIdsForClonedTree(clonedHead, existingIds);
+
+    const expandedHead = expandCollectionsInBlockTree(clonedHead, defsByName, [...stack, nameKey], existingIds);
+    const expandedNext = expandCollectionsInBlockTree(nextOriginal, defsByName, stack, existingIds);
 
     if (!expandedHead) return expandedNext;
     const tail = getTail(expandedHead);
@@ -180,14 +287,14 @@ function expandCollectionsInBlockTree(
     for (const key of Object.keys(block.inputs)) {
       const input = block.inputs[key];
       if (input && input.block) {
-        input.block = expandCollectionsInBlockTree(input.block, defsByName, stack);
+        input.block = expandCollectionsInBlockTree(input.block, defsByName, stack, existingIds);
       }
       // We intentionally do not mutate shadows.
     }
   }
 
   if (block.next && block.next.block) {
-    block.next.block = expandCollectionsInBlockTree(block.next.block, defsByName, stack);
+    block.next.block = expandCollectionsInBlockTree(block.next.block, defsByName, stack, existingIds);
   }
 
   return block;
@@ -199,6 +306,10 @@ function expandCollectionsForPortalExport(state: WorkspaceState): WorkspaceState
   if (!blocksRoot || typeof blocksRoot !== 'object') return normalized;
 
   const topBlocks: BlockState[] = Array.isArray(blocksRoot.blocks) ? blocksRoot.blocks : [];
+
+  // Track all existing IDs in the workspace so clones can be assigned fresh IDs.
+  const existingIds = new Set<string>();
+  for (const b of topBlocks) collectIdsFromBlockTree(b, existingIds);
 
   // Build definitions map from top-level collection definition blocks.
   const defsByName = new Map<string, BlockState>();
@@ -216,7 +327,7 @@ function expandCollectionsForPortalExport(state: WorkspaceState): WorkspaceState
   for (let i = 0; i < topBlocks.length; i++) {
     const b = topBlocks[i];
     if (!b) continue;
-    topBlocks[i] = expandCollectionsInBlockTree(b, defsByName, []);
+    topBlocks[i] = expandCollectionsInBlockTree(b, defsByName, [], existingIds);
   }
 
   // Strip tool-only blocks from the final export.
@@ -260,8 +371,27 @@ export const exportForPortal = function (workspace: Blockly.Workspace) {
     return;
   }
 
-  const portal = wrapPortalExport(expanded);
-  const json = JSON.stringify(portal, null, 2);
+  (async () => {
+    let portalReady: any = expanded;
+    try {
+      portalReady = await convertWorkspaceStateInternalToPortal(expanded);
+    } catch (e) {
+      console.warn('[BF6] Portal conversion failed; exporting expanded internal state instead:', e);
+      portalReady = expanded;
+    }
+
+    // Optional diagnostics: if unknown types remain, Portal may reject the import.
+    try {
+      const msg = describePortalExportUnknownTypes(portalReady);
+      if (msg) {
+        console.warn(`[BF6] ${msg}`);
+      }
+    } catch {
+      // ignore
+    }
+
+    const portal = wrapPortalExport(portalReady);
+    const json = JSON.stringify(portal, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
 
@@ -272,6 +402,7 @@ export const exportForPortal = function (workspace: Blockly.Workspace) {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+  })();
 };
 
 /**

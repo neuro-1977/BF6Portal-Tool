@@ -3,8 +3,10 @@
 Drop screenshots for the README/release notes in this folder.
 
 Recommended names:
-- `editor.png` — main editor UI (shows presets dropdown + blocks loaded)
-- `selection-lists.png` — selection list dropdown open
+- `UI-overview.png` — main editor UI overview (used by the main README)
+- `preset-system.png` — presets dropdown system
+- `variables.png` — variables toolbox category
+- `resizeable-codewindow.png` — code preview drawer
+- `colapsable-blocks.png` — collapsing blocks
 
-Note: The repository currently includes a tiny placeholder `editor.png` so documentation renders cleanly.
-Replace it with a real screenshot whenever you're ready.
+Tip: Keep filenames stable so older release notes and README links keep working.

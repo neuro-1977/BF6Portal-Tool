@@ -7,6 +7,7 @@
 - **Cleaner workspace controls:** zoom in/out/reset/fit + trash moved to the top-right header (no on-canvas zoom/trash UI).
 - **Preset workflow stability:** built-in presets remain locked, but you can save copies and overwrite your own presets safely.
 - **Import resilience:** community/Portal JSON imports now auto-register placeholder blocks for missing types so templates still load instead of failing hard.
+- **Portal export compatibility:** exported templates now round-trip more reliably into the official Battlefield Portal editor (preserves critical metadata like `extraState`).
 
 ## Changes
 
@@ -24,6 +25,9 @@
 - Collection call/definition blocks are taller and more visible.
 - Toolbox flyout lists existing collections and can create one from the current selection.
 - Context menus support convert, jump, and rename flows.
+- **Collection names now render reliably** in the flyout and on spawned call blocks (no more “COLLECT” with a blank name).
+- **Jump-to-definition is centered** (accounts for the fixed header) and the menu label is now contextual (e.g. “Jump to Coll 3”).
+- **Right-click Help** now shows local documentation for Collections blocks.
 
 ### Variables
 
@@ -44,6 +48,8 @@
 - Placeholder block auto-registration prevents missing block types from breaking loads.
 - Ensured critical Portal structural blocks (like `modBlock` with `RULES`) exist before loading templates.
 - Built-in presets load reliably in packaged Electron builds under `file://` by falling back to disk reads when `fetch()` is unavailable.
+- **Portal JSON round-trip:** preserve Portal-required `extraState` on structural blocks and subroutines so exports import cleanly in the official editor.
+- **Export correctness:** expanding collections during export now reassigns block IDs to avoid duplicate IDs.
 - **Performance polish:** reduced redundant toolbox refresh work after programmatic loads.
 - **Console noise reduction:** noisy informational logs during preset loads are now gated behind an opt-in debug flag (`localStorage.bf6_debug = "1"`).
 

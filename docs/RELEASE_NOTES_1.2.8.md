@@ -2,7 +2,7 @@
 
 ## Screenshot
 
-<img src="screenshots/editor.png" alt="BF6Portal Tool editor screenshot" width="1100" />
+<img src="screenshots/UI-overview.png" alt="BF6Portal Tool editor screenshot" width="1100" />
 
 ## Features & Improvements
 - **Refined Toolbox Structure:** The Blockly toolbox has been reorganized to better match the official Battlefield Portal Rules Editor layout.

@@ -22,7 +22,7 @@ Changelog: see `CHANGELOG.md`.
     - save your own presets, overwrite safely, delete user presets
 - **Import / Export:**
     - load `.json` (Blockly workspace JSON) and legacy `.xml`
-    - export Portal JSON (best-effort compatibility wrapper)
+    - export Portal JSON (best-effort compatibility; imports into the official Portal editor for supported templates)
     - TypeScript snapshot export + TypeScript import (round-trip the workspace state)
 - **Variables:** a dedicated VARIABLES toolbox category with:
     - “New / Manage Variables”
