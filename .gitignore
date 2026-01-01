@@ -48,3 +48,9 @@ web_ui/quotes.local.json
 
 # Local vendor tools (do not commit)
 tools/sysinternals/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
